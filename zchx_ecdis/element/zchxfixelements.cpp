@@ -156,7 +156,7 @@ void CDMAElement::drawElement(QPainter *painter)
     }
     {
         PainterPair chk(painter);
-        double angleFromNorth = m_data.cog + framework()->GetRotateAngle(); //计算当前正北方向的方向角
+        double angleFromNorth = m_data.cog + framework()->getRotateAngle(); //计算当前正北方向的方向角
         painter->translate(pos.x(), pos.y());
         painter->rotate(angleFromNorth);
         painter->translate(-pos.x(), -pos.y());
@@ -200,7 +200,7 @@ void BigDipperElement::drawElement(QPainter *painter)
     }
     {
         PainterPair chk(painter);
-        double angleFromNorth = m_data.cog + framework()->GetRotateAngle(); //计算当前正北方向的方向角
+        double angleFromNorth = m_data.cog + framework()->getRotateAngle(); //计算当前正北方向的方向角
         painter->translate(pos.x(), pos.y());
         painter->rotate(angleFromNorth);
         painter->translate(-pos.x(), -pos.y());

@@ -9,14 +9,12 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QSpacerItem>
-#include "zchxtilemapwidget.h"
 
 using namespace qt;
 //namespace qt {
-MainWindow::MainWindow(ZCHX_MAP_TYPE type, QWidget *parent) :
+MainWindow::MainWindow(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    mMapType(type),
     mMapWidget(0)
 {
     ui->setupUi(this);
@@ -32,13 +30,7 @@ MainWindow::MainWindow(ZCHX_MAP_TYPE type, QWidget *parent) :
     ui->load_frame->setVisible(false);
     ui->pos_frame->setVisible(false);
     ui->ctrl_frame->setVisible(false);
-    if(mMapType == ZCHX_MAP_TILE)
-    {
-        mMapWidget = new zchxTileMapWidget(this);
-    } else
-    {
-        mMapWidget = new zchxTileMapWidget(this);
-    }
+    mMapWidget = new zchxMapWidget(type, this);
     ui->ecdis_frame->layout()->addWidget(mMapWidget);
     connect(mMapWidget, SIGNAL(signalDisplayCurPos(double,double)), this, SLOT(slotUpdateCurrentPos(double,double)));
     connect(mMapWidget, SIGNAL(signalSendNewMap(double,double,int)), this, SLOT(slotDisplayMapCenterAndZoom(double,double,int)));

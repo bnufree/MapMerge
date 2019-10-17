@@ -25,7 +25,7 @@ GLWidget::GLWidget(QWidget *parent) :
 
 void GLWidget::initializeGL()
 {
-    glClearColor(0.0, 0.2, 0.3, 1.0);
+    glClearColor(0.8, 0.78, 0.5, 1.0);
     glShadeModel(GL_SMOOTH);
     glEnable(GL_DEPTH);
 }

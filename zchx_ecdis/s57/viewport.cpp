@@ -115,7 +115,6 @@ ViewPort::ViewPort()
     mViewScalePPM = 1;
     mRotation = 0.;
     mTilt = 0.;
-    mQuilt = false;
     mPixHeight = mPixWidth = 0;
     mMercatorProjectionOverride = false;
     mLat0Cache = NAN;

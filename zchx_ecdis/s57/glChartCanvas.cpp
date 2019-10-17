@@ -28,30 +28,6 @@
 
 #include "config.h"
 
-#if defined( __UNIX__ ) && !defined(__WXOSX__)  // high resolution stopwatch for profiling
-class OCPNStopWatch
-{
-public:
-    OCPNStopWatch() { Reset(); }
-    void Reset() { clock_gettime(CLOCK_REALTIME, &tp); }
-
-    double GetTime() {
-        timespec tp_end;
-        clock_gettime(CLOCK_REALTIME, &tp_end);
-        return (tp_end.tv_sec - tp.tv_sec) * 1.e3 + (tp_end.tv_nsec - tp.tv_nsec) / 1.e6;
-    }
-
-private:
-    timespec tp;
-};
-#endif
-
-
-//#if defined(__OCPN__ANDROID__)
-//#include "androidUTIL.h"
-//#elif defined(__WXQT__)
-//#include <GL/wglext.h>
-//#endif
 
 #include "dychart.h"
 
@@ -105,7 +81,6 @@ extern "C" void glOrthof(float left,  float right,  float bottom,  float top,  f
 
 #endif
 
-#include "cm93.h"                   // for chart outline draw
 #include "s57chart.h"               // for ArrayOfS57Obj
 #include "s52plib.h"
 #include "zchxmapmainwindow.h"
@@ -2777,49 +2752,9 @@ void glChartCanvas::RenderCharts(ocpnDC &dc, const OCPNRegion &rect_region)
     // we need to know this before rendering the chart so we can compute the background region
     // and nodta regions correctly.  I would prefer to just perform this here (or in SetViewPoint)
     // for all vector charts instead of in their render routine, but how to handle quilted cases?
-    if(!vp.quilt() && mFrameWork->m_singleChart->GetChartType() == CHART_TYPE_CM93COMP)
-    {
-//        static_cast<cm93compchart*>( mFrameWork->m_singleChart )->SetVPParms( vp );
-    }
         
     LLRegion chart_region;
-    if( !vp.quilt() && (mFrameWork->m_singleChart->GetChartType() == CHART_TYPE_PLUGIN) ){
-        if(mFrameWork->m_singleChart->GetChartFamily() == CHART_FAMILY_RASTER){
-            // We do this the hard way, since PlugIn Raster charts do not understand LLRegion yet...
-            double ll[8];
-            ChartPlugInWrapper *cpw = dynamic_cast<ChartPlugInWrapper*> ( mFrameWork->m_singleChart );
-            if( !cpw) return;
-            
-            cpw->chartpix_to_latlong(0,                     0,              ll+0, ll+1);
-            cpw->chartpix_to_latlong(0,                     cpw->GetSize_Y(), ll+2, ll+3);
-            cpw->chartpix_to_latlong(cpw->GetSize_X(),      cpw->GetSize_Y(), ll+4, ll+5);
-            cpw->chartpix_to_latlong(cpw->GetSize_X(),      0,              ll+6, ll+7);
-            
-            // for now don't allow raster charts to cross both 0 meridian and IDL (complicated to deal with)
-            for(int i=1; i<6; i+=2)
-                if(fabs(ll[i] - ll[i+2]) > 180) {
-                    // we detect crossing idl here, make all longitudes positive
-                    for(int i=1; i<8; i+=2)
-                        if(ll[i] < 0)
-                            ll[i] += 360;
-                    break;
-                }
-                
-            chart_region = LLRegion(4, ll);
-        }
-        else{
-            Extent ext;
-            mFrameWork->m_singleChart->GetChartExtent(&ext);
-            
-            double ll[8] = {ext.SLAT, ext.WLON,
-            ext.SLAT, ext.ELON,
-            ext.NLAT, ext.ELON,
-            ext.NLAT, ext.WLON};
-            chart_region = LLRegion(4, ll);
-        }
-    }
-    else
-        chart_region = vp.quilt() ? mFrameWork->m_pQuilt->GetFullQuiltRegion() : mFrameWork->m_singleChart->GetValidRegion();
+    chart_region = mFrameWork->m_pQuilt->GetFullQuiltRegion();
 
     bool world_view = false;
     for(OCPNRegionIterator upd ( rect_region ); upd.HaveRects(); upd.NextRect()) {
@@ -2834,23 +2769,7 @@ void glChartCanvas::RenderCharts(ocpnDC &dc, const OCPNRegion &rect_region)
         }
     }
 
-    if(vp.quilt())
-        RenderQuiltViewGL( vp, rect_region );
-    else {
-        LLRegion region = vp.GetLLRegion(rect_region);
-        if( mFrameWork->m_singleChart->GetChartFamily() == CHART_FAMILY_RASTER ){
-            if(mFrameWork->m_singleChart->GetChartType() == CHART_TYPE_MBTILES)
-                mFrameWork->m_singleChart->RenderRegionViewOnGL(m_pcontext, vp, rect_region, region );
-            else
-                RenderRasterChartRegionGL( mFrameWork->m_singleChart, vp, region );
-        }
-        else if( mFrameWork->m_singleChart->GetChartFamily() == CHART_FAMILY_VECTOR ) {
-            chart_region.Intersect(region);
-            RenderNoDTA(vp, chart_region);
-            mFrameWork->m_singleChart->RenderRegionViewOnGL(m_pcontext, vp, rect_region, region );
-        } 
-    }
-        
+    RenderQuiltViewGL( vp, rect_region );
 }
 
 void glChartCanvas::RenderNoDTA(ViewPort &vp, const LLRegion &region, int transparency)
@@ -3012,14 +2931,7 @@ void glChartCanvas::RenderAllChartOutlines(ocpnDC &dc, ViewPort &vp)
 int n_render;
 void glChartCanvas::Render()
 {
-    if( !m_bsetup ||
-        ( mFrameWork->mViewPoint.quilt() && !mFrameWork->m_pQuilt->IsComposed() ) ||
-        ( !mFrameWork->mViewPoint.quilt() && !mFrameWork->m_singleChart ) ) {
-#ifdef __WXGTK__  // for some reason in gtk, a swap is needed here to get an initial screen update
-            SwapBuffers();
-#endif
-            return;
-        }
+    if( !m_bsetup || !mFrameWork->m_pQuilt->IsComposed() ) return;
 
     m_last_render_time = QDateTime::currentDateTime().toTime_t();
 
@@ -3086,8 +2998,8 @@ void glChartCanvas::Render()
     //  If we plan to post process the display, don't use accelerated panning
     double scale_factor = VPoint.refScale()/VPoint.chartScale();
     
-    m_bfogit = m_benableFog && g_fog_overzoom && (scale_factor > g_overzoom_emphasis_base) && VPoint.quilt();
-    bool scale_it  =  m_benableVScale && g_oz_vector_scale && (scale_factor > g_overzoom_emphasis_base) && VPoint.quilt();
+    m_bfogit = m_benableFog && g_fog_overzoom && (scale_factor > g_overzoom_emphasis_base);
+    bool scale_it  =  m_benableVScale && g_oz_vector_scale && (scale_factor > g_overzoom_emphasis_base);
     
     bool bpost_hilite = !mFrameWork->m_pQuilt->GetHiliteRegion( ).Empty();
     bool useFBO = false;
@@ -3120,7 +3032,7 @@ void glChartCanvas::Render()
         if( b_newview ) {
 
             bool busy = false;
-            if(VPoint.quilt() && mFrameWork->m_pQuilt->IsQuiltVector() &&
+            if(mFrameWork->m_pQuilt->IsQuiltVector() &&
                 ( m_cache_vp.viewScalePPM() != VPoint.viewScalePPM() || m_cache_vp.rotation() != VPoint.rotation()))
             {
                     OCPNPlatform::instance()->ShowBusySpinner();
@@ -3364,34 +3276,31 @@ void glChartCanvas::Render()
         m_cache_vp = VPoint;
         m_cache_current_ch = mFrameWork->m_singleChart;
 
-        if(VPoint.quilt())
-            mFrameWork->m_pQuilt->SetRenderedVP( VPoint );
+        mFrameWork->m_pQuilt->SetRenderedVP( VPoint );
         
     } else          // useFBO
         RenderCharts(gldc, screen_region);
 
-       //  Render the decluttered Text overlay for quilted vector charts, except for CM93 Composite
-    if( VPoint.quilt() ) {
-        if(mFrameWork->m_pQuilt->IsQuiltVector() && ps52plib && ps52plib->GetShowS57Text()){
+    //  Render the decluttered Text overlay for quilted vector charts, except for CM93 Composite
+    if(mFrameWork->m_pQuilt->IsQuiltVector() && ps52plib && ps52plib->GetShowS57Text()){
 
-            ChartBase *chart = mFrameWork->m_pQuilt->GetRefChart();
-            if(chart && (chart->GetChartType() != CHART_TYPE_CM93COMP)){
-                //        Clear the text Global declutter list
-                if(chart){
-                    ChartPlugInWrapper *ChPI = dynamic_cast<ChartPlugInWrapper*>( chart );
-                    if(ChPI)
-                        ChPI->ClearPLIBTextList();
-                    else
-                        ps52plib->ClearTextList();
-                }
-                
-                // Grow the ViewPort a bit laterally, to minimize "jumping" of text elements at left side of screen
-                ViewPort vpx = VPoint;
-                vpx.BuildExpandedVP(VPoint.pixWidth() * 12 / 10, VPoint.pixHeight());
-                
-                OCPNRegion screen_region(QRect(0, 0, VPoint.pixWidth(), VPoint.pixHeight()));
-                RenderQuiltViewGLText( vpx, screen_region );
+        ChartBase *chart = mFrameWork->m_pQuilt->GetRefChart();
+        if(chart && (chart->GetChartType() != CHART_TYPE_CM93COMP)){
+            //        Clear the text Global declutter list
+            if(chart){
+                ChartPlugInWrapper *ChPI = dynamic_cast<ChartPlugInWrapper*>( chart );
+                if(ChPI)
+                    ChPI->ClearPLIBTextList();
+                else
+                    ps52plib->ClearTextList();
             }
+
+            // Grow the ViewPort a bit laterally, to minimize "jumping" of text elements at left side of screen
+            ViewPort vpx = VPoint;
+            vpx.BuildExpandedVP(VPoint.pixWidth() * 12 / 10, VPoint.pixHeight());
+
+            OCPNRegion screen_region(QRect(0, 0, VPoint.pixWidth(), VPoint.pixHeight()));
+            RenderQuiltViewGLText( vpx, screen_region );
         }
     }
 
@@ -3402,7 +3311,7 @@ void glChartCanvas::Render()
     unsigned int im = stackIndexArray.size();
     // XXX should
     // assert(!VPoint.quilt() && im == 0)
-    if( VPoint.quilt() && im > 0 ) {
+    if( im > 0 ) {
         bool regionVPBuilt = false;
         OCPNRegion screen_region;
         LLRegion screenLLRegion;
@@ -3962,33 +3871,22 @@ void glChartCanvas::ToggleChartOutlines()
 emboss_data *glChartCanvas::EmbossOverzoomIndicator( ocpnDC &dc )
 {
     double zoom_factor = mFrameWork->GetVP().refScale() / mFrameWork->GetVP().chartScale();
-
-    if( mFrameWork->GetQuiltMode() ) {
-
-        // disable Overzoom indicator for MBTiles
-        int refIndex = mFrameWork->GetQuiltRefChartdbIndex();
-        if(refIndex >= 0){
-            const ChartTableEntry &cte = ChartData->GetChartTableEntry( refIndex );
-            ChartTypeEnum current_type = (ChartTypeEnum) cte.GetChartType();
-            if( current_type == CHART_TYPE_MBTILES){
-                ChartBase *pChart = mFrameWork->m_pQuilt->GetRefChart();
-                ChartMBTiles *ptc = dynamic_cast<ChartMBTiles *>( pChart );
-                if(ptc){
-                    zoom_factor = ptc->GetZoomFactor();
-                }
+    // disable Overzoom indicator for MBTiles
+    int refIndex = mFrameWork->GetQuiltRefChartdbIndex();
+    if(refIndex >= 0){
+        const ChartTableEntry &cte = ChartData->GetChartTableEntry( refIndex );
+        ChartTypeEnum current_type = (ChartTypeEnum) cte.GetChartType();
+        if( current_type == CHART_TYPE_MBTILES){
+            ChartBase *pChart = mFrameWork->m_pQuilt->GetRefChart();
+            ChartMBTiles *ptc = dynamic_cast<ChartMBTiles *>( pChart );
+            if(ptc){
+                zoom_factor = ptc->GetZoomFactor();
             }
         }
-
-        if( zoom_factor <= 3.9 )
-            return NULL;
-    } else {
-        if( mFrameWork->m_singleChart ) {
-            if( zoom_factor <= 3.9 )
-                return NULL;
-        }
-        else
-            return NULL;
     }
+
+    if( zoom_factor <= 3.9 )
+        return NULL;
 
     if(m_pEM_OverZoom){
         m_pEM_OverZoom->x = 4;
@@ -4001,25 +3899,14 @@ emboss_data *glChartCanvas::EmbossDepthScale()
 {
     if( !m_bShowDepthUnits ) return NULL;
     int depth_unit_type = DEPTH_UNIT_UNKNOWN;
-
-    if( mFrameWork->GetQuiltMode() ) {
-        QString s = mFrameWork->m_pQuilt->GetQuiltDepthUnit();
-        s.toUpper();
-        if( s == ("FEET") ) depth_unit_type = DEPTH_UNIT_FEET;
-        else if( s.startsWith( ("FATHOMS") ) ) depth_unit_type = DEPTH_UNIT_FATHOMS;
-        else if( s.startsWith( ("METERS") ) ) depth_unit_type = DEPTH_UNIT_METERS;
-        else if( s.startsWith( ("METRES") ) ) depth_unit_type = DEPTH_UNIT_METERS;
-        else if( s.startsWith( ("METRIC") ) ) depth_unit_type = DEPTH_UNIT_METERS;
-        else if( s.startsWith( ("METER") ) ) depth_unit_type = DEPTH_UNIT_METERS;
-
-    } else {
-        if( mFrameWork->m_singleChart ) {
-            depth_unit_type = mFrameWork->m_singleChart->GetDepthUnitType();
-            if( mFrameWork->m_singleChart->GetChartFamily() == CHART_FAMILY_VECTOR )
-                depth_unit_type = ps52plib->m_nDepthUnitDisplay + 1;
-        }
-    }
-
+    QString s = mFrameWork->m_pQuilt->GetQuiltDepthUnit();
+    s.toUpper();
+    if( s == ("FEET") ) depth_unit_type = DEPTH_UNIT_FEET;
+    else if( s.startsWith( ("FATHOMS") ) ) depth_unit_type = DEPTH_UNIT_FATHOMS;
+    else if( s.startsWith( ("METERS") ) ) depth_unit_type = DEPTH_UNIT_METERS;
+    else if( s.startsWith( ("METRES") ) ) depth_unit_type = DEPTH_UNIT_METERS;
+    else if( s.startsWith( ("METRIC") ) ) depth_unit_type = DEPTH_UNIT_METERS;
+    else if( s.startsWith( ("METER") ) ) depth_unit_type = DEPTH_UNIT_METERS;
     emboss_data *ped = NULL;
     switch( depth_unit_type ) {
     case DEPTH_UNIT_FEET:
@@ -4410,9 +4297,6 @@ void glChartCanvas::ApplyCanvasConfig(canvasConfig *pcc)
     else
         mFrameWork->m_groupIndex = pcc->GroupID;
 
-    if( pcc->bQuilt != mFrameWork->GetQuiltMode() )
-        mFrameWork->ToggleCanvasQuiltMode();
-
     SetShowDepthUnits( pcc->bShowDepthUnits );
     SetShowGrid( pcc->bShowGrid );
     SetShowOutlines( pcc->bShowOutlines );
@@ -4517,18 +4401,10 @@ void glChartCanvas::UpdateCanvasS52PLIBConfig()
 {
     if(!ps52plib) return;
 
-    if( mFrameWork->mViewPoint.quilt() ){          // quilted
-        if( !mFrameWork->m_pQuilt->IsComposed() )
-            return;  // not ready
+    if( !mFrameWork->m_pQuilt->IsComposed() )
+        return;  // not ready
 
-        if(mFrameWork->m_pQuilt->IsQuiltVector()){
-            if(ps52plib->GetStateHash() != m_s52StateHash){
-                UpdateS52State();
-                m_s52StateHash = ps52plib->GetStateHash();
-            }
-        }
-    }
-    else{
+    if(mFrameWork->m_pQuilt->IsQuiltVector()){
         if(ps52plib->GetStateHash() != m_s52StateHash){
             UpdateS52State();
             m_s52StateHash = ps52plib->GetStateHash();
@@ -4822,15 +4698,7 @@ void glChartCanvas::setCurLL(double lat, double lon)
     mFrameWork->GetCanvasPixPoint(mouse_x, mouse_y, lat, lon);
 }
 
-bool glChartCanvas::GetQuiltMode()
-{
-    return mFrameWork->GetQuiltMode();
-}
 
-void glChartCanvas::ToggleCanvasQuiltMode()
-{
-    mFrameWork->ToggleCanvasQuiltMode();
-}
 
 double glChartCanvas::GetPixPerMM()
 {

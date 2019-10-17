@@ -102,6 +102,11 @@ namespace ZCHX {
 //      TILE_LOCAL_HTTP,
 
 //  };
+  enum ZCHX_MAP_TYPE
+  {
+      ZCHX_MAP_TILE = 0,              //瓦片地图
+      ZCHX_MAP_VECTOR,                //矢量地图
+  };
 
 namespace Data{
 struct Mercator{

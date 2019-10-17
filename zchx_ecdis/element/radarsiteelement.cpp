@@ -26,7 +26,7 @@ void RadarSiteElement::drawElement(QPainter *painter)
     if(!isDrawAvailable(painter)) return;
     if(mParent) return; //当前目标悬挂在其他图元上不显示
     //开始显示
-    int curScale = this->framework()->GetDrawScale();
+    int curScale = this->framework()->getDrawScale();
     QPointF pos = this->framework()->LatLon2Pixel(data().getLat(), data().getLon()).toPointF();
     QPixmap image = ZCHX::Utils::getImage(":/sdasid/bak/XlzVo.png", Qt::black, curScale);;
 

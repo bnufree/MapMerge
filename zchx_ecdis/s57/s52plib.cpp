@@ -1769,7 +1769,7 @@ bool s52plib::RenderText(S52_TextC *ptext, int x, int y, QRect *pRectDrawn,
     double sfactor = vp->refScale()/vp->chartScale();
     double scale_factor = qMax((sfactor - g_overzoom_emphasis_base)  / 4., 1.);
     
-    if(!g_oz_vector_scale || !vp->quilt())
+    if(!g_oz_vector_scale)
         scale_factor = 1.0;
     
     //  Place an upper bound on the scaled text size
@@ -2564,7 +2564,7 @@ bool s52plib::RenderRasterSymbol( ObjRazRules *rzRules, Rule *prule, zchxPoint &
     scale_factor *=  g_ChartScaleFactorExp;
     scale_factor *= g_scaminScale;
     
-    if(g_oz_vector_scale && vp->quilt()){
+    if(g_oz_vector_scale){
         double sfactor = vp->refScale()/vp->chartScale();
         scale_factor = fmax((sfactor - g_overzoom_emphasis_base)  / 4., scale_factor);
         scale_factor = fmin(scale_factor, 20);
@@ -3124,7 +3124,7 @@ int s52plib::RenderLS( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 
     double scale_factor = vp->refScale()/vp->chartScale();
     double scaled_line_width = fmax((scale_factor - g_overzoom_emphasis_base), 1);
-    bool b_wide_line = g_oz_vector_scale && vp->quilt() && (scale_factor > g_overzoom_emphasis_base);
+    bool b_wide_line = g_oz_vector_scale && (scale_factor > g_overzoom_emphasis_base);
     
     QPen wide_pen(Qt::black);
     QVector<qreal> dashw(2);
@@ -3279,7 +3279,7 @@ int s52plib::RenderLSLegacy( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 
     double scale_factor = vp->refScale()/vp->chartScale();
     double scaled_line_width = fmax((scale_factor - g_overzoom_emphasis_base), 1);
-    bool b_wide_line = g_oz_vector_scale && vp->quilt() && (scale_factor > g_overzoom_emphasis_base);
+    bool b_wide_line = g_oz_vector_scale && (scale_factor > g_overzoom_emphasis_base);
     
     QPen wide_pen(Qt::black);
     QVector<qreal> dashw(2);
@@ -3475,7 +3475,7 @@ int s52plib::RenderLSPlugIn( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
     
     double scale_factor = vp->refScale()/vp->chartScale();
     double scaled_line_width = fmax((scale_factor - g_overzoom_emphasis_base), 1);
-    bool b_wide_line = g_oz_vector_scale && vp->quilt() && (scale_factor > g_overzoom_emphasis_base);
+    bool b_wide_line = g_oz_vector_scale && (scale_factor > g_overzoom_emphasis_base);
     
     QPen wide_pen(Qt::black);
     QVector<qreal> dashw(2);

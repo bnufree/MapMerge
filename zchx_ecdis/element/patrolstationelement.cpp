@@ -39,7 +39,7 @@ void PastrolStationElement::drawElement(QPainter *painter)
     }
     if(!painter || !MapLayerMgr::instance()->isLayerVisible(layer_name)) return;
 
-    int curScale = mView->framework()->GetDrawScale();
+    int curScale = mView->framework()->getDrawScale();
     QPixmap img = ZCHX::Utils::getImage(img_name, Qt::green, curScale);
     ZCHX::Data::Point2D pos = mView->framework()->LatLon2Pixel(data().ll.lat,data().ll.lon);
     QRect rect(pos.x - img.width() / 2, pos.y - img.height() / 2, img.width(), img.height());

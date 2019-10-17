@@ -64,7 +64,7 @@ void RodElement::drawElement(QPainter *painter)
 {
     if(!isDrawAvailable(painter)) return;
     /*绘制图片元素*/
-    int curScale = mView->framework()->GetDrawScale();
+    int curScale = mView->framework()->getDrawScale();
     QPixmap cameraRadImg        = ZCHX::Utils::getImage(":/element/gan_normal.png", Qt::green, curScale);
     QPixmap cameraRodWarringImg = ZCHX::Utils::getImage(":/element/gan_bug.png", Qt::yellow, curScale);
     QPixmap cameraRodErrImg     = ZCHX::Utils::getImage(":/element/gan_error.png", Qt::red, curScale);

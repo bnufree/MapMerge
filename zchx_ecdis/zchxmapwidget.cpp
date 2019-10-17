@@ -1,5 +1,5 @@
 ﻿#include "zchxmapwidget.h"
-#include "zchxmapframe.h"
+#include "zchxtilemapframework.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include "data_manager/zchxdatamgrfactory.h"
 #include "draw_manager/zchxdrawtoolutil.h"
@@ -14,7 +14,7 @@
 //#define     DEFAULT_LAT         22.216150
 //#define     DEFAULT_ZOOM        13
 using namespace qt;
-zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
+zchxMapWidget::zchxMapWidget(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) : QGLWidget(parent),
     m_eTool(DRAWNULL),
     mLastWheelTime(0),
     mCurrentSelectElement(0),
@@ -52,7 +52,13 @@ zchxMapWidget::zchxMapWidget(QWidget *parent) : QWidget(parent),
     int zoom = Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_ZOOM).toInt();
     int min_zoom = Profiles::instance()->value(MAP_INDEX, MAP_MIN_ZOOM).toInt();
     int max_zoom = Profiles::instance()->value(MAP_INDEX, MAP_MAX_ZOOM).toInt();
-    mFrameWork = new zchxMapFrameWork(lat, lon, zoom, width(), height(), source, pos, min_zoom, max_zoom);
+    if(type == ZCHX::ZCHX_MAP_TILE)
+    {
+        mFrameWork = new zchxTileMapFrameWork(lat, lon, zoom, width(), height(), source, pos, min_zoom, max_zoom);
+    } else
+    {
+        mFrameWork = new zchxTileMapFrameWork(lat, lon, zoom, width(), height(), source, pos, min_zoom, max_zoom);
+    }
     //地图状态初始化
     releaseDrawStatus();
     //
@@ -88,34 +94,25 @@ void zchxMapWidget::setImgNumberVisible(bool sts)
 }
 
 
-void zchxMapWidget::resizeEvent(QResizeEvent* e)
-{
-    QWidget::resizeEvent(e);
-    QSize size = e->size();
-    if(size.width() > 0 && size.height() > 0)
-    {
-        if(mFrameWork)
-        {
-            //重新更新地图显示的大小
-            mFrameWork->SetViewSize(size.width(), size.height());
-        }
-    }
 
-    mZoomLbl->setGeometry(10, 10, 100, 60);
+void zchxMapWidget::initializeGL()
+{
+    glClearColor(0.8, 0.78, 0.5, 1.0);
+    glShadeModel(GL_SMOOTH);
+    glEnable(GL_DEPTH);
 }
 
-//void zchxMapWidget::initializeGL()
-//{
-//    QGLWidget::initializeGL();
-//}
-
-
-void zchxMapWidget::paintEvent(QPaintEvent* e)
+#if 0
+void zchxMapWidget::paintGL()
 {
-    if(!mFrameWork) return;
+    qDebug()<<"!!!!!!!!!!!";
     QPainter painter(this);
     painter.beginNativePainting();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glPushMatrix();
+    glPopMatrix();
     painter.endNativePainting();
+    if(!mFrameWork) return;
     painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform, true);
     //显示地图
     mFrameWork->updateEcdis(&painter, mDisplayImageNum);
@@ -135,6 +132,89 @@ void zchxMapWidget::paintEvent(QPaintEvent* e)
     mZoomLbl->setText(QString("zoom:%1").arg(mFrameWork->Zoom()));
     updateCurrentPos(this->mapFromGlobal(QCursor::pos()));
 }
+#endif
+
+void zchxMapWidget::resizeGL(int w, int h)
+{
+    int side = qMin(w, h);
+    glViewport((width() - side) / 2, (height() - side) / 2, side, side);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glFrustum(-1.2, 1.2, -1.2, 1.2, 5.0, 60.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glTranslatef(0.0, 0.0, -40.0);
+    if(mFrameWork)
+    {
+        //重新更新地图显示的大小
+        mFrameWork->setViewSize(w, h);
+    }
+    mZoomLbl->setGeometry(10, 10, 100, 60);
+}
+
+#if 1
+void zchxMapWidget::paintEvent(QPaintEvent* e)
+{
+    if(!mFrameWork) return;
+    QPainter painter(this);
+    QString color_name = Profiles::instance()->value(MAP_INDEX, MAP_BACK_GROUND).toString();
+//    painter.fillRect(this->rect(), QColor(color_name));
+    painter.beginNativePainting();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glPushMatrix();
+    glPopMatrix();
+    painter.endNativePainting();
+    painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform, true);
+    //显示地图
+    if(mFrameWork->getType() == ZCHX::ZCHX_MAP_TILE)
+    {
+        zchxTileMapFrameWork* frame = qobject_cast<zchxTileMapFrameWork*>(mFrameWork);
+        if(frame)
+        {
+            frame->setPainter(&painter);
+            frame->setDisplayImgNumber(mDisplayImageNum);
+        }
+    }
+    mFrameWork->update();
+    //显示图元
+    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
+        mgr->show(&painter);
+    }
+    MapLayerMgr::instance()->show(&painter);
+    //显示用户的鼠标操作
+    if(mToolPtr) mToolPtr->show(&painter);
+
+//    //显示当前的中心点
+//    Point2D pnt = mFrameWork->LatLon2Pixel(mCenter);
+//    //qDebug()<<pnt.x<<pnt.y;
+//    painter.setBrush(QBrush(Qt::red));
+//    painter.drawEllipse(pnt.x, pnt.y, 5, 5);
+    mZoomLbl->setText(QString("zoom:%1").arg(mFrameWork->getZoom()));
+    updateCurrentPos(this->mapFromGlobal(QCursor::pos()));
+}
+
+#endif
+
+#if 0
+
+void zchxMapWidget::resizeEvent(QResizeEvent* e)
+{
+    QWidget::resizeEvent(e);
+    QSize size = e->size();
+    if(size.width() > 0 && size.height() > 0)
+    {
+        if(mFrameWork)
+        {
+            //重新更新地图显示的大小
+            mFrameWork->SetViewSize(size.width(), size.height());
+        }
+    }
+
+    mZoomLbl->setGeometry(10, 10, 100, 60);
+}
+
+# endif
 
 bool zchxMapWidget::IsLeftButton(Qt::MouseButtons buttons)
 {
@@ -763,7 +843,7 @@ void zchxMapWidget::mouseReleaseEvent(QMouseEvent *e)
             //mDx = 0;
             //mDy = 0;
             QPoint pnt = e->pos();
-            if(mFrameWork) mFrameWork->Drag(mPressPnt.x()- pnt.x(), mPressPnt.y() - pnt.y());
+            if(mFrameWork) mFrameWork->pan(mPressPnt.x()- pnt.x(), mPressPnt.y() - pnt.y());
 
         }
     }
@@ -784,7 +864,7 @@ void zchxMapWidget::mouseDoubleClickEvent(QMouseEvent *e)
         setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TARGET);
         setActiveDrawElement(e->pos(), true);
         //地图移动到当前点作为中心点
-        mFrameWork->UpdateCenter(ZCHX::Data::Point2D(e->pos()));
+        mFrameWork->setCenter(ZCHX::Data::Point2D(e->pos()));
     }
     e->accept();
 }
@@ -877,23 +957,23 @@ void zchxMapWidget::autoChangeCurrentStyle()
 
 void zchxMapWidget::setCurZoom(int zoom)
 {
-    if(mFrameWork) mFrameWork->SetZoom(zoom);
+    if(mFrameWork) mFrameWork->setZoom(zoom);
 }
 
 
 int  zchxMapWidget::zoom() const
 {
     if(!mFrameWork) return 0;
-    return mFrameWork->Zoom();
+    return mFrameWork->getZoom();
 }
 void zchxMapWidget::setCenterLL(const ZCHX::Data::LatLon& pnt )
 {
-    if(mFrameWork) mFrameWork->UpdateCenter(pnt);
+    if(mFrameWork) mFrameWork->setCenter(pnt);
 }
 
 void zchxMapWidget::setCenterAndZoom(const ZCHX::Data::LatLon &ll, int zoom)
 {
-    if(mFrameWork) mFrameWork->UpdateCenterAndZoom(ll, zoom);
+    if(mFrameWork) mFrameWork->setCenterAndZoom(ll, zoom);
 }
 
 void zchxMapWidget::setCenterAtTargetLL(double lat, double lon)
@@ -904,23 +984,23 @@ void zchxMapWidget::setCenterAtTargetLL(double lat, double lon)
 
 ZCHX::Data::LatLon zchxMapWidget::centerLatLon() const
 {
-    if(mFrameWork) return mFrameWork->Center();
+    if(mFrameWork) return mFrameWork->getCenter();
     return ZCHX::Data::LatLon();
 }
 
 void zchxMapWidget::wheelEvent(QWheelEvent *e)
 {
-    //qDebug()<<__FUNCTION__<<__LINE__<<e->delta()<<e->angleDelta().x()<<e->angleDelta().y()<<e->phase();
+//    qDebug()<<__FUNCTION__<<__LINE__<<e->delta()<<e->angleDelta().x()<<e->angleDelta().y()<<e->phase();
     if(QDateTime::currentMSecsSinceEpoch() - mLastWheelTime >= 1* 1000)
     {
         if(e->delta() > 0)
         {
             //放大
-            if(mFrameWork) mFrameWork->ZoomIn();
+            if(mFrameWork) mFrameWork->zoomIn();
         } else
         {
             //缩小
-            if(mFrameWork) mFrameWork->ZoomOut();
+            if(mFrameWork) mFrameWork->zoomOut();
         }
         mLastWheelTime = QDateTime::currentMSecsSinceEpoch();
     }
@@ -929,7 +1009,7 @@ void zchxMapWidget::wheelEvent(QWheelEvent *e)
 
 void zchxMapWidget::setSource(const QString& source, int pos)
 {
-    if(mFrameWork) mFrameWork->SetSource(source, pos);
+    if(mFrameWork) mFrameWork->setSource(source, pos);
 }
 
 void zchxMapWidget::setScaleControl(QScaleSlider * pScale)
@@ -939,26 +1019,26 @@ void zchxMapWidget::setScaleControl(QScaleSlider * pScale)
 
 void zchxMapWidget::setMapStyle(MapStyle mapStyle)
 {
-    if(mFrameWork) mFrameWork->SetMapStyle(mapStyle);
+    if(mFrameWork) mFrameWork->setMapStyle(mapStyle);
 }
 
 double zchxMapWidget::zchxUtilToolAngle4north()
 {
-    if(mFrameWork) return mFrameWork->GetRotateAngle();
+    if(mFrameWork) return mFrameWork->getRotateAngle();
     return 0.0;
 }
 
 void   zchxMapWidget::zchxUtilToolSetAngle4north(double ang)
 {
-    if(mFrameWork) mFrameWork->SetRotateAngle(ang);
+    if(mFrameWork) mFrameWork->setRotateAngle(ang);
 }
 
 void zchxMapWidget::setMapRotateAtLL(double lat, double lon, double ang)
 {
     if(mFrameWork)
     {
-        mFrameWork->UpdateCenter(lon, lat);
-        mFrameWork->SetRotateAngle(ang);
+        mFrameWork->setCenter(lon, lat);
+        mFrameWork->setRotateAngle(ang);
     }
 }
 
@@ -966,8 +1046,8 @@ void zchxMapWidget::resetMapRotate(double lat, double lon)
 {
     if(mFrameWork)
     {
-        mFrameWork->UpdateCenter(lon, lat);
-        mFrameWork->SetRotateAngle(0);
+        mFrameWork->setCenter(lon, lat);
+        mFrameWork->setRotateAngle(0);
     }
 }
 
@@ -1051,17 +1131,17 @@ void zchxMapWidget::zchxUtilToolGetDis4Point(QPointF star, QPointF end, double &
 
 uint zchxMapWidget::zchxUtilToolCurZoom()
 {
-    return mFrameWork->Zoom();
+    return mFrameWork->getZoom();
 }
 
 void zchxMapWidget::zchxSetMapMinScale(int minVisibleZoom)
 {
-    if(mFrameWork)mFrameWork->SetMinZoom(minVisibleZoom);
+    if(mFrameWork)mFrameWork->setMinZoom(minVisibleZoom);
 }
 
 void zchxMapWidget::zchxSetMapMaxScale(int maxVisibleZoom)
 {
-    if(mFrameWork) mFrameWork->SetMaxZoom(maxVisibleZoom);
+    if(mFrameWork) mFrameWork->setMaxZoom(maxVisibleZoom);
 }
 
 ZCHX::Data::ECDIS_PLUGIN_USE_MODEL zchxMapWidget::curUserModel() const
@@ -1162,18 +1242,18 @@ void zchxMapWidget::setFleet(const QMap<QString, ZCHX::Data::ITF_Fleet> &fleetMa
 
 void zchxMapWidget::ScalePlus()
 {
-    if(mFrameWork) mFrameWork->ZoomIn();
+    if(mFrameWork) mFrameWork->zoomIn();
 }
 
 void zchxMapWidget::ScaleMinus()
 {
-    if(mFrameWork) mFrameWork->ZoomOut();
+    if(mFrameWork) mFrameWork->zoomOut();
 }
 
 void zchxMapWidget::ShowAll()
 {
     //设置地图的最小模式
-    if(mFrameWork) mFrameWork->Zoom2Min();
+    if(mFrameWork) mFrameWork->zoom2Min();
 }
 
 //地图工作模式

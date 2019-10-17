@@ -71,7 +71,7 @@ void RadarVideoGlowElement::drawElement(QPainter *painter)
         QRectF objRect(0, 0, dWidth, dHeight);
         objRect.moveCenter(centerPos);
         //绘制回波图片
-        double angleFromNorth = mView->framework()->GetRotateAngle(); //计算当前正北方向的方向角
+        double angleFromNorth = mView->framework()->getRotateAngle(); //计算当前正北方向的方向角
         PainterPair chk(painter);
         double translateX = objRect.x() + objRect.width()/2.0;
         double translateY = objRect.y() + objRect.height()/2.0;

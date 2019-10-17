@@ -347,7 +347,7 @@ std::shared_ptr<Element> Element::parent()
 void Element::drawSpeedDirectionLine(QPainter *painter, QPointF pos, qreal sog, qreal cog, qreal rot)
 {
     if(!painter || !mView || !mView->framework()) return;
-    double angleFromNorth = mView->framework()->GetRotateAngle(); //计算当前正北方向的方向角
+    double angleFromNorth = mView->framework()->getRotateAngle(); //计算当前正北方向的方向角
     qreal sideLen = getDrawScaleSize();
 
     PainterPair chk(painter);
@@ -437,7 +437,7 @@ void Element::setGeometryChanged(bool geometryChanged)
 int Element::getDrawScaleSize() const
 {
     if(!mView || !mView->framework()) return 10;
-    int curScale = mView->framework()->Zoom() < 7 ? 5 : 10;
+    int curScale = mView->framework()->getZoom() < 7 ? 5 : 10;
     return curScale;
 }
 

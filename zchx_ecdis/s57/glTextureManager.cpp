@@ -1187,23 +1187,12 @@ bool glTextureManager::TextureCrunch(double factor)
         
         bGLMemCrunch = g_tex_mem_used > (double)(g_GLOptions.m_iTextureMemorySize * 1024 * 1024) * factor *hysteresis;
         if(!bGLMemCrunch) break;
-            if(gChartFrameWork){
-                if( gChartFrameWork->GetVP().quilt() )          // quilted
-                {
-                        if( gChartFrameWork->m_pQuilt->IsComposed() &&
-                            !gChartFrameWork->m_pQuilt->IsChartInQuilt( chart_full_path ) ) {
-                            ptf->DeleteSomeTextures( g_GLOptions.m_iTextureMemorySize * 1024 * 1024 * factor *hysteresis);
-                            }
-                }
-                else      // not quilted
-                {
-                    if(gChartFrameWork->m_singleChart->GetFullPath() != chart_full_path)
-                    {
-                        ptf->DeleteSomeTextures( g_GLOptions.m_iTextureMemorySize * 1024 * 1024 * factor  *hysteresis);
-                    }
-                }
+        if(gChartFrameWork){
+            if( gChartFrameWork->m_pQuilt->IsComposed() &&
+                    !gChartFrameWork->m_pQuilt->IsChartInQuilt( chart_full_path ) ) {
+                ptf->DeleteSomeTextures( g_GLOptions.m_iTextureMemorySize * 1024 * 1024 * factor *hysteresis);
             }
-//        }
+        }
     }
     
     return true;
@@ -1240,29 +1229,18 @@ bool glTextureManager::FactoryCrunch(double factor)
         if(!ptf)
             continue;
         QString chart_full_path = ptf->GetChartPath();
-            if(gChartFrameWork){
+        if(gChartFrameWork){
+
+            if( gChartFrameWork->m_pQuilt->IsComposed() &&
+                    !gChartFrameWork->m_pQuilt->IsChartInQuilt( chart_full_path ) ) {
                 
-                if( gChartFrameWork->GetVP().quilt())          // quilted
-                {
-                    if( gChartFrameWork->m_pQuilt->IsComposed() &&
-                        !gChartFrameWork->m_pQuilt->IsChartInQuilt( chart_full_path ) ) {
-                
-                        int lru = ptf->GetLRUTime();
-                        if(lru < lru_oldest && !ptf->BackgroundCompressionAsJob()){
-                            lru_oldest = lru;
-                            ptf_oldest = ptf;
-                        }
-                    }
-                } else {
-                    if( gChartFrameWork->m_singleChart->GetFullPath() != chart_full_path) {
-                        int lru = ptf->GetLRUTime();
-                        if(lru < lru_oldest && !ptf->BackgroundCompressionAsJob()){
-                            lru_oldest = lru;
-                            ptf_oldest = ptf;
-                        }
-                    }
+                int lru = ptf->GetLRUTime();
+                if(lru < lru_oldest && !ptf->BackgroundCompressionAsJob()){
+                    lru_oldest = lru;
+                    ptf_oldest = ptf;
                 }
             }
+        }
     }
                     
     //      Found one?

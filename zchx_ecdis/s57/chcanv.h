@@ -125,8 +125,6 @@ public slots:
 //      wxBitmap &GetTideBitmap(){ return m_cTideBitmap; }
       
       void UnlockQuilt();
-      void SetQuiltMode(bool b_quilt);
-      bool GetQuiltMode(void);
       std::vector<int> GetQuiltIndexArray(void);
       bool IsQuiltDelta(void);
       void SetQuiltChartHiLiteIndex(int dbIndex);
@@ -208,7 +206,6 @@ public:
       void SelectChartFromStack(int index,  bool bDir = false,  ChartTypeEnum New_Type = CHART_TYPE_DONTCARE, ChartFamilyEnum New_Family = CHART_FAMILY_DONTCARE);
       void SelectdbChart( int dbindex );
       void DoCanvasStackDelta( int direction );
-      void ToggleCanvasQuiltMode( void );
       QString GetScaleText(){ return m_scaleText; }
       int GetScaleValue(){ return m_scaleValue; }
 

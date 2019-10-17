@@ -26,7 +26,7 @@ void WarningZoneElement::drawElement(QPainter *painter)
     //闭合图形
     polygon.append(polygon.first());
     PainterPair chk(painter);
-    MapStyle colorType = this->framework()->GetMapStyle();
+    MapStyle colorType = this->framework()->getMapStyle();
     if(colorType == MapStyleEcdisNight || colorType == MapStyleEcdisDayDUSK)
     {
         painter->setPen(QPen(Qt::gray, 2 ,Qt::DashLine));
@@ -70,7 +70,7 @@ void CoastElement::drawElement(QPainter *painter)
         }
     }
 
-    MapStyle colorType = this->framework()->GetMapStyle();
+    MapStyle colorType = this->framework()->getMapStyle();
     if(colorType == MapStyleEcdisNight || colorType == MapStyleEcdisDayDUSK)
     {
         painter->setPen(QPen(Qt::gray,2,Qt::DashLine));
@@ -114,7 +114,7 @@ void SeabedPipeLineElement::drawElement(QPainter *painter)
             painter->drawEllipse(pos,5,5);
         }
     }
-    MapStyle colorType = this->framework()->GetMapStyle();
+    MapStyle colorType = this->framework()->getMapStyle();
     if(colorType == MapStyleEcdisNight || colorType == MapStyleEcdisDayDUSK)
     {
         painter->setPen(QPen(Qt::gray,2,Qt::DashLine));
@@ -152,7 +152,7 @@ void AreaNetElement::drawElement(QPainter *painter)
 
     polygon.append(polygon.first());
     PainterPair chk(painter);
-    MapStyle colorType = this->framework()->GetMapStyle();
+    MapStyle colorType = this->framework()->getMapStyle();
     if(colorType == MapStyleEcdisNight || colorType == MapStyleEcdisDayDUSK)
     {
         painter->setPen(QPen(Qt::gray, 2, Qt::DashLine));
@@ -195,7 +195,7 @@ void CardMouthElement::drawElement(QPainter *painter)
     }
 
     PainterPair chk(painter);
-    MapStyle colorType = this->framework()->GetMapStyle();
+    MapStyle colorType = this->framework()->getMapStyle();
     if(colorType == MapStyleEcdisNight || colorType == MapStyleEcdisDayDUSK)
     {
         painter->setPen(QPen(QColor(color), 4, Qt::SolidLine));
@@ -238,7 +238,7 @@ void StatistcLineElement::drawElement(QPainter *painter)
     }
 
     PainterPair chk(painter);
-    MapStyle colorType = this->framework()->GetMapStyle();
+    MapStyle colorType = this->framework()->getMapStyle();
     if(colorType == MapStyleEcdisNight || colorType == MapStyleEcdisDayDUSK)
     {
         painter->setPen(QPen(QColor(color), 4, Qt::SolidLine));
@@ -285,7 +285,7 @@ void ChannelElement::drawElement(QPainter *painter)
 
     polygon.append(polygon.first());
     PainterPair chk(painter);
-    MapStyle colorType = this->framework()->GetMapStyle();
+    MapStyle colorType = this->framework()->getMapStyle();
 
     Qt::PenStyle style = Qt::SolidLine;
     if (courseType == ZCHX::Data::COURSE_TYPE_SIGNAL)
@@ -364,7 +364,7 @@ void MooringElement::drawElement(QPainter *painter)
 
     polygon.append(polygon.first());
     PainterPair chk(painter);
-    MapStyle colorType = this->framework()->GetMapStyle();
+    MapStyle colorType = this->framework()->getMapStyle();
     if(colorType == MapStyleEcdisNight || colorType == MapStyleEcdisDayDUSK)
     {
         painter->setPen(QPen(Qt::white, 4, Qt::SolidLine));

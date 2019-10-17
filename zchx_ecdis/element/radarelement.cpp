@@ -325,12 +325,12 @@ void RadarPointElement::drawElement(QPainter *painter)
     if(getPath().size() == 0) return;
     //取得当前图元对应的屏幕坐标位置
     QPointF pos = getCurrentPos();
-    int curScale = mView->framework()->Zoom() < 7 ? 5 : 10;
+    int curScale = mView->framework()->getZoom() < 7 ? 5 : 10;
     int sideLen = 10;
-    double angleFromNorth = mView->framework()->GetRotateAngle(); //计算当前正北方向的方向角
+    double angleFromNorth = mView->framework()->getRotateAngle(); //计算当前正北方向的方向角
     QColor fillColor = getIsConcern() ? getConcernColor() : getFillingColor();
     //地图缩放比例小于10级的情况只画点
-    if(mView->framework()->Zoom() < 10)
+    if(mView->framework()->getZoom() < 10)
     {
         PainterPair chk(painter);
         painter->setPen(Qt::NoPen);
@@ -370,7 +370,7 @@ void RadarPointElement::drawElement(QPainter *painter)
         //qDebug()<<"draw as ais:"<<getDrawAsAis();
         if(getDrawAsAis()) //ship
         {
-            QPixmap shipPic = ZCHX::Utils::getImage(":/element/ship.png", Qt::yellow, mView->framework()->Zoom());
+            QPixmap shipPic = ZCHX::Utils::getImage(":/element/ship.png", Qt::yellow, mView->framework()->getZoom());
             shipRect.setSize(shipPic.size());
             shipRect.moveCenter(QPoint(pos.x(), pos.y()) );
             painter->drawPixmap(shipRect, shipPic);
@@ -460,7 +460,7 @@ void RadarPointElement::drawElement(QPainter *painter)
 void RadarPointElement::drawText(QPainter *painter, QPointF pos, int sideLen)
 {
     if(!mView->framework()) return;
-    double angleFromNorth = mView->framework()->GetRotateAngle(); //计算当前正北方向的方向角
+    double angleFromNorth = mView->framework()->getRotateAngle(); //计算当前正北方向的方向角
     PainterPair chk(painter);
     painter->setPen(mTextColor);
     QString radarName = QObject::tr("T%1").arg(QString::number(getData().trackNumber).right(4));

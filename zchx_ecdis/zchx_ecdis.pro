@@ -48,6 +48,7 @@ LIBS += -lpsapi
 
 INCLUDEPATH += ../include
 INCLUDEPATH += $${PWD}/s57
+INCLUDEPATH += $${PWD}/framework
 
 DEFINES += ocpnUSE_GL TIXML_USE_STL __WXQT__ ocpnUSE_SVG
 
@@ -93,7 +94,9 @@ SOURCES += mainwindow.cpp \
     zchxutils.cpp \
     zchxMapDataUtils.cpp \    
     profiles.cpp \
-    zchxmapframe.cpp \
+    framework/zchxmapframe.cpp \
+    framework/zchxtilemapframework.cpp \
+    framework/zchxvectormapframework.cpp \
     slider_ctrl.cpp \
     proxystyle.cpp \
     coastdatainfodialog.cpp \
@@ -154,7 +157,6 @@ SOURCES += mainwindow.cpp \
     data_manager/zchxradarsitedatamgr.cpp \
     data_manager/zchxradarrectmgr.cpp \
     element/radarrectelement.cpp \
-    zchxtilemapwidget.cpp \
     s57/_def.cpp \
     s57/s52plib.cpp \
     s57/OCPNPlatform.cpp \
@@ -200,7 +202,8 @@ SOURCES += mainwindow.cpp \
     s57/glTexCache.cpp \
     s57/glTextureDescriptor.cpp \
     s57/glTextureManager.cpp \
-    s57/glChartCanvas.cpp
+    s57/glChartCanvas.cpp \
+    s57/glwidget.cpp \
 
 HEADERS  += mainwindow.h \
     zchxtileimagethread.h \
@@ -213,7 +216,10 @@ HEADERS  += mainwindow.h \
     element/IDrawElement.hpp \
     element/drawelement.hpp \
     profiles.h \
-    zchxmapframe.h \
+    framework/zchxmapframe.h \
+    framework/zchxtilemapframework.h \
+    framework/zchxvectormapframework.h \
+    framework/zchxmapframework.h \
     slider_ctrl.hpp \
     proxystyle.hpp \
     coastdatainfodialog.h \
@@ -278,7 +284,6 @@ HEADERS  += mainwindow.h \
     data_manager/zchxradarsitedatamgr.h \
     data_manager/zchxradarrectmgr.h \
     element/radarrectelement.h \
-    zchxtilemapwidget.h \
     s57/_def.h \
     s57/s52plib.h \
     s57/OCPNPlatform.h \
@@ -320,7 +325,8 @@ HEADERS  += mainwindow.h \
     s57/glTexCache.h \
     s57/glTextureDescriptor.h \
     s57/glTextureManager.h \
-    s57/glChartCanvas.h
+    s57/glChartCanvas.h \
+    s57/glwidget.h \
 
 FORMS    += mainwindow.ui \
     coastdatainfodialog.ui \

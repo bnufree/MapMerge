@@ -77,7 +77,7 @@ void GridElement::drawTenGrid(QPainter *painter)
             text_pos_found = true;
         }
     }
-    if(framework()->Zoom() >= 10 && text_pos_found)
+    if(framework()->getZoom() >= 10 && text_pos_found)
     {
         QString name = m_data.getName();
         if(name.contains("N"))
@@ -115,7 +115,7 @@ void GridElement::drawThirtyGrid(QPainter *painter)
         }
     }
 
-    if(framework()->Zoom() >= 6 && text_pos_found)
+    if(framework()->getZoom() >= 6 && text_pos_found)
     {
         QString id = m_data.getName();
         QFont font("times", 24);

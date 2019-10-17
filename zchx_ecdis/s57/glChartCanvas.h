@@ -117,7 +117,6 @@ public:
 
     ~glChartCanvas();
 
-    void SetContext(QGLContext *pcontext) { m_pcontext = pcontext; }
     void Render();    
     void FastPan(int dx, int dy);
     bool Pan(double dx, double dy);
@@ -220,8 +219,6 @@ public:
     double      getCurLat() {return m_cursor_lat;}
     double      getCurLon() {return m_cursor_lon;}
     void        setCurLL(double lat, double lon);
-    bool        GetQuiltMode();
-    void        ToggleCanvasQuiltMode();
     double      GetPixPerMM();
 
 public slots:

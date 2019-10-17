@@ -118,12 +118,12 @@ void AisElement::drawShipTriangle(QPainter *painter, const QColor& fillColor)
 {
     if(!isDrawAvailable(painter) || needDrawImage()) return;
     QPointF pos = getCurrentPos();
-    double angleFromNorth = this->framework()->GetRotateAngle(); //计算当前正北方向的方向角
+    double angleFromNorth = this->framework()->getRotateAngle(); //计算当前正北方向的方向角
     //绘制船舶的时候黑白船名单优先
     int mark_type = m_data.markType;
     //绘制船和方向线
     PainterPair chk(painter);
-    MapStyle colorType = this->framework()->GetMapStyle();
+    MapStyle colorType = this->framework()->getMapStyle();
     if(colorType == MapStyleEcdisNight || colorType == MapStyleEcdisDayDUSK)
     {
         painter->setPen(QPen(Qt::gray,1));
@@ -329,7 +329,7 @@ void AisElement::drawRealtimeTailTrack(QPainter *painter)
     //绘制船舶尾迹
     if(mRealtimeTailTrackList.size() == 0) return;
     qint64 TimeValue=0;
-    int scale = mView->framework()->GetDrawScale();
+    int scale = mView->framework()->getDrawScale();
     QPainterPath path;
     for(int j =0; j <mRealtimeTailTrackList.size(); ++j)
     {
@@ -434,7 +434,7 @@ void AisElement::drawElement(QPainter *painter)
     if(!painter)  return;
 
     Element::drawElement(painter);
-    int scale = mView->framework()->Zoom();
+    int scale = mView->framework()->getZoom();
     //填充颜色设定.默认是地图配置的颜色
     QColor fillColor = getFillingColor();
 
@@ -486,7 +486,7 @@ void AisElement::drawShipImage(QPainter *painter)
     if (!painter)  return;
     if (!needDrawImage()) return;
 
-    double angleFromNorth = mView->framework()->GetRotateAngle(); //计算当前正北方向的方向角
+    double angleFromNorth = mView->framework()->getRotateAngle(); //计算当前正北方向的方向角
     QPoint pos = getCurrentPos().toPoint();
     PainterPair chk(painter);
     painter->translate(pos.x(), pos.y());
@@ -504,9 +504,9 @@ drawTargetInformation(QList<QPolygon>& list, int mode, QPainter *painter)
         return;
 
     //Element::drawElement(painter);
-    double angleFromNorth = mView->framework()->GetRotateAngle(); //计算当前正北方向的方向角
+    double angleFromNorth = mView->framework()->getRotateAngle(); //计算当前正北方向的方向角
     QPointF pos = getCurrentPos();
-    int scale = mView->framework()->Zoom();
+    int scale = mView->framework()->getZoom();
 
     if(scale < 13)
     {
@@ -732,7 +732,7 @@ QPixmap AisElement::getShipImage()
         path = ":/element/boat.png";
     }    
 
-    m_shipImage = ZCHX::Utils::getImage(path, Qt::green, mView->framework()->Zoom());
+    m_shipImage = ZCHX::Utils::getImage(path, Qt::green, mView->framework()->getZoom());
     return m_shipImage;
 }
 
@@ -745,7 +745,7 @@ QPixmap AisElement::getCameraImage()
         path.append("_bug.png");
     else if(m_data.status == 0)
         path.append("_normal.png");
-    m_cameraImage = ZCHX::Utils::getImage(path, Qt::green, mView->framework()->Zoom());
+    m_cameraImage = ZCHX::Utils::getImage(path, Qt::green, mView->framework()->getZoom());
     return m_cameraImage;
 }
 

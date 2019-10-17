@@ -141,12 +141,6 @@ class ViewPort
             void    setPixHeight(double val) {mPixHeight = val;}
             double  pixHeight() const {return mPixHeight;}
 
-            void    setQuilt(bool val) {mQuilt = val;}
-            bool    quilt() const {return mQuilt;}
-
-            void    setFullScreenQuilt(bool val) {mFullScreenQuilt = val;}
-            bool    fullScreenQuilt() const {return mFullScreenQuilt;}
-
             void    setMercatorProjectionOverrie(bool val) {mMercatorProjectionOverride = val;}
             bool    mercatorProjectionOverride() const {return mMercatorProjectionOverride;}
 
@@ -169,8 +163,7 @@ private:
             int      mPixWidth;
             int      mPixHeight;
 
-            bool     mQuilt;
-            bool     mFullScreenQuilt;
+//            bool     mFullScreenQuilt;
 
             int      mProjectionType;
             bool     mMercatorProjectionOverride;

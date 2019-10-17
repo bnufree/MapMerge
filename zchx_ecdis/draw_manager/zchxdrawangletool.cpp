@@ -28,7 +28,7 @@ void zchxDrawAngleTool::show(QPainter *painter)
 
     //计算角度
     double dr = zchxMapDataUtils::getDistancePixel(mPoints[0], mPoints[1]);
-    double angle4TrueNorth = zchxMapDataUtils::DegToRad((mWidget->framework()->GetRotateAngle()));
+    double angle4TrueNorth = zchxMapDataUtils::DegToRad((mWidget->framework()->getRotateAngle()));
     double antArc = zchxMapDataUtils::TwoVectorsAngle(mPoints[0], Point2D(mPoints[0].x(),mPoints[0].y() - dr), mPoints[1]);
     antArc = zchxMapDataUtils::AngleIn2PI(antArc - angle4TrueNorth);
 

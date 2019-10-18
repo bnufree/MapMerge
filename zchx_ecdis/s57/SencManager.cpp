@@ -30,11 +30,10 @@
 //#include "chart1.h"
 #include "chcanv.h"
 //#include "zchxLog.h"
-#include "zchxmapmainwindow.h"
 #include "glChartCanvas.h"
 
 
-extern zchxMapMainWindow*          gFrame;
+extern glChartCanvas          *glChart;
 extern SENCThreadManager *g_SencThreadManager;
 extern ColorScheme       global_color_scheme;
 extern int               g_nCPUCount;
@@ -140,9 +139,9 @@ void SENCThreadManager::startJob()
     if(nRunning){
         QString count;
         count.sprintf("  %ld", ticket_list.size());
-        gFrame->getWidget()->SetAlertString( "Preparing vector chart  " + count);
+        glChart->SetAlertString( "Preparing vector chart  " + count);
     }  else{
-        gFrame->getWidget()->SetAlertString( (""));
+        glChart->SetAlertString( (""));
     }
 }
 
@@ -202,7 +201,7 @@ void SENCThreadManager::slotRecvSENCThreadFinished()
         emit signalRefreshAllEcids();
     } else if(thread->m_chart)
     {        //有错误的情况,提示错误信息
-        gFrame->getWidget()->SetAlertString(QString("error occured when prepare chart: %1").arg(thread->m_chart->GetFullPath()));
+        glChart->SetAlertString(QString("error occured when prepare chart: %1").arg(thread->m_chart->GetFullPath()));
     }
     removeJob(thread->m_ticket);
     delete thread;

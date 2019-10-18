@@ -100,27 +100,17 @@ void ocpnDC::Clear()
 #ifdef ocpnUSE_GL
         QBrush tmpBrush = m_brush;
         int w = glcanvas->width(), h = glcanvas->height();
-        SetBrush( QBrush( glcanvas->palette().background() ) );
+        SetBrush( QBrush( glcanvas->backgroundColor() ) );
         //        glcanvas->GetSize( &w, &h );
         DrawRectangle( 0, 0, w, h);
         SetBrush( tmpBrush );
-#endif        
+#endif
     }
 }
 
 void ocpnDC::SetBackground( const QBrush &brush )
 {
-    //    if( dc )
-    //    {
-    //        dc->SetBackground( brush );
-    //    } else {
-    //#ifdef ocpnUSE_GL
-    QPalette pal = glcanvas->palette();
-    pal.setBrush(QPalette::Window, brush);
-    glcanvas->setPalette(pal);
-    //        glcanvas->setBackgroundColor( brush.GetColour() );
-    //#endif
-    //    }
+    glcanvas->setBackgroundColor(brush.color());
 }
 
 void ocpnDC::SetPen( const QPen &pen )

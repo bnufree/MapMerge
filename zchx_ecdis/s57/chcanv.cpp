@@ -59,7 +59,6 @@
 #include "CanvasConfig.h"
 //#include "CanvasOptions.h"
 #include "mbtiles.h"
-#include "zchxmapmainwindow.h"
 
 #include "cm93.h"                   // for chart outline draw
 #include "s57chart.h"               // for ArrayOfS57Obj
@@ -147,7 +146,7 @@ extern bool             g_bShowMenuBar;
 extern bool             g_bShowAreaNotices;
 extern int              g_Show_Target_Name_Scale;
 
-extern zchxMapMainWindow          *gFrame;
+extern glChartCanvas          *glChart;
 
 extern int              g_iNavAidRadarRingsNumberVisible;
 extern float            g_fNavAidRadarRingsStep;
@@ -1801,16 +1800,16 @@ bool ChartFrameWork::SetViewPoint( double lat, double lon, double scale_ppm, dou
 
     const zchxPoint pt(QCursor::pos());
     //获取当前窗口在屏幕坐标的位置
-    QWidget* parent = mGLCC->parentWidget();
-    QPoint widget_pos = mGLCC->pos();
-    if(parent) widget_pos = parent->mapToGlobal(widget_pos);
-    int mouseX = pt.x - widget_pos.x();
-    int mouseY = pt.y - widget_pos.y();
-    if( (mouseX > 0) && (mouseX < mViewPoint.pixWidth()) && (mouseY > 0) && (mouseY < mViewPoint.pixHeight())){
-        double lat, lon;
-        GetCanvasPixPoint( mouseX, mouseY, lat, lon );
-        mGLCC->setCurLL(lat, lon);
-    }
+//    QWidget* parent = mGLCC->parentWidget();
+//    QPoint widget_pos = mGLCC->pos();
+//    if(parent) widget_pos = parent->mapToGlobal(widget_pos);
+//    int mouseX = pt.x - widget_pos.x();
+//    int mouseY = pt.y - widget_pos.y();
+//    if( (mouseX > 0) && (mouseX < mViewPoint.pixWidth()) && (mouseY > 0) && (mouseY < mViewPoint.pixHeight())){
+//        double lat, lon;
+//        GetCanvasPixPoint( mouseX, mouseY, lat, lon );
+//        mGLCC->setCurLL(lat, lon);
+//    }
 
     //  Handle the quilted case
 

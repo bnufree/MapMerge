@@ -1,5 +1,6 @@
 ﻿#include "zchxmapwidget.h"
 #include "zchxtilemapframework.h"
+#include "zchxvectormapframework.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include "data_manager/zchxdatamgrfactory.h"
 #include "draw_manager/zchxdrawtoolutil.h"
@@ -57,7 +58,8 @@ zchxMapWidget::zchxMapWidget(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) : QGLWid
         mFrameWork = new zchxTileMapFrameWork(lat, lon, zoom, width(), height(), source, pos, min_zoom, max_zoom);
     } else
     {
-        mFrameWork = new zchxTileMapFrameWork(lat, lon, zoom, width(), height(), source, pos, min_zoom, max_zoom);
+//        mFrameWork = new zchxTileMapFrameWork(lat, lon, zoom, width(), height(), source, pos, min_zoom, max_zoom);
+        mFrameWork = new zchxVectorMapFrameWork();
     }
     //地图状态初始化
     releaseDrawStatus();
@@ -149,6 +151,14 @@ void zchxMapWidget::resizeGL(int w, int h)
     {
         //重新更新地图显示的大小
         mFrameWork->setViewSize(w, h);
+        if(mFrameWork->getType() == ZCHX::ZCHX_MAP_VECTOR)
+        {
+            zchxVectorMapFrameWork* frame = qobject_cast<zchxVectorMapFrameWork*>(mFrameWork);
+            if(frame)
+            {
+                frame->resizeGL(w, h);
+            }
+        }
     }
     mZoomLbl->setGeometry(10, 10, 100, 60);
 }
@@ -162,8 +172,16 @@ void zchxMapWidget::paintEvent(QPaintEvent* e)
 //    painter.fillRect(this->rect(), QColor(color_name));
     painter.beginNativePainting();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glPushMatrix();
-    glPopMatrix();
+//    mFrameWork
+    if(mFrameWork->getType() == ZCHX::ZCHX_MAP_VECTOR)
+    {
+        zchxVectorMapFrameWork* frame = qobject_cast<zchxVectorMapFrameWork*>(mFrameWork);
+        if(frame)
+        {
+            frame->paintGL();
+        }
+    }
+
     painter.endNativePainting();
     painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform, true);
     //显示地图

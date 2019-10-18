@@ -179,13 +179,13 @@ public:
       
       double GetCalculatedSafetyContour(void){ return m_next_safe_cnt; }
 
-      virtual bool RenderRegionViewOnGL(QGLContext *glc, const ViewPort& VPoint,
+      virtual bool RenderRegionViewOnGL(const ViewPort& VPoint,
                                         const OCPNRegion &RectRegion, const LLRegion &Region);
-      virtual bool RenderOverlayRegionViewOnGL(QGLContext *glc, const ViewPort& VPoint,
+      virtual bool RenderOverlayRegionViewOnGL(const ViewPort& VPoint,
                                                const OCPNRegion &RectRegion, const LLRegion &Region);
-      virtual bool RenderRegionViewOnGLNoText(QGLContext *glc, const ViewPort& VPoint,
+      virtual bool RenderRegionViewOnGLNoText(const ViewPort& VPoint,
                                         const OCPNRegion &RectRegion, const LLRegion &Region);
-      virtual bool RenderViewOnGLTextOnly(QGLContext *glc, const ViewPort& VPoint);
+      virtual bool RenderViewOnGLTextOnly(const ViewPort& VPoint);
       
 // Public data
 //Todo Accessors here
@@ -274,9 +274,9 @@ private:
       void FreeObjectsAndRules();
       const char *getName(OGRFeature *feature);
 
-      bool DoRenderOnGL(QGLContext *glc, const ViewPort& VPoint);
-      bool DoRenderOnGLText(QGLContext *glc, const ViewPort& VPoint);
-      bool DoRenderRegionViewOnGL(QGLContext *glc, const ViewPort& VPoint,
+      bool DoRenderOnGL(const ViewPort& VPoint);
+      bool DoRenderOnGLText(const ViewPort& VPoint);
+      bool DoRenderRegionViewOnGL(const ViewPort& VPoint,
                                   const OCPNRegion &RectRegion, const LLRegion &Region, bool b_overlay);
 
       void BuildLineVBO( void );

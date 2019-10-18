@@ -45,7 +45,6 @@
 #include <QFile>
 #include <QDir>
 #include <QRegularExpression>
-#include "zchxmapmainwindow.h"
 
 extern ColorScheme GetColorScheme();
 extern void         LoadS57();
@@ -57,7 +56,7 @@ extern int          g_nCacheLimit;
 extern int          g_memCacheLimit;
 extern s52plib      *ps52plib;
 extern ChartDB      *ChartData;
-extern zchxMapMainWindow          *gFrame;
+extern glChartCanvas          *glChart;
 extern ChartFrameWork              *gChartFrameWork;
 
 

@@ -44,7 +44,6 @@
 #include "setjmp.h"
 
 #include "ogr_s57.h"
-#include "zchxmapmainwindow.h"
 #include "ocpn_plugin.h"
 
 //#include "pluginmanager.h"                      // for S57 lights overlay
@@ -98,7 +97,7 @@ extern QString          g_SENCPrefix;
 extern FILE              *s_fpdebug;
 extern bool              g_bGDAL_Debug;
 extern bool              g_bDebugS57;
-extern zchxMapMainWindow*          gFrame;
+extern glChartCanvas          *glChart;
 //extern PlugInManager     *g_pi_manager;
 extern bool              g_b_overzoom_x;
 extern bool              g_b_EnableVBO;
@@ -1446,23 +1445,23 @@ void s57chart::BuildLineVBO( void )
  *              So, Actual rendering area onscreen should be clipped to the intersection of the two regions.
  */
 
-bool s57chart::RenderRegionViewOnGL( QGLContext* glc, const ViewPort& VPoint,
+bool s57chart::RenderRegionViewOnGL(const ViewPort& VPoint,
                                      const OCPNRegion &RectRegion, const LLRegion &Region )
 {
     if(!m_RAZBuilt) return false;
 
-    return DoRenderRegionViewOnGL( glc, VPoint, RectRegion, Region, false );
+    return DoRenderRegionViewOnGL(VPoint, RectRegion, Region, false );
 }
 
-bool s57chart::RenderOverlayRegionViewOnGL( QGLContext *glc, const ViewPort& VPoint,
+bool s57chart::RenderOverlayRegionViewOnGL( const ViewPort& VPoint,
                                             const OCPNRegion &RectRegion, const LLRegion &Region )
 {
     if(!m_RAZBuilt) return false;
 
-    return DoRenderRegionViewOnGL( glc, VPoint, RectRegion, Region, true );
+    return DoRenderRegionViewOnGL(VPoint, RectRegion, Region, true );
 }
 
-bool s57chart::RenderRegionViewOnGLNoText( QGLContext *glc, const ViewPort& VPoint,
+bool s57chart::RenderRegionViewOnGLNoText( const ViewPort& VPoint,
                                            const OCPNRegion &RectRegion, const LLRegion &Region )
 {
 //    qDebug()<<"start render region view";
@@ -1474,14 +1473,14 @@ bool s57chart::RenderRegionViewOnGLNoText( QGLContext *glc, const ViewPort& VPoi
 
     bool b_text = ps52plib->GetShowS57Text();
     ps52plib->m_bShowS57Text = false;
-    bool b_ret =  DoRenderRegionViewOnGL( glc, VPoint, RectRegion, Region, false );
+    bool b_ret =  DoRenderRegionViewOnGL( VPoint, RectRegion, Region, false );
     ps52plib->m_bShowS57Text = b_text;
     
 //    qDebug()<<"start render region end normal";
     return b_ret;
 }
 
-bool s57chart::RenderViewOnGLTextOnly(QGLContext *glc, const ViewPort& VPoint)
+bool s57chart::RenderViewOnGLTextOnly(const ViewPort& VPoint)
 {
     if(!m_RAZBuilt) return false;
 
@@ -1495,7 +1494,7 @@ bool s57chart::RenderViewOnGLTextOnly(QGLContext *glc, const ViewPort& VPoint)
     glChartCanvas::RotateToViewPort(VPoint);
 
     glChartCanvas::DisableClipRegion();
-    DoRenderOnGLText( glc, VPoint );
+    DoRenderOnGLText(VPoint );
 
     glPopMatrix();
     
@@ -1504,7 +1503,7 @@ bool s57chart::RenderViewOnGLTextOnly(QGLContext *glc, const ViewPort& VPoint)
     return true;
 }
 
-bool s57chart::DoRenderRegionViewOnGL(QGLContext *glc, const ViewPort& VPoint,
+bool s57chart::DoRenderRegionViewOnGL( const ViewPort& VPoint,
                                        const OCPNRegion &RectRegion, const LLRegion &Region, bool b_overlay )
 {
     if(!m_RAZBuilt) return false;
@@ -1565,7 +1564,7 @@ bool s57chart::DoRenderRegionViewOnGL(QGLContext *glc, const ViewPort& VPoint,
             ps52plib->m_last_clip_rect = upd.GetRect();
             glPushMatrix(); //    Adjust for rotation
             glChartCanvas::RotateToViewPort(VPoint);
-            DoRenderOnGL( glc, cvp );
+            DoRenderOnGL(cvp );
             glPopMatrix();
             glChartCanvas::DisableClipRegion();
         }
@@ -1581,7 +1580,7 @@ bool s57chart::DoRenderRegionViewOnGL(QGLContext *glc, const ViewPort& VPoint,
     return true;
 }
 
-bool s57chart::DoRenderOnGL(QGLContext *glc, const ViewPort& VPoint )
+bool s57chart::DoRenderOnGL( const ViewPort& VPoint )
 {
 #ifdef ocpnUSE_GL
 
@@ -1602,7 +1601,7 @@ bool s57chart::DoRenderOnGL(QGLContext *glc, const ViewPort& VPoint )
             crnt = top;
             top = top->next;               // next object
             crnt->sm_transform_parms = &vp_transform;
-            ps52plib->RenderAreaToGL( glc, crnt, &tvp );
+            ps52plib->RenderAreaToGL(crnt, &tvp );
         }
     }
 
@@ -1617,7 +1616,7 @@ bool s57chart::DoRenderOnGL(QGLContext *glc, const ViewPort& VPoint )
             crnt = top;
             top = top->next;               // next object
             crnt->sm_transform_parms = &vp_transform;
-            ps52plib->RenderObjectToGL( glc, crnt, &tvp );
+            ps52plib->RenderObjectToGL(crnt, &tvp );
         }
 
         top = razRules[i][2];           //LINES
@@ -1626,7 +1625,7 @@ bool s57chart::DoRenderOnGL(QGLContext *glc, const ViewPort& VPoint )
             crnt = top;
             top = top->next;
             crnt->sm_transform_parms = &vp_transform;
-            ps52plib->RenderObjectToGL( glc, crnt, &tvp );
+            ps52plib->RenderObjectToGL(crnt, &tvp );
         }
 
         if( ps52plib->m_nSymbolStyle == SIMPLIFIED )
@@ -1640,7 +1639,7 @@ bool s57chart::DoRenderOnGL(QGLContext *glc, const ViewPort& VPoint )
             crnt = top;
             top = top->next;
             crnt->sm_transform_parms = &vp_transform;
-            ps52plib->RenderObjectToGL( glc, crnt, &tvp );
+            ps52plib->RenderObjectToGL(crnt, &tvp );
             cnt++;
         }
 
@@ -1651,7 +1650,7 @@ bool s57chart::DoRenderOnGL(QGLContext *glc, const ViewPort& VPoint )
     return true;
 }
 
-bool s57chart::DoRenderOnGLText( QGLContext *glc, const ViewPort& VPoint )
+bool s57chart::DoRenderOnGLText(const ViewPort& VPoint )
 {
 #ifdef ocpnUSE_GL
     
@@ -1688,7 +1687,7 @@ bool s57chart::DoRenderOnGLText( QGLContext *glc, const ViewPort& VPoint )
             crnt = top;
             top = top->next;               // next object
             crnt->sm_transform_parms = &vp_transform;
-            ps52plib->RenderObjectToGLText( glc, crnt, &tvp );
+            ps52plib->RenderObjectToGLText( crnt, &tvp );
         }
 
         top = razRules[i][2];           //LINES
@@ -1696,7 +1695,7 @@ bool s57chart::DoRenderOnGLText( QGLContext *glc, const ViewPort& VPoint )
             crnt = top;
             top = top->next;
             crnt->sm_transform_parms = &vp_transform;
-            ps52plib->RenderObjectToGLText( glc, crnt, &tvp );
+            ps52plib->RenderObjectToGLText(crnt, &tvp );
         }
 
         if( ps52plib->m_nSymbolStyle == SIMPLIFIED )
@@ -1708,7 +1707,7 @@ bool s57chart::DoRenderOnGLText( QGLContext *glc, const ViewPort& VPoint )
             crnt = top;
             top = top->next;
             crnt->sm_transform_parms = &vp_transform;
-            ps52plib->RenderObjectToGLText( glc, crnt, &tvp );
+            ps52plib->RenderObjectToGLText( crnt, &tvp );
         }
 
     }

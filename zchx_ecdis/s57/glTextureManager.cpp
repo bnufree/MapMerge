@@ -37,7 +37,6 @@
 #include "OCPNPlatform.h"
 #include "FontMgr.h"
 #include "mipmap/mipmap.h"
-#include "zchxmapmainwindow.h"
 
 #ifndef GL_ETC1_RGB8_OES
 #define GL_ETC1_RGB8_OES                                        0x8D64
@@ -68,7 +67,7 @@ extern int              g_uncompressed_tile_size;
 extern int              g_nCPUCount;
 
 bool             b_inCompressAllCharts = false;
-extern zchxMapMainWindow         *gFrame;
+extern glChartCanvas          *glChart;
 //extern arrayofCanvasPtr  g_canvasArray;
 
 extern ColorScheme global_color_scheme;
@@ -1358,7 +1357,7 @@ void glTextureManager::BuildCompressedCache()
     QFont qFont = FontMgr::Get().getSacledFontDefaultSize("Dialog");
     int fontSize = qFont.pointSize();
     QFont sFont;
-    QSize csz = gFrame->rect().size();
+    QSize csz(glChart->width(), glChart->height());
     if(csz.width() < 500 || csz.height() < 500)
         sFont = FontMgr::Get().FindOrCreateFont( 10, "Microsoft YaHei", QFont::StyleNormal, QFont::Normal);
     else

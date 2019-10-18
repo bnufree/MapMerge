@@ -70,7 +70,7 @@ class mbTileDescriptor;
 // ChartMBTiles
 // ----------------------------------------------------------------------------
 
-class ZCHX_OPENCPN_EXPORT ChartMBTiles     :public ChartBase
+class ChartMBTiles     :public ChartBase
 {
     public:
       //    Public methods
@@ -94,7 +94,7 @@ class ZCHX_OPENCPN_EXPORT ChartMBTiles     :public ChartBase
 
       bool RenderRegionViewOnDC(QPainter* dc, const ViewPort& VPoint, const OCPNRegion &Region);
 
-      virtual bool RenderRegionViewOnGL(QGLContext *glc, const ViewPort& VPoint,
+      virtual bool RenderRegionViewOnGL(const ViewPort& VPoint,
                                         const OCPNRegion &RectRegion, const LLRegion &Region);
 
       virtual double GetNearestPreferredScalePPM(double target_scale_ppm);

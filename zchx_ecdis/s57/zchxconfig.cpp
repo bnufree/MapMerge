@@ -5,7 +5,6 @@
 #include "s52utils.h"
 #include "_def.h"
 #include <QDebug>
-#include "zchxmapmainwindow.h"
 #include "OCPNPlatform.h"
 #include "CanvasConfig.h"
 #include "chartdbs.h"
@@ -17,7 +16,7 @@
 zchxConfig* zchxConfig::minstance = 0;
 zchxConfig::MGarbage zchxConfig::Garbage;
 
-extern zchxMapMainWindow          *gFrame;
+extern glChartCanvas          *glChart;
 
 extern double           g_ChartNotRenderScaleFactor;
 extern int              g_restore_stackindex;

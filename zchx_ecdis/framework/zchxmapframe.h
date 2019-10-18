@@ -52,6 +52,7 @@ public:
     virtual     void        setRotateAngle(double ang) {mRotateAngle = ang;}
 
 
+
     //mapStyle
     void        setMapStyle(MapStyle style) {mStyle = style;}
     MapStyle    getMapStyle() const {return mStyle;}
@@ -60,6 +61,7 @@ public:
     PPATH convert2QtPonitList(const GPATH &path);
     //地图刷新
     virtual void        update() {}
+    virtual void        paintGL() {}
 
 signals:
     void        signalSendCurMapinfo(double center_lat, double center_lon, int zoom);

@@ -25,14 +25,12 @@
 #ifndef __GLCHARTCANVAS_H__
 #define __GLCHARTCANVAS_H__
 
-//#include <wx/glcanvas.h>
-
 #include "dychart.h"
 #include "OCPNRegion.h"
 #include "LLRegion.h"
 #include "viewport.h"
 #include "TexFont.h"
-#include <QGLWidget>
+#include <QObject>
 #include "gshhs.h"
 
  #define FORMAT_BITS           GL_RGB
@@ -82,18 +80,16 @@ void GetglEntryPoints( OCPN_GLCaps *pcaps );
 GLboolean QueryExtension( const char *extName );
 
 class ocpnDC;
-class emboss_data;
-class Route;
 class ChartBaseBSB;
 class ChartBase;
 class canvasConfig;
 
 #include <QOpenGLWindow>
-class glChartCanvas : public QGLWidget
+class glChartCanvas : public QObject
 {
     Q_OBJECT
 public:
-    glChartCanvas(QWidget *parentCavas);
+    glChartCanvas(QObject *parentCavas);
     static bool CanClipViewport(const ViewPort &vp);
     static ViewPort ClippedViewport(const ViewPort &vp, const LLRegion &region);
 
@@ -112,8 +108,6 @@ public:
     static bool         s_b_useStencil;
     static bool         s_b_useStencilAP;
     static bool         s_b_useFBO;
-    
-    void SendJSONConfigMessage();
 
     ~glChartCanvas();
 
@@ -142,9 +136,6 @@ public:
     
     void RenderAllChartOutlines( ocpnDC &dc, ViewPort &VP );
     void RenderChartOutline( int dbIndex, ViewPort &VP );
-
-    void DrawEmboss( emboss_data *emboss );
-    void ShipDraw(ocpnDC& dc);
 
     void SetupCompression();
     bool CanAcceleratePanning() { return m_b_BuiltFBO; }
@@ -187,8 +178,6 @@ public:
 
     int viewport[4];
     double mvmatrix[16], projmatrix[16];
-    //
-    void ToggleChartOutlines();
     void CanvasApplyLocale();
     ColorScheme GetColorScheme(){ return m_cs;}
     QColor GetFogColor(){ return m_fog_color; }
@@ -197,7 +186,6 @@ public:
     int GetMinAvailableGshhgQuality() { return pWorldBackgroundChart->GetMinAvailableQuality(); }
     int GetMaxAvailableGshhgQuality() { return pWorldBackgroundChart->GetMaxAvailableQuality(); }
 
-    void buildStyle();
     bool initBeforeUpdateMap();
 
     void SetAlertString( QString str){ m_alertString = str;}
@@ -220,11 +208,18 @@ public:
     double      getCurLon() {return m_cursor_lon;}
     void        setCurLL(double lat, double lon);
     double      GetPixPerMM();
+    int         width() {return mWidth;}
+    int         height() {return mHeight;}
+    QColor      backgroundColor() const {return mBackgroundColor;}
+    void        setBackgroundColor(const QColor& c) {mBackgroundColor = c;}
+
+    void        getPixcelOfLL(int& x, int& y, double lat, double lon);
+    void        getLLOfPix(double& lat, double& lon, int x, int y);
 
 public slots:
     void slotStartLoadEcdis();
     void slotUpdateChartFinished();
-protected:
+public:
     void paintGL();
     void resizeGL(int w, int h);
     void initializeGL();
@@ -260,17 +255,9 @@ protected:
     void GridDraw(ocpnDC& dc); // Display lat/lon Grid in chart display
     void ScaleBarDraw( ocpnDC& dc );
 
-    emboss_data* EmbossOverzoomIndicator( ocpnDC &dc );
-    emboss_data *EmbossDepthScale();
-    void SetOverzoomFont();
-    emboss_data *CreateEmbossMapData(QFont &font, int width, int height, const QString &str, ColorScheme cs);
-    void CreateDepthUnitEmbossMaps(ColorScheme cs);
-    void CreateOZEmbossMapData(ColorScheme cs);
-
-
-
-    
-    QGLContext       *m_pcontext;
+    int  mWidth;
+    int  mHeight;
+    QColor  mBackgroundColor;
 
     int max_texture_dimension;
 
@@ -336,30 +323,12 @@ protected:
     bool            m_bDisplayGrid;
 
     //
-    emboss_data     *m_pEM_Feet;                // maps for depth unit emboss pattern
-    emboss_data     *m_pEM_Meters;
-    emboss_data     *m_pEM_Fathoms;
-    emboss_data     *m_pEM_OverZoom;
-    QFont m_overzoomFont;
-    int m_overzoomTextWidth;
-    int m_overzoomTextHeight;
+
 
     ColorScheme m_cs;
     QColor    m_fog_color;
 
     GSHHSChart  *pWorldBackgroundChart;
-    QCursor    *pCursorPencil;
-    QCursor    *pCursorArrow;
-    QCursor    *pCursorCross;
-    QCursor    *pPlugIn_Cursor;
-    QCursor    *pCursorLeft;
-    QCursor    *pCursorRight;
-    QCursor    *pCursorUp;
-    QCursor    *pCursorDown;
-    QCursor    *pCursorUpLeft;
-    QCursor    *pCursorUpRight;
-    QCursor    *pCursorDownLeft;
-    QCursor    *pCursorDownRight;
     QString      m_alertString;
     long         m_s52StateHash;
     QRect       m_scaleBarRect;
@@ -372,7 +341,6 @@ protected:
     QPoint      last_drag_point;
     bool        mIsLeftDown;
     int         m_modkeys;
-    QTimer        *mDisplsyTimer;
 
     //DB更新的对话框
     QProgressDialog*            mDBProgressDlg;

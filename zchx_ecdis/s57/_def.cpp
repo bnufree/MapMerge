@@ -1,5 +1,4 @@
 ﻿#include "_def.h"
-#include "zchxmapmainwindow.h"
 #include "GL/gl.h"
 #include <windows.h>
 #include <psapi.h>
@@ -16,7 +15,7 @@
 #include "glChartCanvas.h"
 #include "zchxconfig.h"
 
- zchxMapMainWindow              *gFrame = NULL;
+ glChartCanvas              *glChart = NULL;
  SENCThreadManager           *g_SencThreadManager = 0;
  double                         g_ChartNotRenderScaleFactor;
  int                            g_restore_stackindex;
@@ -1457,7 +1456,7 @@ void LoadS57()
 
         ZCHX_CFG_INS->LoadS57Config();
         ps52plib->SetPLIBColorScheme( global_color_scheme );
-        ps52plib->SetPPMM( gFrame->getWidget()->GetPixPerMM() );
+        ps52plib->SetPPMM( glChart->GetPixPerMM() );
 
 #ifdef ocpnUSE_GL
 

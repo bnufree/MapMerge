@@ -53,7 +53,6 @@
 #include "setupapi.h"                   // presently stored in opencpn/src
 
 #include <cstdlib>
-#include "zchxmapmainwindow.h"
 
 void appendOSDirSlash( QString* pString );
 

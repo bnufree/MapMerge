@@ -2,12 +2,16 @@
 #define ZCHXVECTORMAPFRAMEWORK_H
 
 #include "zchxmapframe.h"
+
+class glChartCanvas;
+
 namespace qt {
 class zchxVectorMapFrameWork : public zchxMapFrameWork
 {
     Q_OBJECT
 public:
     explicit zchxVectorMapFrameWork(QObject *parent = 0);
+    virtual ~zchxVectorMapFrameWork();
     virtual ZCHX::Data::LatLon      Pixel2LatLon(const ZCHX::Data::Point2D& pos);
     virtual ZCHX::Data::Point2D     LatLon2Pixel(const ZCHX::Data::LatLon& ll);
     //更新地图的显示范围
@@ -22,6 +26,14 @@ public:
     virtual     void        setRotateAngle(double ang);
     //地图刷新
     virtual void        update();
+
+    //openCPN的接口对应
+    void paintGL();
+    void resizeGL(int w, int h);
+    void initializeGL();
+
+private:
+    glChartCanvas*          mGLCtrl;
 
 };
 }

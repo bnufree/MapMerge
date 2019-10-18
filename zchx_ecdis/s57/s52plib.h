@@ -203,9 +203,9 @@ public:
     static void DestroyRulesChain( Rules *top );
     
     //    For OpenGL
-    int RenderObjectToGL(QGLContext *glcc, ObjRazRules *rzRules, ViewPort *vp );
-    int RenderAreaToGL(QGLContext *glcc, ObjRazRules *rzRules, ViewPort *vp );
-    int RenderObjectToGLText(QGLContext *glcc, ObjRazRules *rzRules, ViewPort *vp );
+    int RenderObjectToGL(ObjRazRules *rzRules, ViewPort *vp );
+    int RenderAreaToGL(ObjRazRules *rzRules, ViewPort *vp );
+    int RenderObjectToGLText(ObjRazRules *rzRules, ViewPort *vp );
     
     void RenderPolytessGL( ObjRazRules *rzRules, ViewPort *vp,double z_clip_geom, zchxPoint *ptp );
     
@@ -381,7 +381,7 @@ private:
 //    QPainter *m_pdc; // The current DC
     
 //#ifdef ocpnUSE_GL
-    QGLContext *m_glcc;
+//    QGLContext *m_glcc;
 //#endif
 
     int *ledge;

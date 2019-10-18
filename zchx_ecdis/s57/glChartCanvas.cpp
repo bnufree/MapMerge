@@ -83,7 +83,6 @@ extern "C" void glOrthof(float left,  float right,  float bottom,  float top,  f
 
 #include "s57chart.h"               // for ArrayOfS57Obj
 #include "s52plib.h"
-#include "zchxmapmainwindow.h"
 
 //extern bool GetMemoryStatus(int *mem_total, int *mem_used);
 
@@ -91,7 +90,6 @@ extern "C" void glOrthof(float left,  float right,  float bottom,  float top,  f
 #define GL_DEPTH_STENCIL_ATTACHMENT       0x821A
 #endif
 
-extern zchxMapMainWindow *gFrame;
 extern s52plib *ps52plib;
 extern bool g_bDebugOGL;
 extern bool g_bShowFPS;
@@ -143,6 +141,7 @@ extern bool             g_fog_overzoom;
 extern double           g_overzoom_emphasis_base;
 extern bool             g_oz_vector_scale;
 extern unsigned int     g_canvasConfig;
+extern glChartCanvas              *glChart;
 
 extern zchxGLOptions g_GLOptions;
 
@@ -462,7 +461,7 @@ static void GetglEntryPoints( void )
     
 }
 
-glChartCanvas::glChartCanvas(QWidget* parent) : QGLWidget(parent)
+glChartCanvas::glChartCanvas(QObject* parent) : QObject(parent)
     , m_bsetup( false )
     , mFrameWork(new ChartFrameWork(this))
     , m_bQuiting(false)
@@ -476,14 +475,10 @@ glChartCanvas::glChartCanvas(QWidget* parent) : QGLWidget(parent)
     , m_MouseDragging(false)
     , mDBProgressDlg(0)
     , mIsInitValid(true)
+    , mWidth(0)
+    , mHeight(0)
 {
-    m_pcontext = this->context();
-    m_pEM_Feet = NULL;
-    m_pEM_Meters = NULL;
-    m_pEM_Fathoms = NULL;
-    m_pEM_OverZoom = NULL;
-    m_overzoomTextWidth = 0;
-    m_overzoomTextHeight = 0;
+    glChart = this;
     m_cs = GLOBAL_COLOR_SCHEME_DAY;
     pWorldBackgroundChart = new GSHHSChart;
     
@@ -510,31 +505,15 @@ glChartCanvas::glChartCanvas(QWidget* parent) : QGLWidget(parent)
     m_last_render_time = -1;
 
     m_LRUtime = 0;
-    setFocusPolicy(Qt::StrongFocus);
+//    setFocusPolicy(Qt::StrongFocus);
 
     if( !g_glTextureManager) g_glTextureManager = new glTextureManager;
-
-    mDisplsyTimer = new QTimer(this);
-    mDisplsyTimer->setInterval(1000);
-    connect(mDisplsyTimer, SIGNAL(timeout()), this, SLOT(update()));
-    mDisplsyTimer->start();
     QTimer::singleShot(100, this, SLOT(slotStartLoadEcdis()));
 }
 
 glChartCanvas::~glChartCanvas()
 {
-    if(m_pEM_Feet )delete m_pEM_Feet;
-    if(m_pEM_Meters )delete m_pEM_Meters;
-    if(m_pEM_Fathoms )delete m_pEM_Fathoms;
-    if(m_pEM_OverZoom )delete m_pEM_OverZoom;
     if(pWorldBackgroundChart) delete pWorldBackgroundChart;
-    if(pCursorLeft)delete pCursorLeft;
-    if(pCursorRight)delete pCursorRight;
-    if(pCursorUp)delete pCursorUp;
-    if(pCursorDown)delete pCursorDown;
-    if(pCursorArrow)delete pCursorArrow;
-    if(pCursorPencil)delete pCursorPencil;
-    if(pCursorCross)delete pCursorCross;
 }
 
 void glChartCanvas::FlushFBO( void ) 
@@ -572,13 +551,13 @@ void glChartCanvas::resizeGL(int w, int h)
     {
         BuildFBO();
     }
-    QGLWidget::resizeGL(w, h);
+//    QGLWidget::resizeGL(w, h);
 }
 
 
 void glChartCanvas::mouseDoubleClickEvent(QMouseEvent* event)
 {
-    QGLWidget::mouseDoubleClickEvent(event);
+//    QGLWidget::mouseDoubleClickEvent(event);
 }
 
 void glChartCanvas::mouseMoveEvent(QMouseEvent* e)
@@ -602,7 +581,7 @@ void glChartCanvas::mouseMoveEvent(QMouseEvent* e)
             }
         }
     }
-    QGLWidget::mouseMoveEvent(e);
+//    QGLWidget::mouseMoveEvent(e);
 }
 
 void glChartCanvas::mousePressEvent(QMouseEvent* e)
@@ -617,7 +596,7 @@ void glChartCanvas::mousePressEvent(QMouseEvent* e)
         last_drag_point = e->pos();
     }
     qDebug()<<e->buttons()<<mIsLeftDown;
-    QGLWidget::mousePressEvent(e);
+//    QGLWidget::mousePressEvent(e);
 }
 
 void glChartCanvas::mouseReleaseEvent(QMouseEvent* e)
@@ -638,7 +617,7 @@ void glChartCanvas::mouseReleaseEvent(QMouseEvent* e)
     qDebug()<<e->buttons()<<mIsLeftDown;
     m_MouseDragging = false;
 
-    QGLWidget::mouseReleaseEvent(e);
+//    QGLWidget::mouseReleaseEvent(e);
 }
 
 void glChartCanvas::wheelEvent(QWheelEvent * e)
@@ -718,20 +697,12 @@ void glChartCanvas::keyPressEvent(QKeyEvent *event)
         Invalidate();
         break;
     }
-
-    case Qt::Key_F12: {
-        ToggleChartOutlines();
-        break;
-    }
     case Qt::Key_PageUp:
         Zoom( 2.0, false );
         break;
         //    case Qt::Key_NUMPAD_SUBTRACT:   // '-' on NUM PAD
     case Qt::Key_PageDown:
         Zoom( .5, false );
-        break;
-    case Qt::Key_O:
-        ToggleChartOutlines();
         break;
     case Qt::Key_D:
         SetShowENCDepth(!GetShowENCDepth());
@@ -743,14 +714,14 @@ void glChartCanvas::keyPressEvent(QKeyEvent *event)
         break;
 
     }
-    QGLWidget::keyPressEvent(event);
+//    QGLWidget::keyPressEvent(event);
 }
 
 
 
 void glChartCanvas::BuildFBO( )
 {
-    if(isVisible())        makeCurrent();
+//    if(isVisible())        makeCurrent();
     
     if( m_b_BuiltFBO ) {
         glDeleteTextures( 2, m_cache_tex );
@@ -1148,25 +1119,9 @@ void glChartCanvas::SetupOpenGL()
         ps52plib->SetGLOptions(s_b_useStencil, s_b_useStencilAP, s_b_useScissorTest,  s_b_useFBO, g_b_EnableVBO, g_texture_rectangle_format);
     
     m_bsetup = true;
-    
-    SendJSONConfigMessage();    
 }
 
-void glChartCanvas::SendJSONConfigMessage()
-{
-//    if(g_pi_manager){
-//        wxJSONValue v;
-//        v[_T("setupComplete")] =  m_bsetup;
-//        v[_T("useStencil")] =  s_b_useStencil;
-//        v[_T("useStencilAP")] =  s_b_useStencilAP;
-//        v[_T("useScissorTest")] =  s_b_useScissorTest;
-//        v[_T("useFBO")] =  s_b_useFBO;
-//        v[_T("useVBO")] =  g_b_EnableVBO;
-//        v[_T("TextureRectangleFormat")] =  g_texture_rectangle_format;
-//        QString msg_id( _T("OCPN_OPENGL_CONFIG") );
-//        g_pi_manager->SendJSONMessageToAllPlugins( msg_id, v );
-//    }
-}
+
 void glChartCanvas::SetupCompression()
 {
     int dim = g_GLOptions.m_iTextureDimension;
@@ -1256,8 +1211,7 @@ void glChartCanvas::paintGL()
 {
     QTime   t;
     t.start();
-    if(!m_pcontext) return;
-    makeCurrent();
+//    makeCurrent();
     
     if( !m_bsetup ) {
         SetupOpenGL();
@@ -1905,70 +1859,6 @@ void glChartCanvas::GridDraw( )
     glDisable( GL_BLEND );
 }
 
-
-void glChartCanvas::DrawEmboss( emboss_data *emboss  )
-{
-    if( !emboss ) return;
-    
-    int w = emboss->width, h = emboss->height;
-    
-    glEnable( GL_TEXTURE_2D );
-    
-    // render using opengl and alpha blending
-    if( !emboss->gltexind ) { /* upload to texture */
-
-        emboss->glwidth = NextPow2(emboss->width);
-        emboss->glheight = NextPow2(emboss->height);
-                
-        /* convert to luminance alpha map */
-        int size = emboss->glwidth * emboss->glheight;
-        char *data = new char[2 * size];
-        for( int i = 0; i < h; i++ ) {
-            for( int j = 0; j < emboss->glwidth; j++ ) {
-                if( j < w ) {
-                    data[2 * ( ( i * emboss->glwidth ) + j )] =
-                        (char) (emboss->pmap[( i * w ) + j] > 0 ? 0 : 255);
-                    data[2 * ( ( i * emboss->glwidth ) + j ) + 1] = 
-                        (char) abs( (emboss->pmap[( i * w ) + j]) );
-                }
-            }
-        }
-
-        glGenTextures( 1, &emboss->gltexind );
-        glBindTexture( GL_TEXTURE_2D, emboss->gltexind );
-        glTexImage2D( GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA, emboss->glwidth, emboss->glheight, 0,
-                      GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, data );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-        
-        delete[] data;
-    }
-    
-    glBindTexture( GL_TEXTURE_2D, emboss->gltexind );
-    
-    glEnable( GL_BLEND );
-    glTexEnvi( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
-    
-    const float factor = 200;
-    glColor4f( 1, 1, 1, factor / 256 );
-    
-    int x = emboss->x, y = emboss->y;
-
-    float wp = (float) w / emboss->glwidth;
-    float hp = (float) h / emboss->glheight;
-    
-    glBegin( GL_QUADS );
-    glTexCoord2f( 0, 0 ), glVertex2i( x, y );
-    glTexCoord2f( wp, 0 ), glVertex2i( x + w, y );
-    glTexCoord2f( wp, hp ), glVertex2i( x + w, y + h );
-    glTexCoord2f( 0, hp ), glVertex2i( x, y + h );
-    glEnd();
-    
-    glDisable( GL_BLEND );
-    glDisable( GL_TEXTURE_2D );
-}
-
-
 void glChartCanvas::DrawFloatingOverlayObjects( ocpnDC &dc )
 {
     ViewPort &vp = mFrameWork->GetVP();
@@ -2469,7 +2359,7 @@ void glChartCanvas::RenderQuiltViewGL( ViewPort &vp, const OCPNRegion &rect_regi
                         }
                         else if(chart->GetChartType() == CHART_TYPE_MBTILES){
                             SetClipRegion(vp, pqp->ActiveRegion/*pqp->quilt_region*/);
-                            chart->RenderRegionViewOnGL( m_pcontext, vp, rect_region, get_region );
+                            chart->RenderRegionViewOnGL(vp, rect_region, get_region );
                             DisableClipRegion();
                         }
                         
@@ -2477,14 +2367,14 @@ void glChartCanvas::RenderQuiltViewGL( ViewPort &vp, const OCPNRegion &rect_regi
 
                         if(chart->GetChartType() == CHART_TYPE_CM93COMP){
                            RenderNoDTA(vp, get_region);
-                           chart->RenderRegionViewOnGL( m_pcontext, vp, rect_region, get_region );
+                           chart->RenderRegionViewOnGL(vp, rect_region, get_region );
                         }
                         else{
                             s57chart *Chs57 = dynamic_cast<s57chart*>( chart );
                             if(Chs57){
                                 if(Chs57->m_RAZBuilt){
                                     RenderNoDTA(vp, get_region);
-                                    Chs57->RenderRegionViewOnGLNoText(m_pcontext, vp, rect_region, get_region );
+                                    Chs57->RenderRegionViewOnGLNoText( vp, rect_region, get_region );
                                     DisableClipRegion();
                                 }
                                 else{
@@ -2516,11 +2406,11 @@ void glChartCanvas::RenderQuiltViewGL( ViewPort &vp, const OCPNRegion &rect_regi
                                 ChartPlugInWrapper *ChPI = dynamic_cast<ChartPlugInWrapper*>( chart );
                                 if(ChPI){
                                     RenderNoDTA(vp, get_region);
-                                    ChPI->RenderRegionViewOnGLNoText(m_pcontext, vp, rect_region, get_region );
+                                    ChPI->RenderRegionViewOnGLNoText(vp, rect_region, get_region );
                                 }
                                 else{    
                                     RenderNoDTA(vp, get_region);
-                                    chart->RenderRegionViewOnGL(m_pcontext, vp, rect_region, get_region );
+                                    chart->RenderRegionViewOnGL(vp, rect_region, get_region );
                                 }
                             }
                         }
@@ -2551,11 +2441,11 @@ void glChartCanvas::RenderQuiltViewGL( ViewPort &vp, const OCPNRegion &rect_regi
                 if( !get_region.Empty()  ) {
                     s57chart *Chs57 = dynamic_cast<s57chart*>( pch );
                     if( Chs57 )
-                        Chs57->RenderOverlayRegionViewOnGL(m_pcontext, vp, rect_region, get_region );
+                        Chs57->RenderOverlayRegionViewOnGL(vp, rect_region, get_region );
                     else{
                         ChartPlugInWrapper *ChPI = dynamic_cast<ChartPlugInWrapper*>( pch );
                         if(ChPI){
-                            ChPI->RenderRegionViewOnGL(m_pcontext, vp, rect_region, get_region );
+                            ChPI->RenderRegionViewOnGL( vp, rect_region, get_region );
                         }
                     }
 
@@ -2705,12 +2595,12 @@ void glChartCanvas::RenderQuiltViewGLText( ViewPort &vp, const OCPNRegion &rect_
                         
                         s57chart *Chs57 = dynamic_cast<s57chart*>( chart );
                         if(Chs57){
-                            Chs57->RenderViewOnGLTextOnly(m_pcontext, vp);
+                            Chs57->RenderViewOnGLTextOnly(vp);
                         }
                         else{
                             ChartPlugInWrapper *ChPI = dynamic_cast<ChartPlugInWrapper*>( chart );
                             if(ChPI){
-                                ChPI->RenderRegionViewOnGLTextOnly(m_pcontext, vp, rect_region);
+                                ChPI->RenderRegionViewOnGLTextOnly(vp, rect_region);
                             }
                         }
                     }    
@@ -2956,11 +2846,6 @@ void glChartCanvas::Render()
     ocpnDC gldc( this );
 
     int gl_width = width(), gl_height = height();
-//    GetClientSize( &gl_width, &gl_height );
-
-#ifdef __WXOSX__    
-    gl_height = mFrameWork->GetClientSize().y;
-#endif    
     
     OCPNRegion screen_region(QRect(0, 0, VPoint.pixWidth(), VPoint.pixHeight()));
 
@@ -3350,7 +3235,7 @@ void glChartCanvas::Render()
             ChartBase *chart = ChartData->OpenChartFromDBAndLock(*rit, FULL_INIT);
             ChartMBTiles *pcmbt = dynamic_cast<ChartMBTiles*>( chart );
             if(pcmbt){
-                pcmbt->RenderRegionViewOnGL(m_pcontext, vp, screen_region, screenLLRegion);
+                pcmbt->RenderRegionViewOnGL(vp, screen_region, screenLLRegion);
             }
         }
     }
@@ -3380,62 +3265,6 @@ void glChartCanvas::Render()
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
     }
-
-    DrawEmboss(EmbossDepthScale() );
-    DrawEmboss(EmbossOverzoomIndicator( gldc ) );
-
-    //  On some platforms, the opengl context window is always on top of any standard DC windows,
-    //  so we need to draw the Chart Info Window and the Thumbnail as overlayed bmps.
-
-#ifdef __WXOSX__    
-        if(mFrameWork->m_pCIWin && mFrameWork->m_pCIWin->IsShown()) {
-        int x, y, width, height;
-        mFrameWork->m_pCIWin->GetClientSize( &width, &height );
-        mFrameWork->m_pCIWin->GetPosition( &x, &y );
-        wxBitmap bmp(width, height, -1);
-        wxMemoryDC dc(bmp);
-        if(bmp.IsOk()){
-            dc.SetBackground( wxBrush(GetGlobalColor( _T ( "UIBCK" ) ) ));
-            dc.Clear();
- 
-            dc.SetTextBackground( GetGlobalColor( _T ( "UIBCK" ) ) );
-            dc.SetTextForeground( GetGlobalColor( _T ( "UITX1" ) ) );
-            
-            int yt = 0;
-            int xt = 0;
-            QString s = mFrameWork->m_pCIWin->GetString();
-            int h = mFrameWork->m_pCIWin->GetCharHeight();
-            
-            QStringTokenizer tkz( s, _T("\n") );
-            QString token;
-            
-            while(tkz.HasMoreTokens()) {
-                token = tkz.GetNextToken();
-                dc.DrawText(token, xt, yt);
-                yt += h;
-            }
-            dc.SelectObject(wxNullBitmap);
-            
-            gldc.DrawBitmap( bmp, x, y, false);
-        }
-    }
-
-    if( pthumbwin && pthumbwin->IsShown()) {
-        int thumbx, thumby;
-        pthumbwin->GetPosition( &thumbx, &thumby );
-        if( pthumbwin->GetBitmap().IsOk())
-            gldc.DrawBitmap( pthumbwin->GetBitmap(), thumbx, thumby, false);
-    }
-    
-    if(g_MainToolbar && g_MainToolbar->m_pRecoverwin ){
-        int recoverx, recovery;
-        g_MainToolbar->m_pRecoverwin->GetPosition( &recoverx, &recovery );
-        if( g_MainToolbar->m_pRecoverwin->GetBitmap().IsOk())
-            gldc.DrawBitmap( g_MainToolbar->m_pRecoverwin->GetBitmap(), recoverx, recovery, true);
-    }
-    
-    
-#endif
     
     RenderGLAlertMessage();
 
@@ -3685,9 +3514,7 @@ void glChartCanvas::FastPan(int dx, int dy)
 
 QColor glChartCanvas::GetBackGroundColor()const
 {
-    QPalette pal = this->palette();
-    QBrush brush = pal.background();
-    return brush.color();
+    return backgroundColor();
 }
 
 void glChartCanvas::RenderGLAlertMessage()
@@ -3861,226 +3688,9 @@ void glChartCanvas::FastZoom(float factor)
     }
 }
 
-void glChartCanvas::ToggleChartOutlines()
-{
-    m_bShowOutlines = !m_bShowOutlines;
-    Refresh( false );
-    Invalidate();
-}
-
-emboss_data *glChartCanvas::EmbossOverzoomIndicator( ocpnDC &dc )
-{
-    double zoom_factor = mFrameWork->GetVP().refScale() / mFrameWork->GetVP().chartScale();
-    // disable Overzoom indicator for MBTiles
-    int refIndex = mFrameWork->GetQuiltRefChartdbIndex();
-    if(refIndex >= 0){
-        const ChartTableEntry &cte = ChartData->GetChartTableEntry( refIndex );
-        ChartTypeEnum current_type = (ChartTypeEnum) cte.GetChartType();
-        if( current_type == CHART_TYPE_MBTILES){
-            ChartBase *pChart = mFrameWork->m_pQuilt->GetRefChart();
-            ChartMBTiles *ptc = dynamic_cast<ChartMBTiles *>( pChart );
-            if(ptc){
-                zoom_factor = ptc->GetZoomFactor();
-            }
-        }
-    }
-
-    if( zoom_factor <= 3.9 )
-        return NULL;
-
-    if(m_pEM_OverZoom){
-        m_pEM_OverZoom->x = 4;
-        m_pEM_OverZoom->y = 0;
-    }
-    return m_pEM_OverZoom;
-}
-
-emboss_data *glChartCanvas::EmbossDepthScale()
-{
-    if( !m_bShowDepthUnits ) return NULL;
-    int depth_unit_type = DEPTH_UNIT_UNKNOWN;
-    QString s = mFrameWork->m_pQuilt->GetQuiltDepthUnit();
-    s.toUpper();
-    if( s == ("FEET") ) depth_unit_type = DEPTH_UNIT_FEET;
-    else if( s.startsWith( ("FATHOMS") ) ) depth_unit_type = DEPTH_UNIT_FATHOMS;
-    else if( s.startsWith( ("METERS") ) ) depth_unit_type = DEPTH_UNIT_METERS;
-    else if( s.startsWith( ("METRES") ) ) depth_unit_type = DEPTH_UNIT_METERS;
-    else if( s.startsWith( ("METRIC") ) ) depth_unit_type = DEPTH_UNIT_METERS;
-    else if( s.startsWith( ("METER") ) ) depth_unit_type = DEPTH_UNIT_METERS;
-    emboss_data *ped = NULL;
-    switch( depth_unit_type ) {
-    case DEPTH_UNIT_FEET:
-        ped = m_pEM_Feet;
-        break;
-    case DEPTH_UNIT_METERS:
-        ped = m_pEM_Meters;
-        break;
-    case DEPTH_UNIT_FATHOMS:
-        ped = m_pEM_Fathoms;
-        break;
-    default:
-        return NULL;
-    }
-
-    ped->x = ( mFrameWork->GetVP().pixWidth() - ped->width );
-    ped->y = 40;
-    return ped;
-}
-
-#define OVERZOOM_TEXT ("OverZoom")
-
-void glChartCanvas::SetOverzoomFont()
-{
-    ocpnStyle::Style* style = StyleMgrIns->GetCurrentStyle();
-    int w, h;
-
-    QFont font;
-    if( style->embossFont.isEmpty() ){
-        QFont dFont = FontMgr::Get().GetFont( ("Dialog"), 0 );
-        font = dFont;
-        font.setPointSize(40);
-        font.setWeight(QFont::Weight::Bold);
-    }
-    else
-    {
-        font = QFont( "Micorosoft YaHei", 40, QFont::Weight::Bold);
-    }
-
-    QFontMetrics m(font);
-    w = m.width(OVERZOOM_TEXT);
-    h = m.height();
-
-    while( font.pointSize() > 10 && (w > 500 || h > 100) )
-    {
-        font.setPointSize( font.pointSize() - 1 );
-        QFontMetrics s(font);
-        w = s.width(OVERZOOM_TEXT);
-        h = s.height();
-    }
-    m_overzoomFont = font;
-    m_overzoomTextWidth = w;
-    m_overzoomTextHeight = h;
-}
-
-emboss_data *glChartCanvas::CreateEmbossMapData( QFont &font, int width, int height, const QString &str, ColorScheme cs )
-{
-    int *pmap;
-
-    //  Create a temporary bitmap
-    wxBitmap bmp( width, height, -1 );
-
-    // Create a memory DC
-    QPainter temp_dc;
-    temp_dc.begin(bmp.GetHandle());
-    temp_dc.setBackground(QBrush(Qt::white));
-    QPen pen = temp_dc.pen();
-    pen.setColor(Qt::black);
-    temp_dc.setPen(pen);
-    temp_dc.eraseRect(QRect(0, 0, temp_dc.device()->width(), temp_dc.device()->height()));
-    temp_dc.setFont(font );
-
-    int str_w = temp_dc.fontMetrics().width(str), str_h = temp_dc.fontMetrics().height();
-    temp_dc.drawText(1, 1, str );
-    temp_dc.end();
-
-    //  Convert bitmap the QImage for manipulation
-    QImage img = bmp.ConvertToImage();
-
-    int image_width = str_w * 105 / 100;
-    int image_height = str_h * 105 / 100;
-    QRect r(0,0, fmin(image_width, img.width()), fmin(image_height, img.height()));
-    QImage imgs = img.copy(r);
-
-    double val_factor;
-    switch( cs ) {
-    case GLOBAL_COLOR_SCHEME_DAY:
-    default:
-        val_factor = 1;
-        break;
-    case GLOBAL_COLOR_SCHEME_DUSK:
-        val_factor = .5;
-        break;
-    case GLOBAL_COLOR_SCHEME_NIGHT:
-        val_factor = .25;
-        break;
-    }
-
-    int val;
-    int index;
-    const int w = imgs.width();
-    const int h = imgs.height();
-    pmap = (int *) calloc( w *  h * sizeof(int), 1 );
-    //  Create emboss map by differentiating the emboss image
-    //  and storing integer results in pmap
-    //  n.b. since the image is B/W, it is sufficient to check
-    //  one channel (i.e. red) only
-    for( int y = 1; y < h - 1; y++ ) {
-        for( int x = 1; x < w - 1; x++ ) {
-            val = img.pixelColor( x + 1, y + 1 ).red() - img.pixelColor( x - 1, y - 1 ).red();  // range +/- 256
-            val = (int) ( val * val_factor );
-            index = ( y * w ) + x;
-            pmap[index] = val;
-
-        }
-    }
-
-    emboss_data *pret = new emboss_data;
-    pret->pmap = pmap;
-    pret->width = w;
-    pret->height = h;
-
-    return pret;
-}
-
-void glChartCanvas::CreateDepthUnitEmbossMaps( ColorScheme cs )
-{
-    ocpnStyle::Style* style = StyleMgrIns->GetCurrentStyle();
-    QFont font;
-    if( style->embossFont.isEmpty() ){
-        QFont dFont = FontMgr::Get().GetFont( ("Dialog"), 0 );
-        font = dFont;
-        font.setPointSize(60);
-        font.setWeight(QFont::Weight::Bold);
-    }
-    else
-    {
-        font = QFont( "Micorosoft YH", 60, QFont::Weight::Bold);
-    }
-
-
-    int emboss_width = 500;
-    int emboss_height = 200;
-
-    // Free any existing emboss maps
-    delete m_pEM_Feet;
-    delete m_pEM_Meters;
-    delete m_pEM_Fathoms;
-
-    // Create the 3 DepthUnit emboss map structures
-    m_pEM_Feet = CreateEmbossMapData( font, emboss_width, emboss_height, ("Feet"), cs );
-    m_pEM_Meters = CreateEmbossMapData( font, emboss_width, emboss_height, ("Meters"), cs );
-    m_pEM_Fathoms = CreateEmbossMapData( font, emboss_width, emboss_height, ("Fathoms"), cs );
-}
-
-void glChartCanvas::CreateOZEmbossMapData( ColorScheme cs )
-{
-    delete m_pEM_OverZoom;
-
-    if( m_overzoomTextWidth > 0 && m_overzoomTextHeight > 0 )
-        m_pEM_OverZoom = CreateEmbossMapData( m_overzoomFont, m_overzoomTextWidth + 10, m_overzoomTextHeight + 10, OVERZOOM_TEXT, cs );
-}
-
-void glChartCanvas::CanvasApplyLocale()
-{
-    CreateDepthUnitEmbossMaps( m_cs );
-    CreateOZEmbossMapData( m_cs );
-}
 
 void glChartCanvas::SetColorScheme( ColorScheme cs )
 {
-    CreateDepthUnitEmbossMaps( cs );
-    CreateOZEmbossMapData( cs );
-
     //  Set up fog effect base color
     m_fog_color = QColor( 170, 195, 240 );  // this is gshhs (backgound world chart) ocean color
     float dim = 1.0;
@@ -4103,77 +3713,6 @@ void glChartCanvas::SetColorScheme( ColorScheme cs )
     m_cs = cs;
 }
 
-void glChartCanvas::buildStyle()
-{
-    ocpnStyle::Style* style = StyleMgrIns->GetCurrentStyle();
-    if(!style) return;
-    QImage ICursorLeft = style->GetIcon(("left") ).ConvertToImage();
-    QImage ICursorRight = style->GetIcon( ("right") ).ConvertToImage();
-    QImage ICursorUp = style->GetIcon( ("up") ).ConvertToImage();
-    QImage ICursorDown = style->GetIcon( ("down") ).ConvertToImage();
-    QImage ICursorPencil = style->GetIcon( ("pencil") ).ConvertToImage();
-    QImage ICursorCross = style->GetIcon( ("cross") ).ConvertToImage();
-
-    if( !ICursorLeft.isNull() ) {
-        //        ICursorLeft.set( QImage_OPTION_CUR_HOTSPOT_X, 0 );
-        //        ICursorLeft.SetOption( QImage_OPTION_CUR_HOTSPOT_Y, 15 );
-        pCursorLeft = new QCursor(QPixmap::fromImage(ICursorLeft) );
-    } else
-        pCursorLeft = new QCursor( Qt::ArrowCursor );
-
-    if( !ICursorRight.isNull() ) {
-        //        ICursorRight.SetOption( QImage_OPTION_CUR_HOTSPOT_X, 31 );
-        //        ICursorRight.SetOption( QImage_OPTION_CUR_HOTSPOT_Y, 15 );
-        pCursorRight = new QCursor( QPixmap::fromImage(ICursorRight) );
-    } else
-        pCursorRight = new QCursor( Qt::ArrowCursor );
-
-    if( !ICursorUp.isNull()  ) {
-        //        ICursorUp.SetOption( QImage_OPTION_CUR_HOTSPOT_X, 15 );
-        //        ICursorUp.SetOption( QImage_OPTION_CUR_HOTSPOT_Y, 0 );
-        pCursorUp = new QCursor( QPixmap::fromImage(ICursorUp) );
-    } else
-        pCursorUp = new QCursor( Qt::ArrowCursor );
-
-    if( !ICursorDown.isNull()  ) {
-        //        ICursorDown.SetOption( QImage_OPTION_CUR_HOTSPOT_X, 15 );
-        //        ICursorDown.SetOption( QImage_OPTION_CUR_HOTSPOT_Y, 31 );
-        pCursorDown = new QCursor( QPixmap::fromImage(ICursorDown) );
-    } else
-        pCursorDown = new QCursor( Qt::ArrowCursor );
-
-    if( !ICursorPencil.isNull() ) {
-        //        ICursorPencil.SetOption( QImage_OPTION_CUR_HOTSPOT_X, 0 );
-        //        ICursorPencil.SetOption( QImage_OPTION_CUR_HOTSPOT_Y, 15 );
-        pCursorPencil = new QCursor( QPixmap::fromImage(ICursorPencil) );
-    } else
-        pCursorPencil = new QCursor( Qt::ArrowCursor );
-
-    if( !ICursorCross.isNull() ) {
-        //        ICursorCross.SetOption( QImage_OPTION_CUR_HOTSPOT_X, 13 );
-        //        ICursorCross.SetOption( QImage_OPTION_CUR_HOTSPOT_Y, 12 );
-        pCursorCross = new QCursor( QPixmap::fromImage(ICursorCross) );
-    } else
-        pCursorCross = new QCursor( Qt::ArrowCursor );
-
-    pCursorArrow = new QCursor( Qt::ArrowCursor );
-    pPlugIn_Cursor = NULL;
-
-    setCursor( *pCursorArrow );
-
-    CreateDepthUnitEmbossMaps( GLOBAL_COLOR_SCHEME_DAY );
-    SetOverzoomFont();
-    CreateOZEmbossMapData( GLOBAL_COLOR_SCHEME_DAY );
-
-
-
-    //    Build Dusk/Night  ownship icons
-    double factor_dusk = 0.5;
-    double factor_night = 0.25;
-
-    m_b_paint_enable = true;
-
-}
 
 bool glChartCanvas::initBeforeUpdateMap()
 {
@@ -4262,7 +3801,7 @@ bool glChartCanvas::UpdateChartDatabaseInplace( ArrayOfCDI &DirArray, bool b_for
     }
 
     if(mDBProgressDlg)mDBProgressDlg->show();
-    setCursor(OCPNPlatform::instance()->ShowBusySpinner());
+//    setCursor(OCPNPlatform::instance()->ShowBusySpinner());
     EnablePaint(false);
     connect(mFrameWork, SIGNAL(signalUpdateChartArrayFinished()),
             this, SLOT(slotUpdateChartFinished()));
@@ -4271,7 +3810,7 @@ bool glChartCanvas::UpdateChartDatabaseInplace( ArrayOfCDI &DirArray, bool b_for
 
 void glChartCanvas::slotUpdateChartFinished()
 {
-    setCursor(OCPNPlatform::instance()->HideBusySpinner());
+//    setCursor(OCPNPlatform::instance()->HideBusySpinner());
     if(mDBProgressDlg)
     {
         mDBProgressDlg->hide();
@@ -4695,7 +4234,23 @@ void glChartCanvas::setCurLL(double lat, double lon)
     m_cursor_lon = lon;
     double old_x = mouse_x;
     double old_y = mouse_y;
-    mFrameWork->GetCanvasPixPoint(mouse_x, mouse_y, lat, lon);
+    zchxPoint r;
+    mFrameWork->GetCanvasPointPix(lat, lon, r);
+    mouse_x = r.x;
+    mouse_y = r.y;
+}
+
+void glChartCanvas::getPixcelOfLL(int &x, int &y, double lat, double lon)
+{
+    zchxPoint r;
+    mFrameWork->GetCanvasPointPix(lat, lon, r);
+    x = r.x;
+    y = r.y;
+}
+
+void glChartCanvas::getLLOfPix(double &lat, double &lon, int x, int y)
+{
+    mFrameWork->GetCanvasPixPoint(x, y, lat, lon);
 }
 
 
@@ -4733,7 +4288,6 @@ void glChartCanvas::RotateContinus(double dir)
 
 void glChartCanvas::slotStartLoadEcdis()
 {
-    buildStyle();
     if(initBeforeUpdateMap())
     {
         if(!m_bsetup)SetupOpenGL();

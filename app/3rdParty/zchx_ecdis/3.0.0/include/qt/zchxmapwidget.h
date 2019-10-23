@@ -33,11 +33,11 @@ class zchxShipPlanDataMgr;
 class zchxEcdisDataMgr;
 class zchxDrawTool;
 
-class zchxMapWidget : public QWidget
+class zchxMapWidget : public QGLWidget
 {
     Q_OBJECT
 public:
-    explicit zchxMapWidget(QWidget *parent = 0);
+    explicit zchxMapWidget(ZCHX::ZCHX_MAP_TYPE type = ZCHX::ZCHX_MAP_TILE, QWidget *parent = 0);
     ~zchxMapWidget();
     //地图显示
     void setCurZoom(int zoom);
@@ -165,8 +165,11 @@ protected:
     void mouseMoveEvent(QMouseEvent * e) override;
     void mouseReleaseEvent(QMouseEvent * e) override;
     void wheelEvent(QWheelEvent * e) override;
-    virtual void resizeEvent(QResizeEvent* e);
+//    virtual void resizeEvent(QResizeEvent* e);
     virtual void paintEvent(QPaintEvent* e);
+    void initializeGL();
+//    void paintGL();
+    void resizeGL(int w, int h);
 
 signals:
     void signalDisplayCurPos(double lon, double lat);

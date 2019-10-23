@@ -10,18 +10,13 @@ namespace Ui {
 class MainWindow;
 }
 namespace qt {
-enum ZCHX_MAP_TYPE
-{
-    ZCHX_MAP_TILE = 0,              //瓦片地图
-    ZCHX_MAP_VECTOR,                //矢量地图
-};
 
 class ZCHX_ECDIS_EXPORT MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(ZCHX_MAP_TYPE type = ZCHX_MAP_TILE, QWidget *parent = 0);
+    explicit MainWindow(ZCHX::ZCHX_MAP_TYPE type = ZCHX::ZCHX_MAP_TILE, QWidget *parent = 0);
     ~MainWindow();
     void resizeEvent(QResizeEvent *e);
     void closeEvent(QCloseEvent *);
@@ -753,7 +748,6 @@ protected Q_SLOTS:
 private:
     Ui::MainWindow *ui;
     zchxMapWidget *mMapWidget;
-    ZCHX_MAP_TYPE       mMapType;
 };
 }
 

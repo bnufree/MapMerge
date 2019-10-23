@@ -3620,7 +3620,7 @@ int Osenc::GetBaseFileInfo(const QString& FullPath000, const QString& SENCFileNa
         return ERROR_BASEFILE_ATTRIBUTES;
     }
     
-    OGRS57DataSource oS57DS(true);
+    OGRS57DataSource oS57DS(false);
     oS57DS.SetS57Registrar( m_poRegistrar );
 
     bool b_current_debug = g_bGDAL_Debug;

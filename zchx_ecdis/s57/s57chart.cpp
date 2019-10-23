@@ -2677,6 +2677,8 @@ int s57chart::FindOrCreateSenc( const QString& name, bool b_progress )
             return INIT_FAIL_RETRY;
     }
 
+    qDebug()<<" senc file ok";
+
     return INIT_OK;
 }
 
@@ -5600,7 +5602,7 @@ bool s57chart::InitENCMinimal( const QString &FullPath )
         return false;
     }
 
-    m_pENCDS.reset( new OGRS57DataSource(true) );
+    m_pENCDS.reset( new OGRS57DataSource(false) );
 
     m_pENCDS->SetS57Registrar( g_poRegistrar );             ///172
 

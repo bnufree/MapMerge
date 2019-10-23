@@ -153,6 +153,7 @@ public slots:
 
 
       double GetPixPerMM(){ return m_pix_per_mm;}
+      double getViewScale() const {return mViewPoint.viewScalePPM();}
 
 
 

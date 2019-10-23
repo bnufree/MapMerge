@@ -204,7 +204,8 @@ SOURCES += mainwindow.cpp \
     s57/glTextureManager.cpp \
     s57/glChartCanvas.cpp \
     s57/glwidget.cpp \
-    s57/mbtiles.cpp
+    s57/mbtiles.cpp \
+    s57/GL/zchxopenglutil.cpp
 
 HEADERS  += mainwindow.h \
     zchxtileimagethread.h \
@@ -328,7 +329,8 @@ HEADERS  += mainwindow.h \
     s57/glTextureManager.h \
     s57/glChartCanvas.h \
     s57/glwidget.h \
-    s57/mbtiles.h
+    s57/mbtiles.h \
+    s57/GL/zchxopenglutil.h
 
 FORMS    += mainwindow.ui \
     coastdatainfodialog.ui \

@@ -34,16 +34,17 @@ void zchxVectorMapFrameWork::updateDisplayRange()
 
 }
 
-//设定地图数据来源
-void zchxVectorMapFrameWork::setSource(const QString& source, int pos)
-{
-
-}
 
 //地图操作接口
 void zchxVectorMapFrameWork::zoomIn()
 {
     mGLCtrl->Zoom( 2.0, false );
+}
+
+int  zchxVectorMapFrameWork::getZoom() const
+{
+    double ppm = mGLCtrl->getViewScalePPM();
+
 }
 
 void zchxVectorMapFrameWork::zoomOut()
@@ -80,4 +81,18 @@ void zchxVectorMapFrameWork::resizeGL(int w, int h)
 void zchxVectorMapFrameWork::initializeGL()
 {
     mGLCtrl->initializeGL();
+}
+
+void zchxVectorMapFrameWork::initEcdis()
+{
+    if(mGLCtrl) mGLCtrl->slotStartLoadEcdis();
+}
+
+void zchxVectorMapFrameWork::setSource(const QString &source, int pos)
+{
+    ChartDirInfo info;
+    info.fullpath = source;
+    ArrayOfCDI cdi;
+    cdi.append(info);
+    if(mGLCtrl) mGLCtrl->UpdateChartDatabaseInplace(cdi, true, true);
 }

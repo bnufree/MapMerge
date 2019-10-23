@@ -20,6 +20,7 @@ public:
     virtual     void        setSource(const QString& source, int pos);
 
     //地图操作接口
+    virtual     int         getZoom() const;
     virtual     void        zoomIn();               //放大缩小
     virtual     void        zoomOut();
     virtual     void        pan(int x, int y);     //平移
@@ -32,6 +33,8 @@ public:
     void resizeGL(int w, int h);
     void initializeGL();
 
+    //开始地图初始化
+    virtual void  initEcdis();
 private:
     glChartCanvas*          mGLCtrl;
 

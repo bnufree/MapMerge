@@ -1277,6 +1277,11 @@ int Osenc::ValidateAndCountUpdates( const QFileInfo& file000, const QString Copy
                 
                 if( QFile::exists(ufile.absoluteFilePath()) && ( flen > 25 ) )        // a valid update file or base file
                 {
+                    if(QFile::exists(cp_ufile))
+                    {
+                        qDebug()<<"delete exisit file before copy:"<<cp_ufile;
+                        QFile::remove(cp_ufile);
+                    }
                     //      Copy the valid file to the SENC directory
                     bool cpok = QFile::copy(ufile.absoluteFilePath(), cp_ufile );
                     if( !cpok ) {
@@ -1285,6 +1290,9 @@ int Osenc::ValidateAndCountUpdates( const QFileInfo& file000, const QString Copy
                         msg.append( (" to ") );
                         msg.append( cp_ufile );
                         qDebug(msg.toUtf8().data());
+                    } else
+                    {
+                        qDebug()<<"   Copy temporary working ENC file  success."<<ufile.absoluteFilePath() ;
                     }
                 }
 

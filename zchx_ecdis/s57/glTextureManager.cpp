@@ -48,6 +48,7 @@
 #include "gl/glext.h"
 #include "gl/gl_private.h"
 
+#include "GL/zchxopenglutil.h"
 #include <QProgressDialog>
 
 
@@ -72,7 +73,7 @@ extern glChartCanvas          *glChart;
 
 extern ColorScheme global_color_scheme;
 
-extern PFNGLGETCOMPRESSEDTEXIMAGEPROC s_glGetCompressedTexImage;
+//extern PFNGLGETCOMPRESSEDTEXIMAGEPROC s_glGetCompressedTexImage;
 //extern bool GetMemoryStatus( int *mem_total, int *mem_used );
 extern QThread*         g_Main_thread;
 
@@ -254,7 +255,7 @@ static
 bool CompressUsingGPU(const unsigned char *data, int dim, int size,
                       unsigned char *tex_data, int level, bool inplace)
 {
-    if( !s_glGetCompressedTexImage )
+    if( !zchxOpenGlUtil::s_glGetCompressedTexImage )
         return false;
     
     GLuint comp_tex;
@@ -283,7 +284,7 @@ bool CompressUsingGPU(const unsigned char *data, int dim, int size,
             return false;
             
         // Read back the compressed texture.
-        s_glGetCompressedTexImage(GL_TEXTURE_2D, level, tex_data);
+        zchxOpenGlUtil::s_glGetCompressedTexImage(GL_TEXTURE_2D, level, tex_data);
     }
 
     if(!inplace)

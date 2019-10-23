@@ -102,6 +102,10 @@ void zchxMapWidget::initializeGL()
     glClearColor(0.8, 0.78, 0.5, 1.0);
     glShadeModel(GL_SMOOTH);
     glEnable(GL_DEPTH);
+
+
+    if(mFrameWork) mFrameWork->initEcdis();
+
 }
 
 #if 0

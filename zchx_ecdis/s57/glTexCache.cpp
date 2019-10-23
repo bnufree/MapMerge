@@ -49,6 +49,7 @@
 #include "texcmp/squish.h"
 #include "lz4/lz4.h"
 #include "lz4/lz4hc.h"
+#include "GL/zchxopenglutil.h"
 
 extern bool g_bDebugOGL;
 extern long g_tex_mem_used;
@@ -66,8 +67,8 @@ extern QString         g_PrivateDataDir;
 extern int              g_tile_size;
 extern int              g_uncompressed_tile_size;
 
-extern PFNGLCOMPRESSEDTEXIMAGE2DPROC s_glCompressedTexImage2D;
-extern PFNGLGENERATEMIPMAPEXTPROC          s_glGenerateMipmap;
+//extern PFNGLCOMPRESSEDTEXIMAGE2DPROC s_glCompressedTexImage2D;
+//extern PFNGLGENERATEMIPMAPEXTPROC          s_glGenerateMipmap;
 
 extern QString CompressedCachePath(const QString& path);
 extern glTextureManager   *g_glTextureManager;
@@ -496,7 +497,7 @@ bool glTexFactory::BuildTexture(glTextureDescriptor *ptd, int base_level, const 
             int size = TextureTileSize(level, true);
             int status = GetTextureLevel( ptd, rect, level, ptd->m_colorscheme );
             int dim = TextureDim(level);
-            s_glCompressedTexImage2D( GL_TEXTURE_2D, texture_level,
+            zchxOpenGlUtil::s_glCompressedTexImage2D( GL_TEXTURE_2D, texture_level,
                                       g_raster_format, dim, dim, 0, size,
                                       ptd->comp_array[level]);
 

@@ -21,7 +21,7 @@ public:
     void        setOffSet(int offset_x, int offset_y);
     QSize       getOffset() const {return mOffset;}
 
-    int         getZoom() const {return mCurZoom;}
+    virtual int         getZoom() const {return mCurZoom;}
     int         getDrawScale() const {return getZoom();}
     virtual void        setZoom(int zoom) ;
     void        setMinZoom(int zoom) {mMinZoom = zoom;}
@@ -62,6 +62,7 @@ public:
     //地图刷新
     virtual void        update() {}
     virtual void        paintGL() {}
+    virtual void        initEcdis() {}
 
 signals:
     void        signalSendCurMapinfo(double center_lat, double center_lon, int zoom);

@@ -70,6 +70,7 @@
 #include <map>
 
 #include "ssl_sha1/sha1.h"
+#include "GL/zchxopenglutil.h"
 
 #ifdef __MSVC__
 #define strncasecmp(x,y,z) _strnicmp(x,y,z)
@@ -82,12 +83,12 @@ void OpenCPN_OGRErrorHandler( CPLErr eErrClass, int nError,
                               const char * pszErrorMsg );               // installed GDAL OGR library error handler
 
 
-#ifdef ocpnUSE_GL
-extern PFNGLGENBUFFERSPROC                 s_glGenBuffers;
-extern PFNGLBINDBUFFERPROC                 s_glBindBuffer;
-extern PFNGLBUFFERDATAPROC                 s_glBufferData;
-extern PFNGLDELETEBUFFERSPROC              s_glDeleteBuffers;
-#endif
+//#ifdef ocpnUSE_GL
+//extern PFNGLGENBUFFERSPROC                 s_glGenBuffers;
+//extern PFNGLBINDBUFFERPROC                 s_glBindBuffer;
+//extern PFNGLBUFFERDATAPROC                 s_glBufferData;
+//extern PFNGLDELETEBUFFERSPROC              s_glDeleteBuffers;
+//#endif
 
 
 extern s52plib           *ps52plib;
@@ -299,8 +300,8 @@ s57chart::~s57chart()
     m_vc_hash.clear();
 
 #ifdef ocpnUSE_GL
-    if(s_glDeleteBuffers && (m_LineVBO_name > 0))
-        s_glDeleteBuffers(1, (GLuint *)&m_LineVBO_name);
+    if(zchxOpenGlUtil::s_glDeleteBuffers && (m_LineVBO_name > 0))
+        zchxOpenGlUtil::s_glDeleteBuffers(1, (GLuint *)&m_LineVBO_name);
 #endif
     free (m_this_chart_context);
 
@@ -1404,17 +1405,17 @@ void s57chart::BuildLineVBO( void )
 
         //      Create the VBO
         GLuint vboId;
-        (s_glGenBuffers)(1, &vboId);
+        (zchxOpenGlUtil::s_glGenBuffers)(1, &vboId);
 
         // bind VBO in order to use
-        (s_glBindBuffer)(GL_ARRAY_BUFFER, vboId);
+        (zchxOpenGlUtil::s_glBindBuffer)(GL_ARRAY_BUFFER, vboId);
 
         // upload data to VBO
         glEnableClientState(GL_VERTEX_ARRAY);             // activate vertex coords array
-        (s_glBufferData)(GL_ARRAY_BUFFER, m_vbo_byte_length, m_line_vertex_buffer, GL_STATIC_DRAW);
+        (zchxOpenGlUtil::s_glBufferData)(GL_ARRAY_BUFFER, m_vbo_byte_length, m_line_vertex_buffer, GL_STATIC_DRAW);
 
         glDisableClientState(GL_VERTEX_ARRAY);            // deactivate vertex array
-        (s_glBindBuffer)(GL_ARRAY_BUFFER, 0);
+        (zchxOpenGlUtil::s_glBindBuffer)(GL_ARRAY_BUFFER, 0);
 
         //  Loop and populate all the objects
         for( int i = 0; i < PRIO_NUM; ++i ) {
@@ -1582,8 +1583,6 @@ bool s57chart::DoRenderRegionViewOnGL( const ViewPort& VPoint,
 
 bool s57chart::DoRenderOnGL( const ViewPort& VPoint )
 {
-#ifdef ocpnUSE_GL
-
     int i;
     ObjRazRules *top;
     ObjRazRules *crnt;
@@ -1605,8 +1604,10 @@ bool s57chart::DoRenderOnGL( const ViewPort& VPoint )
         }
     }
 
+
     //    Render the lines and points
     for( i = 0; i < PRIO_NUM; ++i ) {
+//        qDebug()<<"normal:"<<i<<PRIO_NUM;
         if( ps52plib->m_nBoundaryStyle == SYMBOLIZED_BOUNDARIES )
             top = razRules[i][4]; // Area Symbolized Boundaries
         else
@@ -1619,6 +1620,7 @@ bool s57chart::DoRenderOnGL( const ViewPort& VPoint )
             ps52plib->RenderObjectToGL(crnt, &tvp );
         }
 
+
         top = razRules[i][2];           //LINES
         while( top != NULL ) {
 //            qDebug()<<"render line:"<<top->obj->FeatureName;
@@ -1627,6 +1629,7 @@ bool s57chart::DoRenderOnGL( const ViewPort& VPoint )
             crnt->sm_transform_parms = &vp_transform;
             ps52plib->RenderObjectToGL(crnt, &tvp );
         }
+
 
         if( ps52plib->m_nSymbolStyle == SIMPLIFIED )
             top = razRules[i][0];       //SIMPLIFIED Points
@@ -1644,8 +1647,6 @@ bool s57chart::DoRenderOnGL( const ViewPort& VPoint )
         }
 
     }
-
-#endif          //#ifdef ocpnUSE_GL
 
     return true;
 }
@@ -2659,7 +2660,7 @@ int s57chart::FindOrCreateSenc( const QString& name, bool b_progress )
         }
         else if( !QFile::exists(m_SENCFileName ) )                    // SENC file does not exist
         {
-            qDebug("    Rebuilding SENC due to missing SENC file.");
+            qDebug()<<("    Rebuilding SENC due to missing SENC file.")<<m_SENCFileName;
             bbuild_new_senc = true;
         }
     }
@@ -3627,6 +3628,11 @@ int s57chart::ValidateAndCountUpdates( const QFileInfo& file000, const QString C
                 if( flen > 25  )        // a valid update file or base file
                 {
                     //      Copy the valid file to the SENC directory
+                    if(QFile::exists(cp_ufile))
+                    {
+                        qDebug()<<"delete exisit file before copy:"<<cp_ufile;
+                        QFile::remove(cp_ufile);
+                    }
                     if(!QFile::copy(ufile.absoluteFilePath(), cp_ufile))
                     {
                         QString msg( ("   Cannot copy temporary working ENC file ") );
@@ -5594,7 +5600,7 @@ bool s57chart::InitENCMinimal( const QString &FullPath )
         return false;
     }
 
-    m_pENCDS.reset( new OGRS57DataSource );
+    m_pENCDS.reset( new OGRS57DataSource(true) );
 
     m_pENCDS->SetS57Registrar( g_poRegistrar );             ///172
 

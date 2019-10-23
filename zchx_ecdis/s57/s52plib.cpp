@@ -48,6 +48,7 @@
 #include <QDateTime>
 #include "OCPNPlatform.h"
 #include "FontMgr.h"
+#include "GL/zchxopenglutil.h"
 
 
 #ifndef PROJECTION_MERCATOR
@@ -65,11 +66,6 @@ extern zchxConfig*      g_config;
 
 
 float g_scaminScale;
-
-extern PFNGLGENBUFFERSPROC                 s_glGenBuffers;
-extern PFNGLBINDBUFFERPROC                 s_glBindBuffer;
-extern PFNGLBUFFERDATAPROC                 s_glBufferData;
-extern PFNGLDELETEBUFFERSPROC              s_glDeleteBuffers;
 
 void DrawAALine( QPainter *pDC, int x0, int y0, int x1, int y1, QColor clrLine, int dash, int space );
 extern bool GetDoubleAttr( S57Obj *obj, const char *AttrName, double &val );
@@ -2388,17 +2384,26 @@ int s52plib::RenderT_All( ObjRazRules *rzRules, Rules *rules, ViewPort *vp, bool
 // Text
 int s52plib::RenderTX( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 {
-    return RenderT_All( rzRules, rules, vp, true );
+    RendErrorChk chk("RenderTX");
+//    qDebug()<<"render start";
+    int sts = RenderT_All( rzRules, rules, vp, true );
+//    qDebug()<<"render start end";
+    return sts;
 }
 
 // Text formatted
 int s52plib::RenderTE( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 {
-    return RenderT_All( rzRules, rules, vp, false );
+    RendErrorChk chk("RenderTE");
+//    qDebug()<<"render start";
+    int sts = RenderT_All( rzRules, rules, vp, false );
+//    qDebug()<<"render start end";
+    return sts;
 }
 
 bool s52plib::RenderHPGL( ObjRazRules *rzRules, Rule *prule, zchxPoint &r, ViewPort *vp, float rot_angle )
 {
+    RendErrorChk chk("RenderHPGL");
     float fsf = 100 / canvas_pix_per_mm;
 
 
@@ -2844,6 +2849,7 @@ bool s52plib::RenderRasterSymbol( ObjRazRules *rzRules, Rule *prule, zchxPoint &
 // SYmbol
 int s52plib::RenderSY( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 {
+    RendErrorChk chk("RenderSY");
     float angle = 0;
     double orient;
 
@@ -2891,6 +2897,7 @@ int s52plib::RenderSY( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 // Line Simple Style, OpenGL
 int s52plib::RenderGLLS( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 {
+    RendErrorChk chk("RenderGLLS");
     // for now don't use vbo model in non-mercator
     if(vp->projectType() != PROJECTION_MERCATOR)
         return RenderLS(rzRules, rules, vp);
@@ -3024,7 +3031,7 @@ int s52plib::RenderGLLS( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 
     //   Has line segment PBO been allocated for this chart?
     if(b_useVBO){
-        (s_glBindBuffer)(GL_ARRAY_BUFFER, rzRules->obj->auxParm2);
+        (zchxOpenGlUtil::s_glBindBuffer)(GL_ARRAY_BUFFER, rzRules->obj->auxParm2);
     }
 
     
@@ -3087,7 +3094,7 @@ int s52plib::RenderGLLS( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
     }
     
     if(b_useVBO)
-        (s_glBindBuffer)(GL_ARRAY_BUFFER_ARB, 0);
+        (zchxOpenGlUtil::s_glBindBuffer)(GL_ARRAY_BUFFER_ARB, 0);
     
     glDisableClientState(GL_VERTEX_ARRAY);            // deactivate vertex array
 
@@ -3615,6 +3622,7 @@ int s52plib::RenderLSPlugIn( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 // Line Complex
 int s52plib::RenderLC( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 {
+    RendErrorChk chk("RenderLC");
     //     if(rzRules->obj->Index != 7574)
     //         return 0;
     
@@ -4269,6 +4277,7 @@ next_seg:
 // Multipoint Sounding
 int s52plib::RenderMPS( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 {
+    RendErrorChk chk("RenderMPS");
     if( !m_bShowSoundg )
         return 0;
 
@@ -4276,6 +4285,7 @@ int s52plib::RenderMPS( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
         if( vp->chartScale() > rzRules->obj->Scamin )
             return 0;
     }
+    if(!rzRules->obj) return 0;
     
     
     int npt = rzRules->obj->npt;
@@ -4392,6 +4402,7 @@ int s52plib::RenderMPS( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 
 int s52plib::RenderCARC( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 {
+    RendErrorChk chk("RenderCARC");
     return RenderCARC_VBO(rzRules, rules, vp);
 }
 
@@ -4745,7 +4756,6 @@ int s52plib::DoRenderObject(ObjRazRules *rzRules, ViewPort *vp )
         return 0;
 
     Rules *rules = rzRules->LUP->ruleList;
-
     while( rules != NULL ) {
         switch( rules->ruleType ){
         case RUL_TXT_TX:
@@ -4815,12 +4825,10 @@ int s52plib::DoRenderObject(ObjRazRules *rzRules, ViewPort *vp )
             rules = rules_last;
             break;
         }
-
         case RUL_NONE:
         default:
             break; // no rule type (init)
         } // switch
-
         rules = rules->next;
     }
 
@@ -6434,12 +6442,12 @@ int s52plib::RenderToGLAC( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 
                     GLuint vboId;
                     // generate a new VBO and get the associated ID
-                    (s_glGenBuffers)(1, &vboId);
+                    (zchxOpenGlUtil::s_glGenBuffers)(1, &vboId);
                     
                     rzRules->obj->auxParm0 = vboId;
                     
                     // bind VBO in order to use
-                    (s_glBindBuffer)(GL_ARRAY_BUFFER, vboId);
+                    (zchxOpenGlUtil::s_glBindBuffer)(GL_ARRAY_BUFFER, vboId);
                     GLenum err = glGetError();
                     if(err){
                         qDebug("VBO Error A: %d", err);
@@ -6448,7 +6456,7 @@ int s52plib::RenderToGLAC( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
                     
                     // upload data to VBO
                     glEnableClientState(GL_VERTEX_ARRAY);             // activate vertex coords array
-                    (s_glBufferData)(GL_ARRAY_BUFFER,
+                    (zchxOpenGlUtil::s_glBufferData)(GL_ARRAY_BUFFER,
                                      ppg_vbo->single_buffer_size, ppg_vbo->single_buffer, GL_STATIC_DRAW);
                     err = glGetError();
                     if(err){
@@ -6458,7 +6466,7 @@ int s52plib::RenderToGLAC( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
                     
                 }
                 else {
-                    (s_glBindBuffer)(GL_ARRAY_BUFFER, rzRules->obj->auxParm0);
+                    (zchxOpenGlUtil::s_glBindBuffer)(GL_ARRAY_BUFFER, rzRules->obj->auxParm0);
                     GLenum err = glGetError();
                     if(err){
                         qDebug("VBO Error C: %d", err);
@@ -6546,7 +6554,7 @@ int s52plib::RenderToGLAC( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
         } // while
         
         if(b_useVBO)
-            (s_glBindBuffer)(GL_ARRAY_BUFFER_ARB, 0);
+            (zchxOpenGlUtil::s_glBindBuffer)(GL_ARRAY_BUFFER_ARB, 0);
         
         glDisableClientState(GL_VERTEX_ARRAY);            // deactivate vertex array
         
@@ -6554,8 +6562,8 @@ int s52plib::RenderToGLAC( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
             glPopMatrix();
         
         if( b_useVBO && b_temp_vbo){
-            (s_glBufferData)(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
-            s_glDeleteBuffers(1, (unsigned int *)&rzRules->obj->auxParm0);
+            (zchxOpenGlUtil::s_glBufferData)(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
+            zchxOpenGlUtil::s_glDeleteBuffers(1, (unsigned int *)&rzRules->obj->auxParm0);
             rzRules->obj->auxParm0 = 0;
         }
     } // if pPolyTessGeo
@@ -7770,7 +7778,7 @@ bool s52plib::ObjectRenderCheckRules( ObjRazRules *rzRules, ViewPort *vp, bool c
     if( !ObjectRenderCheckPos( rzRules, vp ) )
         return false;
 
-    if( check_noshow && IsObjNoshow( rzRules->LUP->OBCL) )
+    if( check_noshow && rzRules->LUP && IsObjNoshow( rzRules->LUP->OBCL) )
         return false;
 
     if( ObjectRenderCheckCat( rzRules, vp ) )
@@ -8524,6 +8532,7 @@ bool RenderFromHPGL::Render( char *str, char *col, zchxPoint &r, zchxPoint &pivo
 
             if( arguments == "0" ) {
                 do {
+                    if(i>=commands.size()) break;
                     command = commands[i++];
                     arguments = command.mid( 2 );
                     command = command.left( 2 );
@@ -8539,7 +8548,7 @@ bool RenderFromHPGL::Render( char *str, char *col, zchxPoint &r, zchxPoint &pivo
                     if( command == "PD" ) {
                         QStringList points = arguments.split(",");
                         int k = 0;
-                        while( k < points.size()) {
+                        while( k  < points.size() && k+1 < points.size()) {
                             long x = points[k++].toLong();
                             long y = points[k++].toLong();
                             lineEnd = zchxPoint( x, y );

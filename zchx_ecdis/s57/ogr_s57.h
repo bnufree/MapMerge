@@ -96,6 +96,7 @@ typedef bool (*CallBackFunction)(void);
 
 class OGRS57DataSource
 {
+    bool                mDelFile;
     char                *pszName;
 
     int                 nLayers;
@@ -119,7 +120,7 @@ class OGRS57DataSource
     OGREnvelope         oExtents;
 
   public:
-                        OGRS57DataSource();
+                        OGRS57DataSource(bool delFile);
                         ~OGRS57DataSource();
 
     void                SetOptionList( char ** );

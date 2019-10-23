@@ -1188,8 +1188,13 @@ int Osenc::ingestCell( OGRS57DataSource *poS57DS, const QString &FullPath000, co
     papszReaderOptions = CSLSetNameValue( papszReaderOptions, S57O_RETURN_PRIMITIVES, "OFF" );
     poReader->SetOptions( papszReaderOptions );
     CSLDestroy( papszReaderOptions );
-    
-    QFile::remove(s0_file);
+
+    //因为reader还在打开着文件,所以删不掉.等读完了再删除,暂且屏蔽
+#if 0
+    bool sts = QFile::remove(s0_file);
+    qDebug()<<"rmove file "<<s0_file<<sts;
+#else
+#endif
     
     return 0;
 }
@@ -1277,6 +1282,11 @@ int Osenc::ValidateAndCountUpdates( const QFileInfo& file000, const QString Copy
                 
                 if( QFile::exists(ufile.absoluteFilePath()) && ( flen > 25 ) )        // a valid update file or base file
                 {
+                    if(QFile::exists(cp_ufile))
+                    {
+                        qDebug()<<"delete exisit file before copy:"<<cp_ufile;
+                        QFile::remove(cp_ufile);
+                    }
                     //      Copy the valid file to the SENC directory
                     bool cpok = QFile::copy(ufile.absoluteFilePath(), cp_ufile );
                     if( !cpok ) {
@@ -1285,6 +1295,9 @@ int Osenc::ValidateAndCountUpdates( const QFileInfo& file000, const QString Copy
                         msg.append( (" to ") );
                         msg.append( cp_ufile );
                         qDebug(msg.toUtf8().data());
+                    } else
+                    {
+                        qDebug()<<"   Copy temporary working ENC file  success."<<ufile.absoluteFilePath() ;
                     }
                 }
 
@@ -1499,15 +1512,14 @@ int Osenc::createSenc200(const QString& FullPath000, const QString& SENCFileName
         return ERROR_BASEFILE_ATTRIBUTES;
     }
     
-    OGRS57DataSource S57DS;
+    OGRS57DataSource S57DS(true);
     OGRS57DataSource *poS57DS = &S57DS;
     poS57DS->SetS57Registrar( m_poRegistrar );
     
 
     
     //  Ingest the .000 cell, with updates applied
-    
-    if(ingestCell( poS57DS, FullPath000, SENCfile.absolutePath())){
+    if(ingestCell(poS57DS, FullPath000, SENCfile.absolutePath())){
         errorMessage.sprintf("Error ingesting: %s", FullPath000.toUtf8().data());
         lockCR.unlock();
         return ERROR_INGESTING000;
@@ -3608,7 +3620,7 @@ int Osenc::GetBaseFileInfo(const QString& FullPath000, const QString& SENCFileNa
         return ERROR_BASEFILE_ATTRIBUTES;
     }
     
-    OGRS57DataSource oS57DS;
+    OGRS57DataSource oS57DS(true);
     oS57DS.SetS57Registrar( m_poRegistrar );
 
     bool b_current_debug = g_bGDAL_Debug;
@@ -3616,8 +3628,7 @@ int Osenc::GetBaseFileInfo(const QString& FullPath000, const QString& SENCFileNa
     
     
     //  Ingest the .000 cell, with updates applied
-    
-    if(ingestCell( &oS57DS, FullPath000, SENCfile.absolutePath())){
+    if(ingestCell(&oS57DS, FullPath000, SENCfile.absolutePath())){
         errorMessage.sprintf("Error ingesting: %s", FullPath000.toUtf8().data());
         return ERROR_INGESTING000;
     }

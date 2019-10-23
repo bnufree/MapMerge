@@ -72,6 +72,7 @@
 #include "s52plib.h"
 
 #include "lz4/lz4.h"
+#include "GL/zchxopenglutil.h"
 
 #ifdef __OCPN__ANDROID__
 //  arm gcc compiler has a lot of trouble passing doubles as function aruments.
@@ -150,25 +151,7 @@ extern bool         g_b_EnableVBO;
 bool         g_b_needFinish;  //Need glFinish() call on each frame?
 
 
-PFNGLGENFRAMEBUFFERSEXTPROC         s_glGenFramebuffers;
-PFNGLGENRENDERBUFFERSEXTPROC        s_glGenRenderbuffers;
-PFNGLFRAMEBUFFERTEXTURE2DEXTPROC    s_glFramebufferTexture2D;
-PFNGLBINDFRAMEBUFFEREXTPROC         s_glBindFramebuffer;
-PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC s_glFramebufferRenderbuffer;
-PFNGLRENDERBUFFERSTORAGEEXTPROC     s_glRenderbufferStorage;
-PFNGLBINDRENDERBUFFEREXTPROC        s_glBindRenderbuffer;
-PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC  s_glCheckFramebufferStatus;
-PFNGLDELETEFRAMEBUFFERSEXTPROC      s_glDeleteFramebuffers;
-PFNGLDELETERENDERBUFFERSEXTPROC     s_glDeleteRenderbuffers;
 
-PFNGLCOMPRESSEDTEXIMAGE2DPROC s_glCompressedTexImage2D;
-PFNGLGETCOMPRESSEDTEXIMAGEPROC s_glGetCompressedTexImage;
-
-//      Vertex Buffer Object (VBO) support
-PFNGLGENBUFFERSPROC                 s_glGenBuffers;
-PFNGLBINDBUFFERPROC                 s_glBindBuffer;
-PFNGLBUFFERDATAPROC                 s_glBufferData;
-PFNGLDELETEBUFFERSPROC              s_glDeleteBuffers;
 
 
 GLuint g_raster_format = GL_RGB;
@@ -205,261 +188,7 @@ static void print_region(OCPNRegion &Region)
     }
 }
 
-GLboolean QueryExtension( const char *extName )
-{
-    /*
-     ** Search for extName in the extensions string. Use of strstr()
-     ** is not sufficient because extension names can be prefixes of
-     ** other extension names. Could use strtok() but the constant
-     ** string returned by glGetString might be in read-only memory.
-     */
-    char *p;
-    char *end;
-    int extNameLen;
 
-    extNameLen = strlen( extName );
-
-    p = (char *) glGetString( GL_EXTENSIONS );
-    if( NULL == p ) {
-        return GL_FALSE;
-    }
-
-    end = p + strlen( p );
-
-    while( p < end ) {
-        int n = strcspn( p, " " );
-        if( ( extNameLen == n ) && ( strncmp( extName, p, n ) == 0 ) ) {
-            return GL_TRUE;
-        }
-        p += ( n + 1 );
-    }
-    return GL_FALSE;
-}
-
-typedef void (*GenericFunction)(void);
-
-//#if defined(__WXMSW__)
-//#define systemGetProcAddress(ADDR) wglGetProcAddress(ADDR)
-//#elif defined(__WXOSX__)
-//#include <dlfcn.h>
-//#define systemGetProcAddress(ADDR) dlsym( RTLD_DEFAULT, ADDR)
-//#elif defined(__OCPN__ANDROID__)
-//#define systemGetProcAddress(ADDR) eglGetProcAddress(ADDR)
-//#else
-//#define systemGetProcAddress(ADDR) glXGetProcAddress((const GLubyte*)ADDR)
-//#endif
-
-#define systemGetProcAddress(ADDR) wglGetProcAddress(ADDR)
-
-GenericFunction ocpnGetProcAddress(const char *addr, const char *extension)
-{
-    char addrbuf[256];
-    if(!extension)
-        return (GenericFunction)NULL;
-
-#ifndef __OCPN__ANDROID__    
-    //  If this is an extension entry point,
-    //  We look explicitly in the extensions list to confirm
-    //  that the request is actually supported.
-    // This may be redundant, but is conservative, and only happens once per session.    
-    if(extension && strlen(extension)){
-        QString s_extension = QString::fromUtf8(&addr[2]);
-        QString s_family = QString::fromUtf8(extension);
-        s_extension.insert(0, "_");
-        s_extension.insert(0, s_family);
-        s_extension.insert(0, "GL_");
-        
-        if(!QueryExtension( s_extension.toUtf8().data() )){
-            return (GenericFunction)NULL;
-        }
-    }
-#endif    
-    
-    snprintf(addrbuf, sizeof addrbuf, "%s%s", addr, extension);
-    return (GenericFunction)systemGetProcAddress(addrbuf);
-    
-}
-
-bool  b_glEntryPointsSet;
-
-void GetglEntryPoints( OCPN_GLCaps *pcaps )
-{
-    
-    // the following are all part of framebuffer object,
-    // according to opengl spec, we cannot mix EXT and ARB extensions
-    // (I don't know that it could ever happen, but if it did, bad things would happen)
-
-#ifndef __OCPN__ANDROID__
-    const char *extensions[] = {"", "ARB", "EXT", 0 };
-#else
-    const char *extensions[] = {"OES", 0 };
-#endif
-    
-    unsigned int n_ext = (sizeof extensions) / (sizeof *extensions);
-
-    unsigned int i;
-    for(i=0; i<n_ext; i++) {
-        if((pcaps->m_glGenFramebuffers = (PFNGLGENFRAMEBUFFERSEXTPROC)
-            ocpnGetProcAddress( "glGenFramebuffers", extensions[i])))
-            break;
-    }
-
-    if(i<n_ext){
-        pcaps->m_glGenRenderbuffers = (PFNGLGENRENDERBUFFERSEXTPROC)
-            ocpnGetProcAddress( "glGenRenderbuffers", extensions[i]);
-        pcaps->m_glFramebufferTexture2D = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC)
-            ocpnGetProcAddress( "glFramebufferTexture2D", extensions[i]);
-        pcaps->m_glBindFramebuffer = (PFNGLBINDFRAMEBUFFEREXTPROC)
-            ocpnGetProcAddress( "glBindFramebuffer", extensions[i]);
-        pcaps->m_glFramebufferRenderbuffer = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC)
-            ocpnGetProcAddress( "glFramebufferRenderbuffer", extensions[i]);
-        pcaps->m_glRenderbufferStorage = (PFNGLRENDERBUFFERSTORAGEEXTPROC)
-            ocpnGetProcAddress( "glRenderbufferStorage", extensions[i]);
-        pcaps->m_glBindRenderbuffer = (PFNGLBINDRENDERBUFFEREXTPROC)
-            ocpnGetProcAddress( "glBindRenderbuffer", extensions[i]);
-        pcaps->m_glCheckFramebufferStatus = (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC)
-            ocpnGetProcAddress( "glCheckFramebufferStatus", extensions[i]);
-        pcaps->m_glDeleteFramebuffers = (PFNGLDELETEFRAMEBUFFERSEXTPROC)
-            ocpnGetProcAddress( "glDeleteFramebuffers", extensions[i]);
-        pcaps->m_glDeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSEXTPROC)
-            ocpnGetProcAddress( "glDeleteRenderbuffers", extensions[i]);
-            
-        //VBO
-        pcaps->m_glGenBuffers = (PFNGLGENBUFFERSPROC)
-            ocpnGetProcAddress( "glGenBuffers", extensions[i]);
-        pcaps->m_glBindBuffer = (PFNGLBINDBUFFERPROC)
-            ocpnGetProcAddress( "glBindBuffer", extensions[i]);
-        pcaps->m_glBufferData = (PFNGLBUFFERDATAPROC)
-            ocpnGetProcAddress( "glBufferData", extensions[i]);
-        pcaps->m_glDeleteBuffers = (PFNGLDELETEBUFFERSPROC)
-            ocpnGetProcAddress( "glDeleteBuffers", extensions[i]);
-
-             
-    }
-
-    //  Retry VBO entry points with all extensions
-    if(0 == pcaps->m_glGenBuffers){
-        for( i=0; i<n_ext; i++) {
-            if((pcaps->m_glGenBuffers = (PFNGLGENBUFFERSPROC)ocpnGetProcAddress( "glGenBuffers", extensions[i])) )
-                break;
-        }
-        
-        if( i < n_ext ){
-            pcaps->m_glBindBuffer = (PFNGLBINDBUFFERPROC) ocpnGetProcAddress( "glBindBuffer", extensions[i]);
-            pcaps->m_glBufferData = (PFNGLBUFFERDATAPROC) ocpnGetProcAddress( "glBufferData", extensions[i]);
-            pcaps->m_glDeleteBuffers = (PFNGLDELETEBUFFERSPROC) ocpnGetProcAddress( "glDeleteBuffers", extensions[i]);
-        }
-    }
-            
-
-#ifndef __OCPN__ANDROID__            
-    for(i=0; i<n_ext; i++) {
-        if((pcaps->m_glCompressedTexImage2D = (PFNGLCOMPRESSEDTEXIMAGE2DPROC)
-            ocpnGetProcAddress( "glCompressedTexImage2D", extensions[i])))
-            break;
-    }
-
-    if(i<n_ext){
-        pcaps->m_glGetCompressedTexImage = (PFNGLGETCOMPRESSEDTEXIMAGEPROC)
-            ocpnGetProcAddress( "glGetCompressedTexImage", extensions[i]);
-    }
-#else    
-    pcaps->m_glCompressedTexImage2D =          glCompressedTexImage2D;
-#endif
-    
-}
-
-
-
-
-
-static void GetglEntryPoints( void )
-{
-    b_glEntryPointsSet = true;
-    
-    // the following are all part of framebuffer object,
-    // according to opengl spec, we cannot mix EXT and ARB extensions
-    // (I don't know that it could ever happen, but if it did, bad things would happen)
-
-#ifndef __OCPN__ANDROID__
-    const char *extensions[] = {"", "ARB", "EXT", 0 };
-#else
-    const char *extensions[] = {"OES", 0 };
-#endif
-    
-    unsigned int n_ext = (sizeof extensions) / (sizeof *extensions);
-
-    unsigned int i;
-    for(i=0; i<n_ext; i++) {
-        if((s_glGenFramebuffers = (PFNGLGENFRAMEBUFFERSEXTPROC)
-            ocpnGetProcAddress( "glGenFramebuffers", extensions[i])))
-            break;
-    }
-
-    if(i<n_ext){
-        s_glGenRenderbuffers = (PFNGLGENRENDERBUFFERSEXTPROC)
-            ocpnGetProcAddress( "glGenRenderbuffers", extensions[i]);
-        s_glFramebufferTexture2D = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC)
-            ocpnGetProcAddress( "glFramebufferTexture2D", extensions[i]);
-        s_glBindFramebuffer = (PFNGLBINDFRAMEBUFFEREXTPROC)
-            ocpnGetProcAddress( "glBindFramebuffer", extensions[i]);
-        s_glFramebufferRenderbuffer = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC)
-            ocpnGetProcAddress( "glFramebufferRenderbuffer", extensions[i]);
-        s_glRenderbufferStorage = (PFNGLRENDERBUFFERSTORAGEEXTPROC)
-            ocpnGetProcAddress( "glRenderbufferStorage", extensions[i]);
-        s_glBindRenderbuffer = (PFNGLBINDRENDERBUFFEREXTPROC)
-            ocpnGetProcAddress( "glBindRenderbuffer", extensions[i]);
-        s_glCheckFramebufferStatus = (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC)
-            ocpnGetProcAddress( "glCheckFramebufferStatus", extensions[i]);
-        s_glDeleteFramebuffers = (PFNGLDELETEFRAMEBUFFERSEXTPROC)
-            ocpnGetProcAddress( "glDeleteFramebuffers", extensions[i]);
-        s_glDeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSEXTPROC)
-            ocpnGetProcAddress( "glDeleteRenderbuffers", extensions[i]);
-            
-        //VBO
-        s_glGenBuffers = (PFNGLGENBUFFERSPROC)
-            ocpnGetProcAddress( "glGenBuffers", extensions[i]);
-        s_glBindBuffer = (PFNGLBINDBUFFERPROC)
-            ocpnGetProcAddress( "glBindBuffer", extensions[i]);
-        s_glBufferData = (PFNGLBUFFERDATAPROC)
-            ocpnGetProcAddress( "glBufferData", extensions[i]);
-        s_glDeleteBuffers = (PFNGLDELETEBUFFERSPROC)
-            ocpnGetProcAddress( "glDeleteBuffers", extensions[i]);
-
-            
-    }
-
-    //  Retry VBO entry points with all extensions
-    if(0 == s_glGenBuffers){
-        for( i=0; i<n_ext; i++) {
-            if((s_glGenBuffers = (PFNGLGENBUFFERSPROC)ocpnGetProcAddress( "glGenBuffers", extensions[i])) )
-                break;
-        }
-        
-        if( i < n_ext ){
-            s_glBindBuffer = (PFNGLBINDBUFFERPROC) ocpnGetProcAddress( "glBindBuffer", extensions[i]);
-            s_glBufferData = (PFNGLBUFFERDATAPROC) ocpnGetProcAddress( "glBufferData", extensions[i]);
-            s_glDeleteBuffers = (PFNGLDELETEBUFFERSPROC) ocpnGetProcAddress( "glDeleteBuffers", extensions[i]);
-        }
-    }
-            
-
-#ifndef __OCPN__ANDROID__            
-    for(i=0; i<n_ext; i++) {
-        if((s_glCompressedTexImage2D = (PFNGLCOMPRESSEDTEXIMAGE2DPROC)
-            ocpnGetProcAddress( "glCompressedTexImage2D", extensions[i])))
-            break;
-    }
-
-    if(i<n_ext){
-        s_glGetCompressedTexImage = (PFNGLGETCOMPRESSEDTEXIMAGEPROC)
-            ocpnGetProcAddress( "glGetCompressedTexImage", extensions[i]);
-    }
-#else    
-    s_glCompressedTexImage2D =          glCompressedTexImage2D;
-#endif
-    
-}
 
 glChartCanvas::glChartCanvas(QObject* parent) : QObject(parent)
     , m_bsetup( false )
@@ -508,7 +237,7 @@ glChartCanvas::glChartCanvas(QObject* parent) : QObject(parent)
 //    setFocusPolicy(Qt::StrongFocus);
 
     if( !g_glTextureManager) g_glTextureManager = new glTextureManager;
-    QTimer::singleShot(100, this, SLOT(slotStartLoadEcdis()));
+//    QTimer::singleShot(100, this, SLOT(slotStartLoadEcdis()));
 }
 
 glChartCanvas::~glChartCanvas()
@@ -535,6 +264,8 @@ void glChartCanvas::initializeGL()
 void glChartCanvas::resizeGL(int w, int h)
 {
     qDebug()<<"now resized with:"<<w<<h;
+    mWidth = w;
+    mHeight = h;
 #ifdef GL_TEST
     int side = qMin(w, h);
     glViewport((width() - side) / 2, (height() - side) / 2, side, side);
@@ -725,8 +456,8 @@ void glChartCanvas::BuildFBO( )
     
     if( m_b_BuiltFBO ) {
         glDeleteTextures( 2, m_cache_tex );
-        ( s_glDeleteFramebuffers )( 1, &m_fb0 );
-        ( s_glDeleteRenderbuffers )( 1, &m_renderbuffer );
+        (zchxOpenGlUtil::zchxOpenGlUtil::s_glDeleteFramebuffers )( 1, &m_fb0 );
+        (zchxOpenGlUtil::zchxOpenGlUtil::s_glDeleteRenderbuffers )( 1, &m_renderbuffer );
         m_b_BuiltFBO = false;
     }
 
@@ -755,11 +486,10 @@ void glChartCanvas::BuildFBO( )
         m_cache_tex_y = height();
     }        
         
-    ( s_glGenFramebuffers )( 1, &m_fb0 );
-    ( s_glGenRenderbuffers )( 1, &m_renderbuffer );
+    ( zchxOpenGlUtil::s_glGenFramebuffers )( 1, &m_fb0 );
+    ( zchxOpenGlUtil::s_glGenRenderbuffers )( 1, &m_renderbuffer );
 
-    ( s_glBindFramebuffer )( GL_FRAMEBUFFER_EXT, m_fb0 );
-    
+    ( zchxOpenGlUtil::s_glBindFramebuffer )( GL_FRAMEBUFFER_EXT, m_fb0 );
 
     // initialize color textures
     glGenTextures( 2, m_cache_tex );
@@ -772,17 +502,17 @@ void glChartCanvas::BuildFBO( )
         
     }
 
-    ( s_glBindRenderbuffer )( GL_RENDERBUFFER_EXT, m_renderbuffer );
+    ( zchxOpenGlUtil::s_glBindRenderbuffer )( GL_RENDERBUFFER_EXT, m_renderbuffer );
 
     if( m_b_useFBOStencil ) {
         // initialize composite depth/stencil renderbuffer
-        ( s_glRenderbufferStorage )( GL_RENDERBUFFER_EXT, GL_DEPTH24_STENCIL8_EXT,
+        ( zchxOpenGlUtil::s_glRenderbufferStorage )( GL_RENDERBUFFER_EXT, GL_DEPTH24_STENCIL8_EXT,
                                          m_cache_tex_x, m_cache_tex_y );
         
-        ( s_glFramebufferRenderbuffer )( GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
+        ( zchxOpenGlUtil::s_glFramebufferRenderbuffer )( GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
                                              GL_RENDERBUFFER_EXT, m_renderbuffer );
 
-        ( s_glFramebufferRenderbuffer )( GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
+        ( zchxOpenGlUtil::s_glFramebufferRenderbuffer )( GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
                                              GL_RENDERBUFFER_EXT, m_renderbuffer );
     } else {
         
@@ -795,14 +525,14 @@ void glChartCanvas::BuildFBO( )
 #endif        
         
         // initialize depth renderbuffer
-        ( s_glRenderbufferStorage )( GL_RENDERBUFFER_EXT, depth_format,
+        ( zchxOpenGlUtil::s_glRenderbufferStorage )( GL_RENDERBUFFER_EXT, depth_format,
                                          m_cache_tex_x, m_cache_tex_y );
         int err = glGetError();
         if(err){
             qDebug("    OpenGL-> Framebuffer Depth Buffer Storage error:  %08X", err );
         }
                 
-        ( s_glFramebufferRenderbuffer )( GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
+        ( zchxOpenGlUtil::s_glFramebufferRenderbuffer )( GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
                                              GL_RENDERBUFFER_EXT, m_renderbuffer );
         
         err = glGetError();
@@ -812,7 +542,7 @@ void glChartCanvas::BuildFBO( )
     }
     
     // Disable Render to FBO
-    ( s_glBindFramebuffer )( GL_FRAMEBUFFER_EXT, 0 );
+    ( zchxOpenGlUtil::s_glBindFramebuffer )( GL_FRAMEBUFFER_EXT, 0 );
 
     /* invalidate cache */
     Invalidate();
@@ -932,11 +662,11 @@ void glChartCanvas::SetupOpenGL()
     if( stencil && ( sb == 8 ) )
         s_b_useStencil = true;
      
-    if( QueryExtension( "GL_ARB_texture_non_power_of_two" ) )
+    if( zchxOpenGlUtil::QueryExtension( "GL_ARB_texture_non_power_of_two" ) )
         g_texture_rectangle_format = GL_TEXTURE_2D;
-    else if( QueryExtension( "GL_OES_texture_npot" ) )
+    else if( zchxOpenGlUtil::QueryExtension( "GL_OES_texture_npot" ) )
         g_texture_rectangle_format = GL_TEXTURE_2D;
-    else if( QueryExtension( "GL_ARB_texture_rectangle" ) )
+    else if( zchxOpenGlUtil::QueryExtension( "GL_ARB_texture_rectangle" ) )
         g_texture_rectangle_format = GL_TEXTURE_RECTANGLE_ARB;
     qDebug("OpenGL-> Texture rectangle format: %x",g_texture_rectangle_format);
 
@@ -945,7 +675,7 @@ void glChartCanvas::SetupOpenGL()
         if(!g_texture_rectangle_format)
             m_b_DisableFBO = true;
         
-        if(!QueryExtension( "GL_EXT_framebuffer_object" ))
+        if(!zchxOpenGlUtil::QueryExtension( "GL_EXT_framebuffer_object" ))
             m_b_DisableFBO = true;
 #endif
  
@@ -953,7 +683,7 @@ void glChartCanvas::SetupOpenGL()
          g_texture_rectangle_format = GL_TEXTURE_2D;
 #endif
         
-    GetglEntryPoints();
+    zchxOpenGlUtil::GetglEntryPoints();
 
     if(!ps52plib )
     {
@@ -961,16 +691,16 @@ void glChartCanvas::SetupOpenGL()
     }
     ps52plib->SetGLRendererString( m_renderer );
     
-    if( !s_glGenFramebuffers  || !s_glGenRenderbuffers        || !s_glFramebufferTexture2D ||
-        !s_glBindFramebuffer  || !s_glFramebufferRenderbuffer || !s_glRenderbufferStorage  ||
-        !s_glBindRenderbuffer || !s_glCheckFramebufferStatus  || !s_glDeleteFramebuffers   ||
-        !s_glDeleteRenderbuffers )
+    if( !zchxOpenGlUtil::s_glGenFramebuffers  || !zchxOpenGlUtil::s_glGenRenderbuffers        || !zchxOpenGlUtil::s_glFramebufferTexture2D ||
+        !zchxOpenGlUtil::s_glBindFramebuffer  || !zchxOpenGlUtil::s_glFramebufferRenderbuffer || !zchxOpenGlUtil::s_glRenderbufferStorage  ||
+        !zchxOpenGlUtil::s_glBindRenderbuffer || !zchxOpenGlUtil::s_glCheckFramebufferStatus  || !zchxOpenGlUtil::s_glDeleteFramebuffers   ||
+        !zchxOpenGlUtil::s_glDeleteRenderbuffers )
         m_b_DisableFBO = true;
 
     // VBO??
     
     g_b_EnableVBO = true;
-    if( !s_glBindBuffer || !s_glBufferData || !s_glGenBuffers || !s_glDeleteBuffers )
+    if( !zchxOpenGlUtil::s_glBindBuffer || !zchxOpenGlUtil::s_glBufferData || !zchxOpenGlUtil::s_glGenBuffers || !zchxOpenGlUtil::s_glDeleteBuffers )
         g_b_EnableVBO = false;
 
 #if defined( __WXMSW__ ) || defined(__WXOSX__)
@@ -990,9 +720,9 @@ void glChartCanvas::SetupOpenGL()
     
     //      Can we use the stencil buffer in a FBO?
 #ifdef ocpnUSE_GLES 
-    m_b_useFBOStencil = QueryExtension( "GL_OES_packed_depth_stencil" );
+    m_b_useFBOStencil = zchxOpenGlUtil::QueryExtension( "GL_OES_packed_depth_stencil" );
 #else
-    m_b_useFBOStencil = QueryExtension( "GL_EXT_packed_depth_stencil" ) == GL_TRUE;
+    m_b_useFBOStencil = zchxOpenGlUtil::QueryExtension( "GL_EXT_packed_depth_stencil" ) == GL_TRUE;
 #endif
 
 #ifdef __OCPN__ANDROID__
@@ -1033,14 +763,14 @@ void glChartCanvas::SetupOpenGL()
     
     if( m_b_BuiltFBO ) {
         // Check framebuffer completeness at the end of initialization.
-        ( s_glBindFramebuffer )( GL_FRAMEBUFFER_EXT, m_fb0 );
+        ( zchxOpenGlUtil::s_glBindFramebuffer )( GL_FRAMEBUFFER_EXT, m_fb0 );
         
-        ( s_glFramebufferTexture2D )
+        ( zchxOpenGlUtil::s_glFramebufferTexture2D )
         ( GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
           g_texture_rectangle_format, m_cache_tex[0], 0 );
         
-        GLenum fb_status = ( s_glCheckFramebufferStatus )( GL_FRAMEBUFFER_EXT );
-        ( s_glBindFramebuffer )( GL_FRAMEBUFFER_EXT, 0 );
+        GLenum fb_status = ( zchxOpenGlUtil::s_glCheckFramebufferStatus )( GL_FRAMEBUFFER_EXT );
+        ( zchxOpenGlUtil::s_glBindFramebuffer )( GL_FRAMEBUFFER_EXT, 0 );
         
         if( fb_status != GL_FRAMEBUFFER_COMPLETE_EXT ) {
             qDebug("    OpenGL-> Framebuffer Incomplete:  %08X", fb_status );
@@ -1141,7 +871,7 @@ void glChartCanvas::SetupCompression()
     
     // On GLES, we prefer OES_ETC1 compression, if available
 #ifdef ocpnUSE_GLES
-    if(QueryExtension("GL_OES_compressed_ETC1_RGB8_texture") && s_glCompressedTexImage2D) {
+    if(QueryExtension("GL_OES_compressed_ETC1_RGB8_texture") && zchxOpenGlUtil::s_glCompressedTexImage2D) {
         g_raster_format = GL_ETC1_RGB8_OES;
     
         qDebug("OpenGL-> Using oes etc1 compression") );
@@ -1154,9 +884,9 @@ void glChartCanvas::SetupCompression()
            us to load this texture type which is enough because we
            compress in software using libsquish for superior quality anyway */
 
-        if((QueryExtension("GL_EXT_texture_compression_s3tc") ||
-            QueryExtension("GL_EXT_texture_compression_dxt1")) &&
-           s_glCompressedTexImage2D) {
+        if((zchxOpenGlUtil::QueryExtension("GL_EXT_texture_compression_s3tc") ||
+            zchxOpenGlUtil::QueryExtension("GL_EXT_texture_compression_dxt1")) &&
+           zchxOpenGlUtil::s_glCompressedTexImage2D) {
             /* buggy opensource nvidia driver, renders incorrectly,
                workaround is to use format with alpha... */
             if(GetRendererString().indexOf("Gallium" ) != -1 &&
@@ -1166,8 +896,8 @@ void glChartCanvas::SetupCompression()
                 g_raster_format = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
             
             qDebug("OpenGL-> Using s3tc dxt1 compression" );
-        } else if(QueryExtension("GL_3DFX_texture_compression_FXT1") &&
-                  s_glCompressedTexImage2D && s_glGetCompressedTexImage) {
+        } else if(zchxOpenGlUtil::QueryExtension("GL_3DFX_texture_compression_FXT1") &&
+                  zchxOpenGlUtil::s_glCompressedTexImage2D && zchxOpenGlUtil::s_glGetCompressedTexImage) {
             g_raster_format = GL_COMPRESSED_RGB_FXT1_3DFX;
             
             qDebug("OpenGL-> Using 3dfx fxt1 compression" );
@@ -2499,7 +2229,7 @@ void glChartCanvas::RenderQuiltViewGL( ViewPort &vp, const OCPNRegion &rect_regi
                 
             // Use MipMap LOD tweaking to produce a blurred, downsampling effect at reasonable speed.
 
-            if( (s_glGenerateMipmap) && (g_texture_rectangle_format == GL_TEXTURE_2D)){       //nPOT texture supported
+            if( (zchxOpenGlUtil::s_glGenerateMipmap) && (g_texture_rectangle_format == GL_TEXTURE_2D)){       //nPOT texture supported
 
                 //          Capture the rendered screen image to a texture
                 glReadBuffer( GL_BACK);
@@ -2531,7 +2261,7 @@ void glChartCanvas::RenderQuiltViewGL( ViewPort &vp, const OCPNRegion &rect_regi
                 glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                 glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
                         
-                s_glGenerateMipmap(GL_TEXTURE_2D);
+                zchxOpenGlUtil::s_glGenerateMipmap(GL_TEXTURE_2D);
 
                 // Render at reduced LOD (i.e. higher mipmap number)
                 double bias = fog/70;
@@ -2810,6 +2540,7 @@ void glChartCanvas::DrawGroundedOverlayObjects(ocpnDC &dc, ViewPort &vp)
 
 void glChartCanvas::RenderAllChartOutlines(ocpnDC &dc, ViewPort &vp)
 {
+    m_bShowOutlines = false;
     if( !m_bShowOutlines ) return;
     int nEntry = ChartData->GetChartTableEntries();
 
@@ -2925,7 +2656,7 @@ void glChartCanvas::Render()
             }
             
             // enable rendering to texture in framebuffer object
-            ( s_glBindFramebuffer )( GL_FRAMEBUFFER_EXT, m_fb0 );
+            ( zchxOpenGlUtil::s_glBindFramebuffer )( GL_FRAMEBUFFER_EXT, m_fb0 );
 
             int dx, dy;
             bool accelerated_pan = false;
@@ -2968,7 +2699,7 @@ void glChartCanvas::Render()
                     m_cache_page = !m_cache_page; /* page flip */
 
                     /* perform accelerated pan rendering to the new framebuffer */
-                    ( s_glFramebufferTexture2D )
+                    ( zchxOpenGlUtil::s_glFramebufferTexture2D )
                         ( GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
                         g_texture_rectangle_format, m_cache_tex[m_cache_page], 0 );
 
@@ -3027,7 +2758,7 @@ void glChartCanvas::Render()
 
             } else { // must redraw the entire screen
 //                qDebug()<<"***********************";
-                    ( s_glFramebufferTexture2D )( GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+                    ( zchxOpenGlUtil::s_glFramebufferTexture2D )( GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
                                                 g_texture_rectangle_format,
                                                 m_cache_tex[m_cache_page], 0 );
                     
@@ -3099,7 +2830,7 @@ void glChartCanvas::Render()
                     
                 } 
             // Disable Render to FBO
-            ( s_glBindFramebuffer )( GL_FRAMEBUFFER_EXT, 0 );
+            ( zchxOpenGlUtil::s_glBindFramebuffer )( GL_FRAMEBUFFER_EXT, 0 );
 
             if(busy)
                 OCPNPlatform::instance()->HideBusySpinner();
@@ -4263,6 +3994,11 @@ double glChartCanvas::GetPixPerMM()
 bool glChartCanvas::Pan( double dx, double dy )
 {
     return mFrameWork->Pan(dx, dy);
+}
+
+double glChartCanvas::getViewScalePPM() const
+{
+    return mFrameWork->getViewScale();
 }
 
 void glChartCanvas::Zoom( double factor,  bool can_zoom_to_cursor )

@@ -41,44 +41,6 @@ class ChartFrameWork;
 class GSHHSChart;
 class QProgressDialog;
 
-#define GESTURE_EVENT_TIMER 78334
-
-typedef class{
-  public:
-    QString Renderer;
-    GLenum TextureRectangleFormat;
-    
-    bool bOldIntel;
-    bool bCanDoVBO;
-    bool bCanDoFBO;
-    
-    //      Vertex Buffer Object (VBO) support
-    PFNGLGENBUFFERSPROC                 m_glGenBuffers;
-    PFNGLBINDBUFFERPROC                 m_glBindBuffer;
-    PFNGLBUFFERDATAPROC                 m_glBufferData;
-    PFNGLDELETEBUFFERSPROC              m_glDeleteBuffers;
-
-    //      Frame Buffer Object (FBO) support
-    PFNGLGENFRAMEBUFFERSEXTPROC         m_glGenFramebuffers;
-    PFNGLGENRENDERBUFFERSEXTPROC        m_glGenRenderbuffers;
-    PFNGLFRAMEBUFFERTEXTURE2DEXTPROC    m_glFramebufferTexture2D;
-    PFNGLBINDFRAMEBUFFEREXTPROC         m_glBindFramebuffer;
-    PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC m_glFramebufferRenderbuffer;
-    PFNGLRENDERBUFFERSTORAGEEXTPROC     m_glRenderbufferStorage;
-    PFNGLBINDRENDERBUFFEREXTPROC        m_glBindRenderbuffer;
-    PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC  m_glCheckFramebufferStatus;
-    PFNGLDELETEFRAMEBUFFERSEXTPROC      m_glDeleteFramebuffers;
-    PFNGLDELETERENDERBUFFERSEXTPROC     m_glDeleteRenderbuffers;
-    
-    PFNGLCOMPRESSEDTEXIMAGE2DPROC       m_glCompressedTexImage2D;
-    PFNGLGETCOMPRESSEDTEXIMAGEPROC      m_glGetCompressedTexImage;
-
-    
-}OCPN_GLCaps;
-
-void GetglEntryPoints( OCPN_GLCaps *pcaps );
-GLboolean QueryExtension( const char *extName );
-
 class ocpnDC;
 class ChartBaseBSB;
 class ChartBase;
@@ -116,6 +78,7 @@ public:
     bool Pan(double dx, double dy);
     void FastZoom(float factor);
     void Zoom(double factor,  bool can_zoom_to_cursor = true);
+    double getViewScalePPM() const;
     void Rotate(double rad);
     void RotateDegree(double degree);
     void RotateContinus(double dir);

@@ -494,7 +494,7 @@ public:
 private:
     void init();
     
-    int ingestCell( OGRS57DataSource *poS57DS, const QString &FullPath000, const QString &working_dir );
+    int ingestCell(OGRS57DataSource *poS57DS, const QString &FullPath000, const QString &working_dir );
     int ValidateAndCountUpdates( const QFileInfo& file000, const QString CopyDir,
                                  QString &LastUpdateDate, bool b_copyfiles);
     int GetUpdateFileArray(const QString& file000, QStringList *UpFiles);

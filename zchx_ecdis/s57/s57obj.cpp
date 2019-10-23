@@ -70,15 +70,15 @@
 #define strncasecmp(x,y,z) _strnicmp(x,y,z)
 #endif
 
-
+#include "GL/zchxopenglutil.h"
 extern bool              g_b_EnableVBO;
 
-#ifdef ocpnUSE_GL
-extern PFNGLGENBUFFERSPROC                 s_glGenBuffers;
-extern PFNGLBINDBUFFERPROC                 s_glBindBuffer;
-extern PFNGLBUFFERDATAPROC                 s_glBufferData;
-extern PFNGLDELETEBUFFERSPROC              s_glDeleteBuffers;
-#endif
+//#ifdef ocpnUSE_GL
+//extern PFNGLGENBUFFERSPROC                 s_glGenBuffers;
+//extern PFNGLBINDBUFFERPROC                 s_glBindBuffer;
+//extern PFNGLBUFFERDATAPROC                 s_glBufferData;
+//extern PFNGLDELETEBUFFERSPROC              s_glDeleteBuffers;
+//#endif
 
 //----------------------------------------------------------------------------------
 //      S57Obj CTOR
@@ -113,8 +113,8 @@ S57Obj::~S57Obj()
             bool b_useVBO = g_b_EnableVBO  && !auxParm1;    // VBO allowed?
 
             PolyTriGroup *ppg_vbo = pPolyTessGeo->Get_PolyTriGroup_head();
-            if (b_useVBO && ppg_vbo && auxParm0 > 0 && ppg_vbo->single_buffer && s_glDeleteBuffers) {
-                s_glDeleteBuffers(1, (GLuint *)&auxParm0);
+            if (b_useVBO && ppg_vbo && auxParm0 > 0 && ppg_vbo->single_buffer && zchxOpenGlUtil::s_glDeleteBuffers) {
+                zchxOpenGlUtil::s_glDeleteBuffers(1, (GLuint *)&auxParm0);
             }
 #endif
             delete pPolyTessGeo;

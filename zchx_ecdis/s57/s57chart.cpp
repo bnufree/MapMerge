@@ -5600,7 +5600,7 @@ bool s57chart::InitENCMinimal( const QString &FullPath )
         return false;
     }
 
-    m_pENCDS.reset( new OGRS57DataSource );
+    m_pENCDS.reset( new OGRS57DataSource(true) );
 
     m_pENCDS->SetS57Registrar( g_poRegistrar );             ///172
 

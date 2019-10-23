@@ -413,11 +413,11 @@ bool zchxFuncUtil::renameFileExt(QString& newPath, const QString& oldFile, const
             QString ext = oldFile.mid(last_index+1);
             QString newname = oldFile;
             newname.replace(last_index+1, ext.size(), newExt);
-            if(file.rename(newname))
-            {
+//            if(file.rename(newname))
+//            {
                 newPath = newname;
                 return true;
-            }
+//            }
         }
     }
 

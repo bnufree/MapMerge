@@ -33,13 +33,16 @@
 #include "gdal/cpl_conv.h"
 #include "gdal/cpl_string.h"
 
+#include <QString>
+#include <QFile>
+
 //S57ClassRegistrar *OGRS57DataSource::poRegistrar = NULL;
 
 /************************************************************************/
 /*                          OGRS57DataSource()                          */
 /************************************************************************/
 
-OGRS57DataSource::OGRS57DataSource()
+OGRS57DataSource::OGRS57DataSource(bool del) : mDelFile(del)
 
 {
     nLayers = 0;
@@ -93,6 +96,11 @@ OGRS57DataSource::~OGRS57DataSource()
           delete papoModules[i];
     }
     CPLFree( papoModules );
+    if(mDelFile && strlen(pszName) > 0)
+    {
+        QString file = QString::fromUtf8(pszName);
+        QFile::remove(file);
+    }
 
     CPLFree( pszName );
 

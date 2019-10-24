@@ -90,21 +90,6 @@ private:
     LUPArrayIndexHash           IndexHash;
 };
 
-class RendErrorChk
-{
-public:
-    RendErrorChk(const QString& text) : mTxt(text)
-    {
-//        qDebug()<<mTxt<<"start now!!!!!!!";
-    }
-    ~RendErrorChk()
-    {
-//        qDebug()<<mTxt<<"end now!!!!!!!";
-    }
-private:
-    QString mTxt;
-};
-
     
 //-----------------------------------------------------------------------------
 //    s52plib definition

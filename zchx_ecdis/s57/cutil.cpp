@@ -33,6 +33,7 @@
 #include "cutil.h"
 #include "vector2D.h"
 
+#include <deque>
 
 int Intersect(MyPoint, MyPoint, MyPoint, MyPoint) ;
 int CCW(MyPoint, MyPoint, MyPoint) ;
@@ -495,7 +496,7 @@ void DouglasPeuckerF(float *PointList, int fp, int lp, double epsilon, std::vect
     }
 }
 
-void DouglasPeuckerFI(float *PointList, int fp, int lp, double epsilon, std::vector<bool> &keep)
+void DouglasPeuckerFI(float *PointList, int fp, int lp, double epsilon, std::deque<bool> &keep)
 {
     keep[fp] = true;
     keep[lp] = true;
@@ -530,7 +531,7 @@ void DouglasPeuckerFI(float *PointList, int fp, int lp, double epsilon, std::vec
     }
 }
 
-void DouglasPeuckerDI(double *PointList, int fp, int lp, double epsilon, std::vector<bool> &keep)
+void DouglasPeuckerDI(double *PointList, int fp, int lp, double epsilon, std::deque<bool> &keep)
 {
     keep[fp] = true;
     keep[lp] = true;

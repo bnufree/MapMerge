@@ -1,4 +1,4 @@
-#include "testmainwindow.h"
+#include "mainwindow.h"
 #include <QApplication>
 #include <QDebug>
 
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF8"));
 
     qInstallMessageHandler(logMessageOutputQt5);
-    TestMainWindow w;
+    qt::MainWindow w(ZCHX::ZCHX_MAP_VECTOR);
     w.showMaximized();
     return a.exec();
 }

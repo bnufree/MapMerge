@@ -253,7 +253,7 @@ s57chart::s57chart()
     m_SENCthreadStatus = THREAD_INACTIVE;
     bReadyToRender = false;
     m_RAZBuilt = false;
-    m_disableBackgroundSENC = true;
+    m_disableBackgroundSENC = false;
 }
 
 s57chart::~s57chart()

@@ -542,7 +542,7 @@ int PolyTessGeo::BuildTessGLU()
    
  
     if(ptValid > 20 && (m_LOD_meters > .01)) {
-        std::vector<bool> bool_keep(ptValid, false);
+        std::deque<bool> bool_keep(ptValid, false);
 
         // Keep a few key points
         bool_keep[0] = true;
@@ -938,7 +938,7 @@ int PolyTessGeo::BuildTess(void)
     int beforeLOD = ptValid;
     int afterLOD = beforeLOD;
    
-    std::vector<bool> bool_keep;
+    std::deque<bool> bool_keep;
     if(ptValid > 5 && (m_LOD_meters > .01)){
         
         for(unsigned int i = 0 ; i < ptValid ; i++)
@@ -1663,6 +1663,9 @@ PolyTriGroup::~PolyTriGroup()
 //------------------------------------------------------------------------------
 TriPrim::TriPrim()
 {
+    p_vertex = 0;
+    nVert = 0;
+    p_next = 0;
 }
 
 TriPrim::~TriPrim()
@@ -1671,7 +1674,11 @@ TriPrim::~TriPrim()
 
 void TriPrim::FreeMem()
 {
-    free(p_vertex);
+    if(p_vertex)
+    {
+        free(p_vertex);
+        p_vertex = 0;
+    }
 }
 
 

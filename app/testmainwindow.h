@@ -18,6 +18,7 @@ public:
     ~TestMainWindow();
 public slots:
     void slotTimerout();
+    void slotSetsource();
 
 private:
     Ui::TestMainWindow *ui;

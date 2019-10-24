@@ -11,8 +11,11 @@ TestMainWindow::TestMainWindow(QWidget *parent) :
     this->setDockNestingEnabled(false);
     this->setAnimated(false);
     ui->centralwidget->setLayout(new QVBoxLayout);
-    m_pEcdisWin = new qt::MainWindow;
+    m_pEcdisWin = new qt::MainWindow(ZCHX::ZCHX_MAP_VECTOR);
+    QPushButton* btn = new QPushButton(tr("设定地图数据目录"), this);
+    connect(btn, SIGNAL(clicked(bool)), this, SLOT(slotSetsource()));
     ui->centralwidget->layout()->addWidget(m_pEcdisWin);
+    ui->centralwidget->layout()->addWidget(btn);
 
     //添加防区图层
     std::shared_ptr<qt::MapLayer> warningZoneLayer(new qt::MapLayer(ZCHX::LAYER_DEFENCE, ZCHX::TR_LAYER_DEFENCE, true));
@@ -113,4 +116,15 @@ TestMainWindow::~TestMainWindow()
 
 void TestMainWindow::slotTimerout()
 {
+    //setEcdisMapSource
+//    if(m_pEcdisWin) m_pEcdisWin->setMapCenter();
+}
+
+void TestMainWindow::slotSetsource()
+{
+    QString dir = QFileDialog::getExistingDirectory();
+    if(!dir.isEmpty())
+    {
+        m_pEcdisWin->setEcdisMapSource(dir, qt::TILE_ORIGIN_POS(0));
+    }
 }

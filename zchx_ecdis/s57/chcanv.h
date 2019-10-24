@@ -77,7 +77,7 @@ signals:
 
 public slots:
 
-      
+      void   slotUpdateWhenSencFinished() {ReloadVP();}
       double GetCanvasRangeMeters();
       void SetCanvasRangeMeters( double range );
 

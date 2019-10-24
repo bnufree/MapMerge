@@ -253,7 +253,7 @@ s57chart::s57chart()
     m_SENCthreadStatus = THREAD_INACTIVE;
     bReadyToRender = false;
     m_RAZBuilt = false;
-    m_disableBackgroundSENC = true;
+    m_disableBackgroundSENC = false;
 }
 
 s57chart::~s57chart()
@@ -2676,6 +2676,8 @@ int s57chart::FindOrCreateSenc( const QString& name, bool b_progress )
         if( BUILD_SENC_NOK_RETRY == build_ret_val )
             return INIT_FAIL_RETRY;
     }
+
+    qDebug()<<" senc file ok";
 
     return INIT_OK;
 }
@@ -5600,7 +5602,7 @@ bool s57chart::InitENCMinimal( const QString &FullPath )
         return false;
     }
 
-    m_pENCDS.reset( new OGRS57DataSource(true) );
+    m_pENCDS.reset( new OGRS57DataSource(false) );
 
     m_pENCDS->SetS57Registrar( g_poRegistrar );             ///172
 

@@ -287,6 +287,8 @@ ChartFrameWork::ChartFrameWork( glChartCanvas *frame ) : QObject(0) , mGLCC(fram
     m_canvas_scale_factor = 1.;
     m_canvas_width = 1000;
     m_pQuilt->EnableHighDefinitionZoom( true );
+    if(!g_SencThreadManager)g_SencThreadManager = new SENCThreadManager();
+    connect(g_SencThreadManager, SIGNAL(signalRefreshAllEcids()), this, SLOT(slotUpdateWhenSencFinished()));
 
     //开启信号槽
     qRegisterMetaType<ArrayOfCDI>("ArrayOfCDI&");

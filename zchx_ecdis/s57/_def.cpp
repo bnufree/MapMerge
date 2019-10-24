@@ -1354,7 +1354,7 @@ void LoadS57()
         return;
 
     //  Start a SENC Thread manager
-    g_SencThreadManager = new SENCThreadManager();
+    if(!g_SencThreadManager)g_SencThreadManager = new SENCThreadManager();
 
 //      Set up a useable CPL library error handler for S57 stuff
 //    CPLSetErrorHandler( MyCPLErrorHandler );

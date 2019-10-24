@@ -3752,7 +3752,7 @@ static QString _LITDSN01(S57Obj *obj)
             {
                 QStringList tkz = ss.split("(");
                 int n_tok = 0;
-                for(int i=0; i<tkz.size(), n_tok < 2; i++)
+                for(int i=0; i<tkz.size() && n_tok < 2; i++)
                 {
                     QString s = tkz[i];
                     if(s.length())

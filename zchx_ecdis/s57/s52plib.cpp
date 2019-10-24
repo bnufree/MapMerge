@@ -2384,26 +2384,17 @@ int s52plib::RenderT_All( ObjRazRules *rzRules, Rules *rules, ViewPort *vp, bool
 // Text
 int s52plib::RenderTX( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 {
-    RendErrorChk chk("RenderTX");
-//    qDebug()<<"render start";
-    int sts = RenderT_All( rzRules, rules, vp, true );
-//    qDebug()<<"render start end";
-    return sts;
+    return RenderT_All( rzRules, rules, vp, true );
 }
 
 // Text formatted
 int s52plib::RenderTE( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 {
-    RendErrorChk chk("RenderTE");
-//    qDebug()<<"render start";
-    int sts = RenderT_All( rzRules, rules, vp, false );
-//    qDebug()<<"render start end";
-    return sts;
+    return RenderT_All( rzRules, rules, vp, false );
 }
 
 bool s52plib::RenderHPGL( ObjRazRules *rzRules, Rule *prule, zchxPoint &r, ViewPort *vp, float rot_angle )
 {
-    RendErrorChk chk("RenderHPGL");
     float fsf = 100 / canvas_pix_per_mm;
 
 
@@ -2849,7 +2840,6 @@ bool s52plib::RenderRasterSymbol( ObjRazRules *rzRules, Rule *prule, zchxPoint &
 // SYmbol
 int s52plib::RenderSY( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 {
-    RendErrorChk chk("RenderSY");
     float angle = 0;
     double orient;
 
@@ -2897,7 +2887,6 @@ int s52plib::RenderSY( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 // Line Simple Style, OpenGL
 int s52plib::RenderGLLS( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 {
-    RendErrorChk chk("RenderGLLS");
     // for now don't use vbo model in non-mercator
     if(vp->projectType() != PROJECTION_MERCATOR)
         return RenderLS(rzRules, rules, vp);
@@ -3622,7 +3611,6 @@ int s52plib::RenderLSPlugIn( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 // Line Complex
 int s52plib::RenderLC( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 {
-    RendErrorChk chk("RenderLC");
     //     if(rzRules->obj->Index != 7574)
     //         return 0;
     
@@ -4277,7 +4265,6 @@ next_seg:
 // Multipoint Sounding
 int s52plib::RenderMPS( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 {
-    RendErrorChk chk("RenderMPS");
     if( !m_bShowSoundg )
         return 0;
 
@@ -4402,7 +4389,6 @@ int s52plib::RenderMPS( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 
 int s52plib::RenderCARC( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 {
-    RendErrorChk chk("RenderCARC");
     return RenderCARC_VBO(rzRules, rules, vp);
 }
 
@@ -4414,7 +4400,7 @@ int s52plib::RenderCARC_VBO( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
     QString inst = QString::fromUtf8(str );
     QString carc_hash;
 
-    QStringList tkz = inst.split(",;");
+    QStringList tkz = inst.split(QRegExp("[,;]"));
 
     //    outline color
     int i = 0;

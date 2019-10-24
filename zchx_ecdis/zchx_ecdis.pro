@@ -18,7 +18,7 @@ defineReplace(qtLibraryName) {
 }
 #根据不同的编译清空生成不同的输出路径
 CONFIG(release, debug|release) {
-  DEFINES *= RELEASE _RELEASE NDEBUG QT_MESSAGELOGCONTEXT
+  DEFINES *= RELEASE _RELEASE _DEBUG QT_MESSAGELOGCONTEXT
   CONFIG_NAME = Release
 } else {
   DEFINES *= DEBUG _DEBUG
@@ -59,19 +59,19 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = zchx_ecdis
 TARGET = $$qtLibraryName($$TARGET)
-TEMPLATE = lib
-CONFIG += shared dll
+#TEMPLATE = lib
+#CONFIG += shared dll
+TEMPLATE = app
 
 CONFIG(release, debug|release) {
-  DEFINES *= RELEASE _RELEASE NDEBUG
   CONFIG_NAME = Release
 } else {
-  DEFINES *= DEBUG _DEBUG
   CONFIG_NAME = Debug
 }
 
 TargetRoot=$$dirname(PWD)
-BINARIES_PATH = $$TargetRoot/out/$$CONFIG_NAME
+#BINARIES_PATH = $$TargetRoot/out/$$CONFIG_NAME
+BINARIES_PATH = $$TargetRoot/bin
 DESTDIR = $$BINARIES_PATH
 warning("dest:" + $$DESTDIR)
 
@@ -344,6 +344,8 @@ FORMS    += mainwindow.ui \
     dialog/cardmouthinfodialog.ui \
     dialog/statistcLineinfodialog.ui
 
+SOURCES += main.cpp
+
 RESOURCES += res/resources.qrc
 DISTFILES += \
     res/element/camera1.png \
@@ -399,6 +401,9 @@ layertarget.path = $$DESTDIRRoot/bin/mapdata
 layertarget.files = $$PWD/configuration/*.*
 INSTALLS += layertarget
 
-QMAKE_CXXFLAGS_RELEASE *= $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
-QMAKE_LFLAGS_RELEASE *= $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
+#QMAKE_CXXFLAGS_RELEASE *= $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
+#QMAKE_LFLAGS_RELEASE *= $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
+QMAKE_CXXFLAGS_RELEASE += -O0 -g
+QMAKE_CFLAGS_RELEASE += -O0 -g
+DEFINES -= QT_NO_DEBUG_OUTPUT  #enable debug outpu
 

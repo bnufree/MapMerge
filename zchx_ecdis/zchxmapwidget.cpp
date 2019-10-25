@@ -10,6 +10,7 @@
 #include <QDebug>
 #include <QDomDocument>
 #include "profiles.h"
+#include "dialog/zchxmapsourcedialog.h"
 
 //#define     DEFAULT_LON         113.093664
 //#define     DEFAULT_LAT         22.216150
@@ -35,7 +36,8 @@ zchxMapWidget::zchxMapWidget(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) : QGLWid
     mToolPtr(0),
     m_targetSizeIndex(0),
     m_traceLenIndex(0),
-    m_continueTimeIndex(0)
+    m_continueTimeIndex(0),
+    mType(type)
 {
     this->setMouseTracking(true);
     mZoomLbl = new QLabel(this);
@@ -776,6 +778,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                     //                menu.addAction(tr("关注点"),this,SLOT(setLocationMark()));
                     //                menu.addAction(tr("固定参考点"),this,SLOT(setFixedReferencePoint()));
                     menu.addAction(tr("热点"),this,SLOT(invokeHotSpot()));
+                    menu.addAction(tr("设定地图数据源"), this, SLOT(resetMapSource()));
                 }
 
             } else
@@ -1919,6 +1922,28 @@ void zchxMapWidget::invokeHotSpot()
     data.targetLat = ll.lat;
     qDebug()<<"hot spot:"<<mPressPnt<<"lon- lat:"<<FLOAT_STRING(ll.lon, 10)<<FLOAT_STRING(ll.lat, 10);
     emit signalInvokeHotSpot(data);
+}
+
+void zchxMapWidget::resetMapSource()
+{
+    if(mType == ZCHX::ZCHX_MAP_TILE)
+    {
+        zchxMapSourceDialog* dlg = new zchxMapSourceDialog;
+        if(dlg->exec() == QDialog::Accepted)
+        {
+            if(!dlg->getUrl().isEmpty())
+            {
+                mFrameWork->setSource(dlg->getUrl(), dlg->getPos());
+            }
+        }
+        dlg->close();
+
+    } else
+    {
+        QString url = QFileDialog::getExistingDirectory();
+        if(url.isEmpty()) return;
+        mFrameWork->setSource(url, 0);
+    }
 }
 
 //图元tooltip显示

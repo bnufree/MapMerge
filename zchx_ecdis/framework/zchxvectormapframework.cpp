@@ -44,7 +44,8 @@ void zchxVectorMapFrameWork::zoomIn()
 int  zchxVectorMapFrameWork::getZoom() const
 {
     double ppm = mGLCtrl->getViewScalePPM();
-
+    double mpp = 1 / ppm;
+    qDebug()<<"ppm"<<ppm<<" mmp:"<<mpp;
 }
 
 void zchxVectorMapFrameWork::zoomOut()

@@ -84,6 +84,8 @@ extern "C" void glOrthof(float left,  float right,  float bottom,  float top,  f
 
 #include "s57chart.h"               // for ArrayOfS57Obj
 #include "s52plib.h"
+#include "profiles.h"
+#include "zchxMapDataUtils.h"
 
 //extern bool GetMemoryStatus(int *mem_total, int *mem_used);
 
@@ -3502,8 +3504,8 @@ bool glChartCanvas::initBeforeUpdateMap()
     config->canvas = this;
 
     // Verify that glCanvas is ready, if necessary
-    config->iLat = 37.123456;
-    config->iLon = 127.123456;
+    config->iLat = qt::Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LAT).toDouble();
+    config->iLon = qt::Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LON).toDouble();
 
     mFrameWork->SetDisplaySizeMM(g_display_size_mm);
 

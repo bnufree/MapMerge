@@ -1,7 +1,10 @@
-OPENCPN_3RDPARTY_PATH = $${PWD}/3rdParty
+#OPENCPN_3RDPARTY_PATH = $${PWD}/3rdParty
 IDE_APP_PATH = $$dirname(PWD)/bin
-OPENCPN_3RD_INCLUDE_PATH = $${OPENCPN_3RDPARTY_PATH}/include
-OPENCPN_3RD_STATIC_LIB_PATH = $${OPENCPN_3RDPARTY_PATH}/lib
+#OPENCPN_3RD_INCLUDE_PATH = $${OPENCPN_3RDPARTY_PATH}/include
+#OPENCPN_3RD_STATIC_LIB_PATH = $${OPENCPN_3RDPARTY_PATH}/lib
+
+
+message("new destination:"+$${IDE_APP_PATH})
 
 defineReplace(qtLibraryName) {
    unset(LIBRARY_NAME)
@@ -26,3 +29,14 @@ CONFIG(release, debug|release) {
   EXT_NAME = d
 }
 
+INCLUDEPATH += $${PWD}/gdal/include/gdal \
+               $${PWD}/iso8211/include/iso8211 \
+               $${PWD}/libtess2/include/tess2 \
+               $${PWD}/lz4/include/lz4 \
+               $${PWD}/mipmap/include/mipmap \
+               $${PWD}/nmea0183/include/nmea0183 \
+               $${PWD}/sound/include/sound \
+               $${PWD}/SQLiteCpp/include/SQLiteCpp \
+               $${PWD}/ssl_sha1/include/ssl_sha1 \
+               $${PWD}/texcmp/include/texcmp \
+               $${PWD}/tinyxml/include/tinyxml \

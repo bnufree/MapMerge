@@ -1,5 +1,6 @@
 #include "zchxvectormapframework.h"
 #include "glChartCanvas.h"
+#include "Osenc.h"
 
 
 using namespace qt;
@@ -45,7 +46,9 @@ int  zchxVectorMapFrameWork::getZoom() const
 {
     double ppm = mGLCtrl->getViewScalePPM();
     double mpp = 1 / ppm;
-    qDebug()<<"ppm"<<ppm<<" mmp:"<<mpp;
+    int zoom = zchxMapDataUtils::calZoomByResolution(mpp);
+//    qDebug()<<"ppm"<<ppm<<" mmp:"<<mpp<<" zoom:"<<zoom;
+    return zoom;
 }
 
 void zchxVectorMapFrameWork::zoomOut()
@@ -65,7 +68,7 @@ void zchxVectorMapFrameWork::setRotateAngle(double ang)
 
 //地图刷新
 void zchxVectorMapFrameWork::update()
-{
+{    
 
 }
 
@@ -96,4 +99,9 @@ void zchxVectorMapFrameWork::setSource(const QString &source, int pos)
     ArrayOfCDI cdi;
     cdi.append(info);
     if(mGLCtrl) mGLCtrl->UpdateChartDatabaseInplace(cdi, true, true);
+}
+
+void zchxVectorMapFrameWork::changeS572SENC(const QString &src)
+{
+    if(mGLCtrl) mGLCtrl->changeS572SENC(src);
 }

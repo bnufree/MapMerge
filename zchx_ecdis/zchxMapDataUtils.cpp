@@ -32,6 +32,13 @@ double zchxMapDataUtils::calResolution(int zoom)
     return EARTH_HALF_CIRCUL_LENGTH * 2 / MAP_IMG_SIZE / pow(2, zoom);
 }
 
+int   zchxMapDataUtils::calZoomByResolution(double resolution)
+{
+    double base = log(2);
+    int zoom = qRound(log(EARTH_HALF_CIRCUL_LENGTH * 2 / MAP_IMG_SIZE / resolution ) / base);
+    return zoom;
+}
+
 double zchxMapDataUtils::DegToRad(double deg)
 {
     return deg * GLOB_PI / 180.0;

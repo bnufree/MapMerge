@@ -178,6 +178,7 @@ public:
 
     void        getPixcelOfLL(int& x, int& y, double lat, double lon);
     void        getLLOfPix(double& lat, double& lon, int x, int y);
+    void        changeS572SENC(const QString &src);
 
 public slots:
     void slotStartLoadEcdis();

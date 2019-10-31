@@ -779,6 +779,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                     //                menu.addAction(tr("固定参考点"),this,SLOT(setFixedReferencePoint()));
                     menu.addAction(tr("热点"),this,SLOT(invokeHotSpot()));
                     menu.addAction(tr("设定地图数据源"), this, SLOT(resetMapSource()));
+                    menu.addAction(tr("地图数据转换"), this, SLOT(changeS572Senc()));
                 }
 
             } else
@@ -1943,6 +1944,18 @@ void zchxMapWidget::resetMapSource()
         QString url = QFileDialog::getExistingDirectory();
         if(url.isEmpty()) return;
         mFrameWork->setSource(url, 0);
+    }
+}
+
+void zchxMapWidget::changeS572Senc()
+{
+    if(mType == ZCHX::ZCHX_MAP_VECTOR)
+    {
+        zchxVectorMapFrameWork* frame = qobject_cast<zchxVectorMapFrameWork*>(mFrameWork);
+        if(!frame) return;
+        QString url = QFileDialog::getOpenFileName();
+        if(url.isEmpty()) return;
+        frame->changeS572SENC(url);
     }
 }
 

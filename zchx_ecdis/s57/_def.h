@@ -359,6 +359,8 @@ public:
         }
     }
 
+    QString getFileName() const {return mName;}
+
 private:
     FILE* fp;
     QString mName;

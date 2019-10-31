@@ -223,6 +223,7 @@ public:
 
       char GetUsageChar(void){ return m_usage_char; }
       static bool IsCellOverlayType(char *pFullPath);
+      int BuildSENCFile(const QString& FullPath000, const QString& SENCFileName, bool async = true);
 
       bool        m_b2pointLUPS;
       bool        m_b2lineLUPS;
@@ -253,7 +254,7 @@ private:
       bool DCRenderText(QPainter* dcinput, const ViewPort& vp);
       
 
-      int BuildSENCFile(const QString& FullPath000, const QString& SENCFileName, bool b_progress = true);
+
       
       void SetLinePriorities(void);
 

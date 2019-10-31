@@ -439,6 +439,7 @@ public Q_SLOTS:
     void setFixedReferencePoint();                          //固定参考点
     void invokeHotSpot();                                   //热点
     void resetMapSource();
+    void changeS572Senc();
 //    void invokeLinkageSpot();                               //联动
 //    void invokeLinkageSpotForRadar();                       //联动
 //    void setCustomFlowLine();                               //流量统计线

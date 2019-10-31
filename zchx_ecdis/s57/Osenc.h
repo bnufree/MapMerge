@@ -394,6 +394,7 @@ public:
     virtual Osenc_outstream& Write(const void* buffer, size_t size) = 0;
     virtual void Close() = 0;
     virtual bool IsOk() = 0;
+    virtual qint64 TellI() = 0;
     
     
 
@@ -415,6 +416,7 @@ public:
     Osenc_outstream& Write(const void* buffer, size_t size);
     void Close();
     bool IsOk();
+    qint64 TellI();
     
 private:
     void Init();
@@ -457,8 +459,8 @@ public:
     void SetLODMeters(double meters){ m_LOD_meters = meters;}
     void setRegistrar( S57ClassRegistrar *registrar ){ m_poRegistrar = registrar; }
     void setRefLocn( double lat, double lon){ m_ref_lat = lat; m_ref_lon = lon; }
-    void setOutstream(Osenc_outstream *stream){ m_pauxOutstream = stream; }
-    void setInstream(Osenc_instream *stream){ m_pauxInstream = stream; }
+//    void setOutstream(Osenc_outstream *stream){ m_pauxOutstream = stream; }
+//    void setInstream(Osenc_instream *stream){ m_pauxInstream = stream; }
     
     QString getUpdateDate(){ return m_LastUpdateDate; }
     QString getBaseDate(){ return m_sdate000; }
@@ -584,11 +586,11 @@ private:
     std::vector<int>            m_NoCovrCntArray;
     
     
-    Osenc_outstream       *m_pauxOutstream;
-    Osenc_instream        *m_pauxInstream;
+//    Osenc_outstream       *m_pauxOutstream;
+//    Osenc_instream        *m_pauxInstream;
     
-    Osenc_outstream       *m_pOutstream;
-    Osenc_instream        *m_pInstream;
+//    Osenc_outstream       *m_pOutstream;
+//    Osenc_instream        *m_pInstream;
 
     bool                  m_bVerbose;
     QStringList         *m_UpFiles;

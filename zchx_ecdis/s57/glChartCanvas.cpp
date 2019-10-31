@@ -4032,6 +4032,19 @@ void glChartCanvas::slotStartLoadEcdis()
         mFrameWork->slotInitEcidsAsDelayed();
     }
 }
+void glChartCanvas::changeS572SENC(const QString &src)
+{
+    if(!ChartData) return;
+    ChartBase* pc = ChartData->OpenChartFromDB( src, FULL_INIT );
+    s57chart* s57 = dynamic_cast<s57chart*> (pc);
+    if(s57)
+    {
+        QFileInfo fn(src);
+        QString dest = QString("%1.s57").arg(fn.fileName());
+        if(QFile::exists(dest)) QFile::remove(dest);
+        s57->BuildSENCFile(src, dest, false);
+    }
+}
 
 
 

@@ -35,6 +35,8 @@ public:
 
     //开始地图初始化
     virtual void  initEcdis();
+    //
+    void  changeS572SENC(const QString& src);
 private:
     glChartCanvas*          mGLCtrl;
 

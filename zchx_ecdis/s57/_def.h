@@ -117,6 +117,8 @@ struct zchxPoint{
             zchxPoint temp = pnt[size];
             res.append(QPoint(temp.x, temp.y));
         }
+
+        return res;
     }
 
     bool operator ==(const zchxPoint& other) const

@@ -59,9 +59,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = zchx_ecdis
 TARGET = $$qtLibraryName($$TARGET)
-#TEMPLATE = lib
-#CONFIG += shared dll
-TEMPLATE = app
 
 CONFIG(release, debug|release) {
   CONFIG_NAME = Release
@@ -70,8 +67,16 @@ CONFIG(release, debug|release) {
 }
 
 TargetRoot=$$dirname(PWD)
-#BINARIES_PATH = $$TargetRoot/out/$$CONFIG_NAME
-BINARIES_PATH = $$TargetRoot/bin
+CONFIG -= MyDLL
+
+MyDLL{
+    TEMPLATE = lib
+    CONFIG += shared dll
+    BINARIES_PATH = $$TargetRoot/out/$$CONFIG_NAME
+}else{
+    BINARIES_PATH = $$TargetRoot/bin
+    TEMPLATE = app
+}
 DESTDIR = $$BINARIES_PATH
 warning("dest:" + $$DESTDIR)
 
@@ -205,7 +210,8 @@ SOURCES += mainwindow.cpp \
     s57/glChartCanvas.cpp \
     s57/glwidget.cpp \
     s57/mbtiles.cpp \
-    s57/GL/zchxopenglutil.cpp
+    s57/GL/zchxopenglutil.cpp \
+    dialog/zchxmapsourcedialog.cpp
 
 HEADERS  += mainwindow.h \
     zchxtileimagethread.h \
@@ -330,7 +336,8 @@ HEADERS  += mainwindow.h \
     s57/glChartCanvas.h \
     s57/glwidget.h \
     s57/mbtiles.h \
-    s57/GL/zchxopenglutil.h
+    s57/GL/zchxopenglutil.h \
+    dialog/zchxmapsourcedialog.h
 
 FORMS    += mainwindow.ui \
     coastdatainfodialog.ui \
@@ -342,9 +349,12 @@ FORMS    += mainwindow.ui \
     dialog/channelinfodialog.ui \
     dialog/mooringinfodialog.ui \
     dialog/cardmouthinfodialog.ui \
-    dialog/statistcLineinfodialog.ui
+    dialog/statistcLineinfodialog.ui \
+    dialog/zchxmapsourcedialog.ui
 
-SOURCES += main.cpp
+!MyDLL{
+    SOURCES += main.cpp
+}
 
 RESOURCES += res/resources.qrc
 DISTFILES += \

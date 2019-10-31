@@ -139,7 +139,7 @@ void SENCThreadManager::startJob()
     if(nRunning){
         QString count;
         count.sprintf("  %ld", ticket_list.size());
-        glChart->SetAlertString( "Preparing vector chart  " + count);
+        glChart->SetAlertString("");
     }  else{
         glChart->SetAlertString( (""));
     }

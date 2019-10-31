@@ -68,6 +68,7 @@ public:
     static ZCHX::Data::Mercator wgs84LonlatToMercator(const ZCHX::Data::LatLon& wgs84 );
     static ZCHX::Data::Mercator wgs84LatLonToMercator(double lat, double lon ) {return wgs84LonlatToMercator(ZCHX::Data::LatLon(lat, lon));}
     static double calResolution(int zoom);
+    static int    calZoomByResolution(double resolution);
     //角度弧度换算
     static double DegToRad(double deg);
     //地球空间计算

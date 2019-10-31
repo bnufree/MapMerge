@@ -159,6 +159,8 @@ Osenc_outstreamFile::Osenc_outstreamFile()
 
 Osenc_outstreamFile::~Osenc_outstreamFile()
 {
+    qDebug()<<"delete file now!!!!";
+    if(m_outstream) qDebug()<<"stream file:"<<m_outstream->getFileName();
     delete m_outstream;
 }
 
@@ -180,6 +182,12 @@ void Osenc_outstreamFile::Close()
         m_outstream->Close();
         m_ok = m_outstream->IsOK();
     }
+}
+
+qint64 Osenc_outstreamFile::TellI()
+{
+    if(m_outstream) return m_outstream->TellI();
+    return 0;
 }
 
 Osenc_outstream &Osenc_outstreamFile::Write(const void *buffer, size_t size)
@@ -277,11 +285,6 @@ void Osenc::init( void )
     m_pCOVRTable = NULL;
     m_pNoCOVRTablePoints = NULL;
     m_pNoCOVRTable = NULL;
-    
-    m_pauxOutstream = NULL;
-    m_pauxInstream = NULL;
-    m_pOutstream = NULL;
-    m_pInstream = NULL;
     m_UpFiles = nullptr;
 
     m_bVerbose = true;
@@ -1491,14 +1494,7 @@ int Osenc::createSenc200(const QString& FullPath000, const QString& SENCFileName
     
     //          Make a temp file to create the SENC in
     QString tmp_file = QString::number(QDateTime::currentMSecsSinceEpoch());
-    if(m_pauxOutstream){
-        m_pOutstream = m_pauxOutstream;
-    }
-    else{
-        m_pOutstream = new Osenc_outstreamFile();
-    }
-    
-    Osenc_outstream *stream = m_pOutstream;
+    QSharedPointer<Osenc_outstream> stream(new Osenc_outstreamFile());
     
     if( !stream->Open( tmp_file) ) {
         errorMessage.sprintf("Unable to create temp SENC file: %s", tmp_file.toUtf8().data());
@@ -1555,13 +1551,13 @@ int Osenc::createSenc200(const QString& FullPath000, const QString& SENCFileName
     if(buffer.data())
         sname = buffer.data();
 
-    if( !WriteHeaderRecord200( stream, HEADER_SENC_VERSION, (uint16_t)m_senc_file_create_version) ){
+    if( !WriteHeaderRecord200( stream.data(), HEADER_SENC_VERSION, (uint16_t)m_senc_file_create_version) ){
         stream->Close();
         lockCR.unlock();
         return ERROR_SENCFILE_ABORT;
     }
     
-    if( !WriteHeaderRecord200( stream, HEADER_CELL_NAME, sname) ){
+    if( !WriteHeaderRecord200( stream.data(), HEADER_CELL_NAME, sname) ){
         stream->Close();
         lockCR.unlock();
         return ERROR_SENCFILE_ABORT;
@@ -1569,7 +1565,7 @@ int Osenc::createSenc200(const QString& FullPath000, const QString& SENCFileName
     
     QString date000 = m_date000.toString( "yyyyMMdd" );
     string sdata = date000.toStdString();
-    if( !WriteHeaderRecord200( stream, HEADER_CELL_PUBLISHDATE, sdata) ){
+    if( !WriteHeaderRecord200( stream.data(), HEADER_CELL_PUBLISHDATE, sdata) ){
         stream->Close();
         lockCR.unlock();
         return ERROR_SENCFILE_ABORT;
@@ -1577,27 +1573,27 @@ int Osenc::createSenc200(const QString& FullPath000, const QString& SENCFileName
 
     
     long n000 = m_edtn000.toLong( );
-    if( !WriteHeaderRecord200( stream, HEADER_CELL_EDITION, (uint16_t)n000) ){
+    if( !WriteHeaderRecord200( stream.data(), HEADER_CELL_EDITION, (uint16_t)n000) ){
         stream->Close();
         lockCR.unlock();
         return ERROR_SENCFILE_ABORT;
     }
     
     sdata = m_LastUpdateDate.toStdString();
-    if( !WriteHeaderRecord200( stream, HEADER_CELL_UPDATEDATE, sdata) ){
+    if( !WriteHeaderRecord200( stream.data(), HEADER_CELL_UPDATEDATE, sdata) ){
         stream->Close();
         lockCR.unlock();
         return ERROR_SENCFILE_ABORT;
     }
     
     
-    if( !WriteHeaderRecord200( stream, HEADER_CELL_UPDATE, (uint16_t)m_last_applied_update) ){
+    if( !WriteHeaderRecord200( stream.data(), HEADER_CELL_UPDATE, (uint16_t)m_last_applied_update) ){
         stream->Close();
         lockCR.unlock();
         return ERROR_SENCFILE_ABORT;
     }
 
-    if( !WriteHeaderRecord200( stream, HEADER_CELL_NATIVESCALE, (uint32_t)m_native_scale) ){
+    if( !WriteHeaderRecord200( stream.data(), HEADER_CELL_NATIVESCALE, (uint32_t)m_native_scale) ){
         stream->Close();
         lockCR.unlock();
         return ERROR_SENCFILE_ABORT;
@@ -1606,21 +1602,23 @@ int Osenc::createSenc200(const QString& FullPath000, const QString& SENCFileName
     QDateTime now = QDateTime::currentDateTime();
     QString dateNow = now.toString("yyyyMMdd");
     sdata = dateNow.toStdString();
-    if( !WriteHeaderRecord200( stream, HEADER_CELL_SENCCREATEDATE, sdata) ){
+    if( !WriteHeaderRecord200( stream.data(), HEADER_CELL_SENCCREATEDATE, sdata) ){
         stream->Close();
         lockCR.unlock();
         return ERROR_SENCFILE_ABORT;
     }
     
+    qint64 pos = stream->TellI();
 
     //  Write the Coverage table Records
-    if(!CreateCovrRecords(stream)){
+    if(!CreateCovrRecords(stream.data())){
         stream->Close();
         lockCR.unlock();
         return ERROR_SENCFILE_ABORT;
     }
     
 
+    pos = stream->TellI();
 
     poReader->Rewind();
     
@@ -1665,7 +1663,7 @@ int Osenc::createSenc200(const QString& FullPath000, const QString& SENCFileName
     OGRFeature *objectDef;
     
     int iObj = 0;
-    
+    pos = stream->TellI();
     while( bcont ) {
         objectDef = poReader->ReadNextFeature();
         
@@ -1700,13 +1698,20 @@ int Osenc::createSenc200(const QString& FullPath000, const QString& SENCFileName
             //      e.g. US5MD11M.017
             //      In this case, all we can do is skip the feature....sigh.
             
+            if(iObj >= 401)
+            {
+                int test = 1;
+            }
+
             if( objectDef->GetGeometryRef() != NULL )
                 geoType = objectDef->GetGeometryRef()->getGeometryType();
             
             //      n.b  This next line causes skip of C_AGGR features w/o geometry
             if( geoType != wkbUnknown ){                             // Write only if has wkbGeometry
-                CreateSENCRecord200( objectDef, stream, 1, poReader );
+                CreateSENCRecord200( objectDef, stream.data(), 1, poReader );
             }
+            pos = stream->TellI();
+            qDebug()<<"object count:"<<iObj<<" pos:"<<pos<<" feature:"<<objectDef->GetFID()<<" "<<objectDef->GetDefnRef()->GetName();
 
             delete objectDef;
 
@@ -1714,12 +1719,15 @@ int Osenc::createSenc200(const QString& FullPath000, const QString& SENCFileName
             break;
         
     }
+    pos = stream->TellI();
     if( bcont ) {
         //      Create and write the Vector Edge Table
-        CreateSENCVectorEdgeTableRecord200( stream, poReader );
+        CreateSENCVectorEdgeTableRecord200( stream.data(), poReader );
+        pos = stream->TellI();
         
         //      Create and write the Connected NodeTable
-        CreateSENCVectorConnectedTableRecord200( stream, poReader );
+        CreateSENCVectorConnectedTableRecord200( stream.data(), poReader );
+        pos = stream->TellI();
     }
     
 
@@ -2851,6 +2859,7 @@ bool Osenc::CreateSENCRecord200( OGRFeature *pFeature, Osenc_outstream *stream, 
     if(!WriteFIDRecord200( stream, nOBJL, pFeature->GetFID(), primitive) )
         return false;
 
+    qint64 pos = stream->TellI();
     
 #define MAX_HDR_LINE    400
     
@@ -2896,327 +2905,333 @@ bool Osenc::CreateSENCRecord200( OGRFeature *pFeature, Osenc_outstream *stream, 
                     }
                 }
                 
-#if 0                
-                /** Simple 32bit integer */                   OFTInteger = 0,
-                        /** List of 32bit integers */                 OFTIntegerList = 1,
-                        /** Double Precision floating point */        OFTReal = 2,
-                        /** List of doubles */                        OFTRealList = 3,
-                        /** String of ASCII chars */                  OFTString = 4,
-                        /** Array of strings */                       OFTStringList = 5,
-                        /** Double byte string (unsupported) */       OFTWideString = 6,
-                        /** List of wide strings (unsupported) */     OFTWideStringList = 7,
-                        /** Raw Binary data (unsupported) */          OFTBinary = 8
-        #endif
-                        switch(OGRvalueType){
-                        case 0:             // Single integer
+
+//                Simple 32bit integer                   OFTInteger = 0,
+//                List of 32bit integers                 OFTIntegerList = 1,
+//                Double Precision floating point        OFTReal = 2,
+//                List of doubles                        OFTRealList = 3,
+//                String of ASCII chars                  OFTString = 4,
+//                Array of strings                       OFTStringList = 5,
+//                Double byte string (unsupported)       OFTWideString = 6,
+//                List of wide strings (unsupported)     OFTWideStringList = 7,
+//                Raw Binary data (unsupported)          OFTBinary = 8
+
+                switch(OGRvalueType){
+                case 0:             // Single integer
                 {
-                        valueType = OGRvalueType;
-                        
-                        if(payloadBufferLength < 4){
+                    valueType = OGRvalueType;
+
+                    if(payloadBufferLength < 4){
                         payloadBuffer = realloc(payloadBuffer, 4);
                         payloadBufferLength = 4;
-            }
-                        
-                        int aValue = pFeature->GetFieldAsInteger( iField );
-                        memcpy(payloadBuffer, &aValue, sizeof(int) );
-                        payloadLength = sizeof(int);
-                        
-                        break;
-            }
-                        case 1:             // Integer list
-                {
-                        valueType = OGRvalueType;
-                        
-                        int nCount = 0;
-                        const int *aValueList = pFeature->GetFieldAsIntegerList( iField, &nCount );
+                    }
 
-                        if(payloadBufferLength < nCount * sizeof(int)){
+                    int aValue = pFeature->GetFieldAsInteger( iField );
+                    memcpy(payloadBuffer, &aValue, sizeof(int) );
+                    payloadLength = sizeof(int);
+
+                    break;
+                }
+                case 1:             // Integer list
+                {
+                    valueType = OGRvalueType;
+
+                    int nCount = 0;
+                    const int *aValueList = pFeature->GetFieldAsIntegerList( iField, &nCount );
+
+                    if(payloadBufferLength < nCount * sizeof(int)){
                         payloadBuffer = realloc(payloadBuffer, nCount * sizeof(int));
                         payloadBufferLength = nCount * sizeof(int);
-            }
-                        
-                        int *pBuffRun = (int *)payloadBuffer;
-                        for(int i=0 ; i < nCount ; i++){
-                    *pBuffRun++ = aValueList[i];
+                    }
+
+                    int *pBuffRun = (int *)payloadBuffer;
+                    for(int i=0 ; i < nCount ; i++){
+                        *pBuffRun++ = aValueList[i];
+                    }
+                    payloadLength = nCount * sizeof(int);
+
+                    break;
                 }
-                payloadLength = nCount * sizeof(int);
-
-                break;
-            }
-            case 2:             // Single double precision real
-            {
-                valueType = OGRvalueType;
-
-                if(payloadBufferLength < sizeof(double)){
-                    payloadBuffer = realloc(payloadBuffer, sizeof(double));
-                    payloadBufferLength = sizeof(double);
-                }
-
-                double aValue = pFeature->GetFieldAsDouble( iField );
-                memcpy(payloadBuffer, &aValue, sizeof(double) );
-                payloadLength = sizeof(double);
-
-                break;
-            }
-
-            case 3:             // List of double precision real
-            {
-                valueType = OGRvalueType;
-
-                int nCount = 0;
-                const double *aValueList = pFeature->GetFieldAsDoubleList( iField, &nCount );
-
-                if(payloadBufferLength < nCount * sizeof(double)){
-                    payloadBuffer = realloc(payloadBuffer, nCount * sizeof(double));
-                    payloadBufferLength = nCount * sizeof(double);
-                }
-
-                double *pBuffRun = (double *)payloadBuffer;
-                for(int i=0 ; i < nCount ; i++){
-                    *pBuffRun++ = aValueList[i];
-                }
-                payloadLength = nCount * sizeof(double);
-
-                break;
-            }
-
-            case 4:             // Ascii String
-            {
-                valueType = OGRvalueType;
-                const char *pAttrVal = pFeature->GetFieldAsString( iField );
-
-                QString wxAttrValue;
-
-                if( (0 == strncmp("NOBJNM",pAttrName, 6) ) ||
-                        (0 == strncmp("NINFOM",pAttrName, 6) ) ||
-                        (0 == strncmp("NPLDST",pAttrName, 6) ) ||
-                        (0 == strncmp("NTXTDS",pAttrName, 6) ) )
+                case 2:             // Single double precision real
                 {
-                    if( poReader->GetNall() == 2) {     // ENC is using UCS-2 / UTF-16 encoding
-                        wxAttrValue = zchxFuncUtil::convertCodesStringToUtf8( pAttrVal, "UTF-16");
-                        wxAttrValue.remove(wxAttrValue.size() - 1, 1);// Remove the \037 that terminates UTF-16 strings in S57
-                        wxAttrValue.replace("\n", "|" );  //Replace  <new line> with special break character
+                    valueType = OGRvalueType;
+
+                    if(payloadBufferLength < sizeof(double)){
+                        payloadBuffer = realloc(payloadBuffer, sizeof(double));
+                        payloadBufferLength = sizeof(double);
                     }
-                    else if( poReader->GetNall() == 1) {     // ENC is using Lex level 1 (ISO 8859_1) encoding
-                        wxAttrValue = zchxFuncUtil::convertCodesStringToUtf8( pAttrVal, "iso8859-1");
-                    }
+
+                    double aValue = pFeature->GetFieldAsDouble( iField );
+                    memcpy(payloadBuffer, &aValue, sizeof(double) );
+                    payloadLength = sizeof(double);
+
+                    break;
                 }
-                else{
-                    if( poReader->GetAall() == 1) {     // ENC is using Lex level 1 (ISO 8859_1) encoding for "General Text"
-                        wxAttrValue = zchxFuncUtil::convertCodesStringToUtf8( pAttrVal, "iso8859-1");
+
+                case 3:             // List of double precision real
+                {
+                    valueType = OGRvalueType;
+
+                    int nCount = 0;
+                    const double *aValueList = pFeature->GetFieldAsDoubleList( iField, &nCount );
+
+                    if(payloadBufferLength < nCount * sizeof(double)){
+                        payloadBuffer = realloc(payloadBuffer, nCount * sizeof(double));
+                        payloadBufferLength = nCount * sizeof(double);
+                    }
+
+                    double *pBuffRun = (double *)payloadBuffer;
+                    for(int i=0 ; i < nCount ; i++){
+                        *pBuffRun++ = aValueList[i];
+                    }
+                    payloadLength = nCount * sizeof(double);
+
+                    break;
+                }
+
+                case 4:             // Ascii String
+                {
+                    valueType = OGRvalueType;
+                    const char *pAttrVal = pFeature->GetFieldAsString( iField );
+
+                    QString wxAttrValue;
+
+                    if( (0 == strncmp("NOBJNM",pAttrName, 6) ) ||
+                            (0 == strncmp("NINFOM",pAttrName, 6) ) ||
+                            (0 == strncmp("NPLDST",pAttrName, 6) ) ||
+                            (0 == strncmp("NTXTDS",pAttrName, 6) ) )
+                    {
+                        if( poReader->GetNall() == 2) {     // ENC is using UCS-2 / UTF-16 encoding
+                            wxAttrValue = zchxFuncUtil::convertCodesStringToUtf8( pAttrVal, "UTF-16");
+                            if(wxAttrValue.endsWith(QChar(0x1F)))
+                            {
+                                wxAttrValue.remove(wxAttrValue.size() - 1, 1);// Remove the \037 that terminates UTF-16 strings in S57
+                            }
+                            wxAttrValue.replace("\n", "|" );  //Replace  <new line> with special break character
+                        }
+                        else if( poReader->GetNall() == 1) {     // ENC is using Lex level 1 (ISO 8859_1) encoding
+                            wxAttrValue = zchxFuncUtil::convertCodesStringToUtf8( pAttrVal, "iso8859-1");
+                        }
+                    }
+                    else{
+                        if( poReader->GetAall() == 1) {     // ENC is using Lex level 1 (ISO 8859_1) encoding for "General Text"
+                            wxAttrValue = zchxFuncUtil::convertCodesStringToUtf8( pAttrVal, "iso8859-1");
+                        }
+                        else
+                            wxAttrValue = QString(pAttrVal);  // ENC must be using Lex level 0 (ASCII) encoding for "General Text"
+                    }
+
+                    unsigned int stringPayloadLength = 0;
+
+                    QByteArray buffer;
+                    if(wxAttrValue.length()){               // need to explicitely encode as UTF8
+                        buffer = wxAttrValue.toUtf8();
+                        pAttrVal = buffer.data();
+                        stringPayloadLength = strlen(buffer.data());
+                    }
+
+                    if(stringPayloadLength){
+                        if(payloadBufferLength < stringPayloadLength + 1){
+                            payloadBuffer = realloc(payloadBuffer, stringPayloadLength + 1);
+                            payloadBufferLength = stringPayloadLength + 1;
+                        }
+
+                        strcpy((char *)payloadBuffer, pAttrVal );
+                        payloadLength = stringPayloadLength + 1;
                     }
                     else
-                        wxAttrValue = QString(pAttrVal);  // ENC must be using Lex level 0 (ASCII) encoding for "General Text"
+                        attributeID = -1;                   // cancel this attribute record
+
+
+                    break;
                 }
 
-                unsigned int stringPayloadLength = 0;
-
-                QByteArray buffer;
-                if(wxAttrValue.length()){               // need to explicitely encode as UTF8
-                    buffer = wxAttrValue.toUtf8();
-                    pAttrVal = buffer.data();
-                    stringPayloadLength = strlen(buffer.data());
+                default:
+                    valueType = -1;
+                    break;
                 }
 
-                if(stringPayloadLength){
-                    if(payloadBufferLength < stringPayloadLength + 1){
-                        payloadBuffer = realloc(payloadBuffer, stringPayloadLength + 1);
-                        payloadBufferLength = stringPayloadLength + 1;
+                if( -1 != attributeID){
+                    // Build the record
+                    int recordLength = sizeof( OSENC_Attribute_Record_Base ) + payloadLength;
+
+                    //  Get a reference to the class persistent buffer
+                    unsigned char *pBuffer = getBuffer( recordLength );
+
+                    OSENC_Attribute_Record *pRecord = (OSENC_Attribute_Record *)pBuffer;
+                    memset(pRecord, 0, sizeof(OSENC_Attribute_Record));
+                    pRecord->record_type = FEATURE_ATTRIBUTE_RECORD;
+                    pRecord->record_length = recordLength;
+                    pRecord->attribute_type = attributeID;
+                    pRecord->attribute_value_type = valueType;
+                    memcpy( &pRecord->payload, payloadBuffer, payloadLength );
+
+                    // Write the record out....
+                    size_t targetCount = recordLength;
+                    if(!stream->Write(pBuffer, targetCount).IsOk()) {
+                        free( payloadBuffer );
+                        return false;
                     }
+                    pos = stream->TellI();
 
-                    strcpy((char *)payloadBuffer, pAttrVal );
-                    payloadLength = stringPayloadLength + 1;
                 }
-                else
-                    attributeID = -1;                   // cancel this attribute record
 
-
-                break;
-            }
-
-            default:
-                valueType = -1;
-                break;
-        }
-
-        if( -1 != attributeID){
-            // Build the record
-            int recordLength = sizeof( OSENC_Attribute_Record_Base ) + payloadLength;
-
-            //  Get a reference to the class persistent buffer
-            unsigned char *pBuffer = getBuffer( recordLength );
-
-            OSENC_Attribute_Record *pRecord = (OSENC_Attribute_Record *)pBuffer;
-            memset(pRecord, 0, sizeof(OSENC_Attribute_Record));
-            pRecord->record_type = FEATURE_ATTRIBUTE_RECORD;
-            pRecord->record_length = recordLength;
-            pRecord->attribute_type = attributeID;
-            pRecord->attribute_value_type = valueType;
-            memcpy( &pRecord->payload, payloadBuffer, payloadLength );
-
-            // Write the record out....
-            size_t targetCount = recordLength;
-            if(!stream->Write(pBuffer, targetCount).IsOk()) {
-                free( payloadBuffer );
-                return false;
-            }
-
-        }
-
-    }
-}
-}
-if( wkbPoint == pGeo->getGeometryType() ) {
-    OGRPoint *pp = (OGRPoint *) pGeo;
-    int nqual = pp->getnQual();
-    if( 10 != nqual )                    // only add attribute if nQual is not "precisely known"
-    {
-        int attributeID = m_pRegistrarMan->getAttributeID("QUAPOS");
-        int valueType = 0;
-        if( -1 != attributeID){
-            if(payloadBufferLength < 4){
-                payloadBuffer = realloc(payloadBuffer, 4);
-                payloadBufferLength = 4;
-            }
-
-            memcpy(payloadBuffer, &nqual, sizeof(int) );
-            payloadLength = sizeof(int);
-            // Build the record
-            int recordLength = sizeof( OSENC_Attribute_Record_Base ) + payloadLength;
-
-            //  Get a reference to the class persistent buffer
-            unsigned char *pBuffer = getBuffer( recordLength );
-
-            OSENC_Attribute_Record *pRecord = (OSENC_Attribute_Record *)pBuffer;
-            memset(pRecord, 0, sizeof(OSENC_Attribute_Record));
-            pRecord->record_type = FEATURE_ATTRIBUTE_RECORD;
-            pRecord->record_length = recordLength;
-            pRecord->attribute_type = attributeID;
-            pRecord->attribute_value_type = valueType;
-            memcpy( &pRecord->payload, payloadBuffer, payloadLength );
-
-            // Write the record out....
-            size_t targetCount = recordLength;
-            if(!stream->Write(pBuffer, targetCount).IsOk()) {
-                free( payloadBuffer );
-                return false;
             }
         }
     }
-}
+    if( wkbPoint == pGeo->getGeometryType() ) {
+        OGRPoint *pp = (OGRPoint *) pGeo;
+        int nqual = pp->getnQual();
+        if( 10 != nqual )                    // only add attribute if nQual is not "precisely known"
+        {
+            int attributeID = m_pRegistrarMan->getAttributeID("QUAPOS");
+            int valueType = 0;
+            if( -1 != attributeID){
+                if(payloadBufferLength < 4){
+                    payloadBuffer = realloc(payloadBuffer, 4);
+                    payloadBufferLength = 4;
+                }
 
-free( payloadBuffer );
+                memcpy(payloadBuffer, &nqual, sizeof(int) );
+                payloadLength = sizeof(int);
+                // Build the record
+                int recordLength = sizeof( OSENC_Attribute_Record_Base ) + payloadLength;
+
+                //  Get a reference to the class persistent buffer
+                unsigned char *pBuffer = getBuffer( recordLength );
+
+                OSENC_Attribute_Record *pRecord = (OSENC_Attribute_Record *)pBuffer;
+                memset(pRecord, 0, sizeof(OSENC_Attribute_Record));
+                pRecord->record_type = FEATURE_ATTRIBUTE_RECORD;
+                pRecord->record_length = recordLength;
+                pRecord->attribute_type = attributeID;
+                pRecord->attribute_value_type = valueType;
+                memcpy( &pRecord->payload, payloadBuffer, payloadLength );
+
+                // Write the record out....
+                size_t targetCount = recordLength;
+                if(!stream->Write(pBuffer, targetCount).IsOk()) {
+                    free( payloadBuffer );
+                    return false;
+                }
+                pos = stream->TellI();
+            }
+        }
+    }
+
+    free( payloadBuffer );
 
 #if 0    
-//    Special geometry cases
-///172
-if( wkbPoint == pGeo->getGeometryType() ) {
-    OGRPoint *pp = (OGRPoint *) pGeo;
-    int nqual = pp->getnQual();
-    if( 10 != nqual )                    // only add attribute if nQual is not "precisely known"
-    {
-        snprintf( line, MAX_HDR_LINE - 2, "  %s (%c) = %d", "QUALTY", 'I', nqual );
+    //    Special geometry cases
+    ///172
+    if( wkbPoint == pGeo->getGeometryType() ) {
+        OGRPoint *pp = (OGRPoint *) pGeo;
+        int nqual = pp->getnQual();
+        if( 10 != nqual )                    // only add attribute if nQual is not "precisely known"
+        {
+            snprintf( line, MAX_HDR_LINE - 2, "  %s (%c) = %d", "QUALTY", 'I', nqual );
+            sheader += QString( line, wxConvUTF8 );
+            sheader += '\n';
+        }
+
+    }
+
+    if( mode == 1 ) {
+        sprintf( line, "  %s %f %f\n", pGeo->getGeometryName(), m_ref_lat, m_ref_lon );
         sheader += QString( line, wxConvUTF8 );
-        sheader += '\n';
     }
 
-}
-
-if( mode == 1 ) {
-    sprintf( line, "  %s %f %f\n", pGeo->getGeometryName(), m_ref_lat, m_ref_lon );
-    sheader += QString( line, wxConvUTF8 );
-}
-
-wxCharBuffer buffer=sheader.ToUTF8();
-fprintf( fpOut, "HDRLEN=%lu\n", (unsigned long) strlen(buffer) );
-fwrite( buffer.data(), 1, strlen(buffer), fpOut );
+    wxCharBuffer buffer=sheader.ToUTF8();
+    fprintf( fpOut, "HDRLEN=%lu\n", (unsigned long) strlen(buffer) );
+    fwrite( buffer.data(), 1, strlen(buffer), fpOut );
 
 #endif
 
-if( ( pGeo != NULL ) ) {
+    if( ( pGeo != NULL ) ) {
 
-    QString msg;
+        QString msg;
 
-    OGRwkbGeometryType gType = pGeo->getGeometryType();
-    switch( gType ){
+        OGRwkbGeometryType gType = pGeo->getGeometryType();
+        switch( gType ){
 
-    case wkbLineString: {
+        case wkbLineString: {
 
-        if( !CreateLineFeatureGeometryRecord200(poReader, pFeature, stream) )
-            return false;
+            if( !CreateLineFeatureGeometryRecord200(poReader, pFeature, stream) )
+                return false;
+            pos = stream->TellI();
+            break;
+        }
 
-        break;
-    }
+        case wkbPoint: {
 
-    case wkbPoint: {
+            OSENC_PointGeometry_Record record;
+            record.record_type = FEATURE_GEOMETRY_RECORD_POINT;
+            record.record_length = sizeof( record );
 
-        OSENC_PointGeometry_Record record;
-        record.record_type = FEATURE_GEOMETRY_RECORD_POINT;
-        record.record_length = sizeof( record );
+            int wkb_len = pGeo->WkbSize();
+            unsigned char *pwkb_buffer = (unsigned char *) malloc( wkb_len );
 
-        int wkb_len = pGeo->WkbSize();
-        unsigned char *pwkb_buffer = (unsigned char *) malloc( wkb_len );
+            //  Get the GDAL data representation
+            pGeo->exportToWkb( wkbNDR, pwkb_buffer );
 
-        //  Get the GDAL data representation
-        pGeo->exportToWkb( wkbNDR, pwkb_buffer );
+            int nq_len = 4;                                     // nQual length
+            unsigned char *ps = pwkb_buffer;
 
-        int nq_len = 4;                                     // nQual length
-        unsigned char *ps = pwkb_buffer;
+            ps += 5 + nq_len;
+            double *psd = (double *) ps;
 
-        ps += 5 + nq_len;
-        double *psd = (double *) ps;
-
-        double lat, lon;
+            double lat, lon;
 #ifdef __ARM_ARCH
-        double lata, lona;
-        memcpy(&lona, psd, sizeof(double));
-        memcpy(&lata, &psd[1], sizeof(double));
-        lon = lona;
-        lat = lata;
+            double lata, lona;
+            memcpy(&lona, psd, sizeof(double));
+            memcpy(&lata, &psd[1], sizeof(double));
+            lon = lona;
+            lat = lata;
 #else
-        lon = *psd++;                                      // fetch the point
-        lat = *psd;
+            lon = *psd++;                                      // fetch the point
+            lat = *psd;
 #endif
 
-        free( pwkb_buffer );
+            free( pwkb_buffer );
 
-        record.lat = lat;
-        record.lon = lon;
+            record.lat = lat;
+            record.lon = lon;
 
-        // Write the record out....
-        size_t targetCount = record.record_length;
-        if(!stream->Write(&record, targetCount).IsOk())
-            return false;
+            // Write the record out....
+            size_t targetCount = record.record_length;
+            if(!stream->Write(&record, targetCount).IsOk())
+                return false;
+            pos = stream->TellI();
+            break;
+        }
 
-        break;
-    }
+        case wkbMultiPoint:
+        case wkbMultiPoint25D:{
 
-    case wkbMultiPoint:
-    case wkbMultiPoint25D:{
-
-        if(!CreateMultiPointFeatureGeometryRecord200( pFeature, stream))
-            return false;
-        break;
-    }
+            if(!CreateMultiPointFeatureGeometryRecord200( pFeature, stream))
+                return false;
+            pos = stream->TellI();
+            break;
+        }
 
 #if 1                
-        //      Special case, polygons are handled separately
-    case wkbPolygon: {
+            //      Special case, polygons are handled separately
+        case wkbPolygon: {
 
-        if( !CreateAreaFeatureGeometryRecord200(poReader, pFeature, stream) )
-            return false;
-
-        break;
-    }
+            if( !CreateAreaFeatureGeometryRecord200(poReader, pFeature, stream) )
+                return false;
+            pos = stream->TellI();
+            break;
+        }
 #endif                
-        //      All others
-    default:
-        qDebug("   Warning: Unimplemented ogr geotype record ");
-        break;
-    }       // switch
+            //      All others
+        default:
+            qDebug("   Warning: Unimplemented ogr geotype record ");
+            break;
+        }       // switch
 
-}
-return true;
+    }
+    return true;
 }
 
 

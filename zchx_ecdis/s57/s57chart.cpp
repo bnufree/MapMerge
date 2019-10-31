@@ -2667,7 +2667,7 @@ int s57chart::FindOrCreateSenc( const QString& name, bool b_progress )
 
     if( bbuild_new_senc ) {
         m_bneed_new_thumbnail = true; // force a new thumbnail to be built in PostInit()
-        build_ret_val = BuildSENCFile( m_TempFilePath, m_SENCFileName, b_progress );
+        build_ret_val = BuildSENCFile( m_TempFilePath, m_SENCFileName, true );
         
         if(BUILD_SENC_PENDING == build_ret_val)
             return BUILD_SENC_PENDING;
@@ -3798,7 +3798,7 @@ bool s57chart::GetBaseFileAttr( const QString& file000 )
     return true;
 }
 
-int s57chart::BuildSENCFile( const QString& FullPath000, const QString& SENCFileName, bool b_progress )
+int s57chart::BuildSENCFile( const QString& FullPath000, const QString& SENCFileName, bool async )
 {
     
     //  LOD calculation
@@ -3810,7 +3810,7 @@ int s57chart::BuildSENCFile( const QString& FullPath000, const QString& SENCFile
     ref_lat = ( m_FullExtent.NLAT + m_FullExtent.SLAT ) / 2.;
     ref_lon = ( m_FullExtent.WLON + m_FullExtent.ELON ) / 2.;
 
-    if(!m_disableBackgroundSENC){
+    if(async){
         if(g_SencThreadManager){
             SENCJobTicket *ticket = new SENCJobTicket();
             ticket->m_LOD_meters = m_LOD_meters;
@@ -3838,7 +3838,7 @@ int s57chart::BuildSENCFile( const QString& FullPath000, const QString& SENCFile
 
 //        OCPNPlatform::ShowBusySpinner();
 
-        int ret = senc.createSenc200( FullPath000, SENCFileName, b_progress );
+        int ret = senc.createSenc200( FullPath000, SENCFileName, false );
 
 //        OCPNPlatform::HideBusySpinner();
         

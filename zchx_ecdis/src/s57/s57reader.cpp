@@ -35,7 +35,9 @@
 #include "cpl_conv.h"
 #include "cpl_string.h"
 #include "ogr_s57.h"
+#include "_def.h"
 
+extern FILE            *testDump;
 /************************************************************************/
 /*                             S57Reader()                              */
 /************************************************************************/
@@ -391,7 +393,7 @@ int S57Reader::Ingest(CallBackFunction pcallback)
         else if( EQUAL(pszname,"FRID") )
         {
 
-//              poRecord->Dump(stderr);               //  for debugging, try ./opencpn &>test.dbg
+             if(testDump )poRecord->Dump(testDump);               //  for debugging, try ./opencpn &>test.dbg
 
             int         nRCID = poRecord->GetIntSubfield( "FRID",0, "RCID",0);
             oFE_Index.AddRecord( nRCID, poRecord->Copy() );
@@ -940,6 +942,7 @@ void S57Reader::ApplyObjectClassAttributes( DDFRecord * poRecord,
                     if( poSFDefn ) {
                         int max_length = 0;
                         const char *pachData = poField->GetSubfieldData(poSFDefn, &max_length, iAttr);
+                        QString wxAttrValue = zchxFuncUtil::convertCodesStringToUtf8(pachData, "UTF-16");
                         nLength = poSFDefn->GetDataLength( pachData, max_length, NULL);
                     }
                 }

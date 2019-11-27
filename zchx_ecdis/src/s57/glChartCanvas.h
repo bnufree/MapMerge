@@ -153,7 +153,7 @@ public:
 
     void SetAlertString( QString str){ m_alertString = str;}
     QString GetAlertString(){ return m_alertString; }
-    bool UpdateChartDatabaseInplace( ArrayOfCDI &DirArray, bool b_force, bool b_prog, const QString &chartListFileName = QString() );
+    bool UpdateChartDatabaseInplace( ArrayOfCDI &DirArray);
     void ClearS52PLIBStateHash(){ m_s52StateHash = 0; }
     void ApplyCanvasConfig(canvasConfig *pcc);
     void UpdateCanvasS52PLIBConfig();
@@ -180,6 +180,8 @@ public:
     void        getLLOfPix(double& lat, double& lon, int x, int y);
     void        changeS572SENC(const QString &src);
 
+signals:
+    void signalDBUpdateFinished();
 public slots:
     void slotStartLoadEcdis();
     void slotUpdateChartFinished();
@@ -193,7 +195,7 @@ public:
     void mouseReleaseEvent(QMouseEvent* event);
     void wheelEvent(QWheelEvent *);
     void keyPressEvent(QKeyEvent *);
-private:
+public:
     ViewPort GetVP();
 
 protected:
@@ -305,9 +307,6 @@ protected:
     QPoint      last_drag_point;
     bool        mIsLeftDown;
     int         m_modkeys;
-
-    //DB更新的对话框
-    QProgressDialog*            mDBProgressDlg;
     //是否正确初始化
     bool                        mIsInitValid;
 };

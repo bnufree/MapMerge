@@ -232,7 +232,8 @@ SOURCES += mainwindow.cpp \
     s57/glwidget.cpp \
     s57/mbtiles.cpp \
     s57/GL/zchxopenglutil.cpp \
-    dialog/zchxmapsourcedialog.cpp
+    dialog/zchxmapsourcedialog.cpp \
+    zchxecdisprogresswidget.cpp
 
 HEADERS  += mainwindow.h \
     zchxtileimagethread.h \
@@ -358,7 +359,8 @@ HEADERS  += mainwindow.h \
     s57/glwidget.h \
     s57/mbtiles.h \
     s57/GL/zchxopenglutil.h \
-    dialog/zchxmapsourcedialog.h
+    dialog/zchxmapsourcedialog.h \
+    zchxecdisprogresswidget.h
 
 FORMS    += mainwindow.ui \
     coastdatainfodialog.ui \

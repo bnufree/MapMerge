@@ -21,22 +21,40 @@ MainWindow::MainWindow(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) :
     QString style = QString("background-color:%1;").arg(Profiles::instance()->value(MAP_INDEX, MAP_BACK_GROUND).toString());
     qDebug()<<"style:"<<style;
     ui->ecdis_frame->setStyleSheet(style);
-    QPixmapCache::setCacheLimit(1);
-//    ui->statusBar->setVisible(false);
-    ui->source->addItem(tr("自建瓦片地图"), 0);
-    ui->source->addItem(tr("谷歌在线地图"), 1);
-    ui->progressBar->setVisible(false);
-    ui->download->setVisible(false);
-    ui->load_frame->setVisible(false);
-    ui->pos_frame->setVisible(false);
-    ui->ctrl_frame->setVisible(false);
-    mMapWidget = new zchxMapWidget(type, this);
+    QPixmapCache::setCacheLimit(1);    
+
+    mMapWidget = new zchxMapWidget(type, ui->ecdis_frame);
     ui->ecdis_frame->layout()->addWidget(mMapWidget);
     connect(mMapWidget, SIGNAL(signalDisplayCurPos(double,double)), this, SLOT(slotUpdateCurrentPos(double,double)));
     connect(mMapWidget, SIGNAL(signalSendNewMap(double,double,int)), this, SLOT(slotDisplayMapCenterAndZoom(double,double,int)));
     initSignalConnect();
     MapLayerMgr::instance()->setDrawWidget(mMapWidget);
     MapLayerMgr::instance()->loadEcdisLayers();
+    //开始进行控制的设定
+    if(0)
+    {
+        ui->control->setVisible(false);
+        ui->pos_frame->setVisible(false);
+    } else
+    {
+        ui->control->setVisible(true);
+        ui->pos_frame->setVisible(true);
+        ui->mapTypeBtnGroup->setId(ui->tileRadioBtn, 0);
+        ui->mapTypeBtnGroup->setId(ui->vectorRadioBtn, 1);
+        connect(ui->mapTypeBtnGroup, SIGNAL(buttonClicked(int)), this, SLOT(slotMaptypeButtonClicked(int)));
+        if(type == ZCHX::ZCHX_MAP_TILE)
+        {
+            ui->tileRadioBtn->setChecked(true);
+        } else
+        {
+            ui->vectorRadioBtn->setChecked(true);
+            ui->vectorDir->setText(mMapWidget->getSource());
+        }
+        slotMaptypeButtonClicked(type);
+        ui->tileSource->addItem(tr("自建瓦片地图"), 0);
+        ui->tileSource->addItem(tr("谷歌在线地图"), 1);
+
+    }
 }
 
 MainWindow::~MainWindow()
@@ -62,11 +80,11 @@ void MainWindow::resizeEvent(QResizeEvent *e)
 
 
 
-void MainWindow::on_load_clicked()
+void MainWindow::on_loadBtn_clicked()
 {
     //QRect rect =  ui->ecdis->geometry();
-    double lon = ui->lon->text().toDouble();
-    double lat = ui->lat->text().toDouble();
+    double lon = ui->centerLon->text().toDouble();
+    double lat = ui->centerLat->text().toDouble();
     int zoom = ui->zoom->text().toInt();
     if(mMapWidget) mMapWidget->setCenterAndZoom(ZCHX::Data::LatLon(lat, lon), zoom);
 }
@@ -79,32 +97,16 @@ void MainWindow::slotUpdateCurrentPos(double lon, double lat)
 
 void MainWindow::slotDisplayMapCenterAndZoom(double lon, double lat, int zoom)
 {
-    ui->lat->setText(FLOAT_STRING(lat, 6));
-    ui->lon->setText(FLOAT_STRING(lon, 6));
+    ui->centerLat->setText(FLOAT_STRING(lat, 6));
+    ui->centerLon->setText(FLOAT_STRING(lon, 6));
     ui->zoom->setText(INT_STRING(zoom));
 }
 
-void MainWindow::on_download_clicked()
-{
 
-}
-
-void MainWindow::slotUpdateDownloadProgress(int val)
+void MainWindow::on_tileSource_currentIndexChanged(int index)
 {
-    static int num = 1;
-    ui->progressBar->setValue(num++);
-    if(num == 23)
-    {
-        num = 1;
-    }
-}
-
-void MainWindow::on_source_activated(const QString &arg1)
-{
-}
-
-void MainWindow::on_source_currentIndexChanged(int index)
-{
+    if(!mMapWidget) return;
+    if(mMapWidget->getMapType() == ZCHX::ZCHX_MAP_VECTOR) return;
     QString url = "http://mt2.google.cn/vt/lyrs=m@167000000&hl=zh-CN&gl=cn&x=%1&y=%2&z=%3&s=Galil";
     int pos = TILE_ORIGIN_TOPLEFT;
     if(index != 1)
@@ -908,6 +910,11 @@ void MainWindow::itfsetSelectedRouteOrCross()
 double MainWindow::itfzchxUtilToolAngle4north()
 {
     return mMapWidget->zchxUtilToolAngle4north();
+}
+
+void MainWindow::itfSetMapSource(const QString &dir)
+{
+    if(mMapWidget) mMapWidget->setSource(dir, 0);
 }
 
 void MainWindow::itfzchxUtilToolSetAngle4north(double ang)
@@ -1895,9 +1902,8 @@ void MainWindow::setEcdisMapSource(const QString& source, TILE_ORIGIN_POS pos)
 
 void MainWindow::setCtrlFrameVisible(bool sts)
 {
-    ui->ctrl_frame->setVisible(sts);
+    ui->control->setVisible(sts);
     ui->pos_frame->setVisible(sts);
-    ui->load_frame->setVisible(sts);
 }
 
 void MainWindow::setZoomLabelVisible(bool sts)
@@ -1908,12 +1914,6 @@ void MainWindow::setZoomLabelVisible(bool sts)
 void MainWindow::setImgNumberVisible(bool sts)
 {
     if(mMapWidget) mMapWidget->setImgNumberVisible(sts);
-}
-
-
-void MainWindow::on_origin_pos_activated(int index)
-{
-//    if(mMapWidget) mMapWidget->setSource(ui->source->currentData().toInt(), index);
 }
 
 void MainWindow::itfToolBarShowDepth(bool isDisplay)
@@ -1956,3 +1956,17 @@ void MainWindow::itfToolBarSetMapUrl(const QString& url)
     if(mMapWidget) mMapWidget->setMapUrl(url);
 }
 
+
+void qt::MainWindow::on_vectorDirBrowseBtn_clicked()
+{
+    QString dir = QFileDialog::getExistingDirectory();
+    if(dir.isEmpty()) return;
+    ui->vectorDir->setText(dir);
+    itfSetMapSource(dir);
+}
+
+void MainWindow::slotMaptypeButtonClicked(int id)
+{
+    ui->tileGroup->setVisible(id == 0);
+    ui->vectorGroup->setVisible(id == 1);
+}

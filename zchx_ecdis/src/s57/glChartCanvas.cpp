@@ -204,7 +204,6 @@ glChartCanvas::glChartCanvas(QObject* parent) : QObject(parent)
     , m_encShowDataQual(false)
     , mIsLeftDown(false)
     , m_MouseDragging(false)
-    , mDBProgressDlg(0)
     , mIsInitValid(true)
     , mWidth(0)
     , mHeight(0)
@@ -3515,39 +3514,19 @@ bool glChartCanvas::initBeforeUpdateMap()
 }
 
 #include <QPushButton>
-bool glChartCanvas::UpdateChartDatabaseInplace( ArrayOfCDI &DirArray, bool b_force, bool b_prog, const QString &chartListFileName )
+bool glChartCanvas::UpdateChartDatabaseInplace( ArrayOfCDI &DirArray)
 {
-    QString ChartListFileName = g_chartListFileName;
-    if(!chartListFileName.isEmpty()) ChartListFileName = chartListFileName;
-    bool b_run = false;
-    if(!mDBProgressDlg)
-    {
-        if( b_prog  && DirArray.count() > 0) {
-            mDBProgressDlg = new QProgressDialog(0);
-            mDBProgressDlg->setWindowFlags(Qt::FramelessWindowHint);
-            mDBProgressDlg->setRange(0, 0);
-            //        pprog->setAttribute(Qt::WA_DeleteOnClose);
-            mDBProgressDlg->setWindowTitle(tr("数据更新"));
-            mDBProgressDlg->setLabel(new QLabel(tr("正在更新地图数据,请稍候...")));
-            mDBProgressDlg->setCancelButtonText(tr("取消"));
-        }
-    }
-
-    if(mDBProgressDlg)mDBProgressDlg->show();
-//    setCursor(OCPNPlatform::instance()->ShowBusySpinner());
+    if(DirArray.size()) qDebug()<<DirArray.first().fullpath;
     EnablePaint(false);
     connect(mFrameWork, SIGNAL(signalUpdateChartArrayFinished()),
             this, SLOT(slotUpdateChartFinished()));
-    mFrameWork->signalUpdateChartDatabase(DirArray, b_force, ChartListFileName);
+    mFrameWork->signalUpdateChartDatabase(DirArray, true, g_chartListFileName);
 }
 
 void glChartCanvas::slotUpdateChartFinished()
 {
 //    setCursor(OCPNPlatform::instance()->HideBusySpinner());
-    if(mDBProgressDlg)
-    {
-        mDBProgressDlg->hide();
-    }
+    emit signalDBUpdateFinished();
     EnablePaint(true);
 
     Zoom(1.0001);

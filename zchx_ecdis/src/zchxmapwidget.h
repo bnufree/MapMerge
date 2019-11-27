@@ -22,6 +22,7 @@ typedef     QList<POLYLINE>                             POLYLINES;
 
 class QDomElement;
 class QScaleSlider;
+class zchxEcdisProgressWidget;
 
 namespace qt {
 class ZCHXDrawMultibeam;
@@ -39,6 +40,7 @@ class zchxMapWidget : public QGLWidget
 public:
     explicit zchxMapWidget(ZCHX::ZCHX_MAP_TYPE type = ZCHX::ZCHX_MAP_TILE, QWidget *parent = 0);
     ~zchxMapWidget();
+    int getMapType() const {return mType;}
     //地图显示
     void setCurZoom(int zoom);
     int  zoom() const;
@@ -47,6 +49,7 @@ public:
     void setCenterAtTargetLL(double lat, double lon);
     ZCHX::Data::LatLon centerLatLon() const;
     void setSource(const QString& source, int pos);
+    QString getSource() const;
     zchxMapFrameWork* framework() const {return mFrameWork;}
     void setScaleControl(QScaleSlider * pScale);
     void setMapStyle(MapStyle mapStyle);
@@ -146,6 +149,7 @@ public:
     void rotateAntiClockwise(double delta) {rotate(getRotate() - delta);}                 //旋转地图,当前地图的基础上进行逆时针旋转.单位度
     void rotateReset() {rotate(0);}                                     //旋转地图.恢复到不旋转的正北状态
     virtual void setMapUrl(const QString& url) {}                    //设定地图的数据源目录.可以为在线地址或者本地文件目录
+    bool isDBUpdateNow() const {return mIsDBUpdateNow;}
 
 private:
     void updateCurrentPos(const QPoint& p);
@@ -591,6 +595,7 @@ private slots:
         * \brief 处理图层的 visible 状态的变化
         */
     //void _maplayerVisibleChanged(bool visible);
+    void   slotDBUpdateFinished();
 
 protected:
     //void drawLayers(QPainter *painter);
@@ -967,7 +972,8 @@ private:
     bool                            mIsShowText;
     bool                            mIsShowGrid;
     ZCHX::ZCHX_MAP_TYPE             mType;
-
+    zchxEcdisProgressWidget*                mDBProgressWidget;
+    bool                            mIsDBUpdateNow;
 };
 }
 #endif // ZCHXMAPWIDGET_H

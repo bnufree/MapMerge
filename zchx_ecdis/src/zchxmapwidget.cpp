@@ -11,6 +11,7 @@
 #include <QDomDocument>
 #include "profiles.h"
 #include "dialog/zchxmapsourcedialog.h"
+#include "zchxecdisprogresswidget.h"
 
 //#define     DEFAULT_LON         113.093664
 //#define     DEFAULT_LAT         22.216150
@@ -37,7 +38,9 @@ zchxMapWidget::zchxMapWidget(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) : QGLWid
     m_targetSizeIndex(0),
     m_traceLenIndex(0),
     m_continueTimeIndex(0),
-    mType(type)
+    mType(type),
+    mIsDBUpdateNow(false),
+    mDBProgressWidget(0)
 {
     this->setMouseTracking(true);
     mZoomLbl = new QLabel(this);
@@ -63,6 +66,7 @@ zchxMapWidget::zchxMapWidget(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) : QGLWid
 //        mFrameWork = new zchxTileMapFrameWork(lat, lon, zoom, width(), height(), source, pos, min_zoom, max_zoom);
         mFrameWork = new zchxVectorMapFrameWork();
     }
+    connect(mFrameWork, SIGNAL(signalDBUpdateFinished()), this, SLOT(slotDBUpdateFinished()));
     //地图状态初始化
     releaseDrawStatus();
     //
@@ -871,6 +875,10 @@ void zchxMapWidget::mouseReleaseEvent(QMouseEvent *e)
             QPoint pnt = e->pos();
             if(mFrameWork) mFrameWork->pan(mPressPnt.x()- pnt.x(), mPressPnt.y() - pnt.y());
 
+        } else
+        {
+
+            mFrameWork->setCenter(mPressPnt);
         }
     }
     e->accept();
@@ -1035,7 +1043,51 @@ void zchxMapWidget::wheelEvent(QWheelEvent *e)
 
 void zchxMapWidget::setSource(const QString& source, int pos)
 {
-    if(mFrameWork) mFrameWork->setSource(source, pos);
+    if(isDBUpdateNow()) return;
+    if(mFrameWork)
+    {
+        //瓦片图不需要数据解析  不需要进度条显示
+        if(mType == ZCHX::ZCHX_MAP_VECTOR)
+        {
+            mIsDBUpdateNow = true;
+#if 0
+            if(!mDBProgressWidget)
+            {
+                mDBProgressDlg = new QProgressDialog(this);
+                mDBProgressDlg->setWindowFlags(Qt::FramelessWindowHint | Qt::SubWindow);
+                mDBProgressDlg->setRange(0, 0);
+                mDBProgressDlg->setWindowTitle(tr("数据更新"));
+                mDBProgressDlg->setLabel(new QLabel(tr("正在更新地图数据,请稍候...")));
+                QPushButton *cancelBtn = new QPushButton(tr("取消"), mDBProgressDlg);
+                cancelBtn->setFlat(true);
+                mDBProgressDlg->setCancelButton(cancelBtn);
+            }
+            if(mDBProgressDlg)
+            {
+                QRect rect = mDBProgressDlg->rect();
+                rect.moveCenter(this->rect().center());
+                mDBProgressDlg->move(rect.topLeft());
+                mDBProgressDlg->show();
+            }
+#endif
+            if(!mDBProgressWidget)
+            {
+                mDBProgressWidget = new zchxEcdisProgressWidget(this);
+            }
+            QRect rect = mDBProgressWidget->rect();
+            rect.moveCenter(this->rect().center());
+            mDBProgressWidget->move(rect.topLeft());
+            mDBProgressWidget->show();
+        }
+        mFrameWork->setSource(source, pos);
+
+    }
+}
+
+QString zchxMapWidget::getSource() const
+{
+    if(!mFrameWork) return QString();
+    return mFrameWork->getSource();
 }
 
 void zchxMapWidget::setScaleControl(QScaleSlider * pScale)
@@ -1987,6 +2039,16 @@ void zchxMapWidget::setHoverDrawElement(const ZCHX::Data::Point2D &pos)
         Element *ele = mgr->selectItem(pos.toPoint());
         if(ele) ele->showToolTip(mapToGlobal(pos.toPoint()));
     }
+}
+
+void zchxMapWidget::slotDBUpdateFinished()
+{
+    if(mDBProgressWidget)
+    {
+        delete mDBProgressWidget;
+        mDBProgressWidget = 0;
+    }
+    mIsDBUpdateNow = false;
 }
 
 

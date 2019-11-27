@@ -2,12 +2,13 @@
 #include "glChartCanvas.h"
 #include "Osenc.h"
 
-
+extern FILE            *testDump;
 using namespace qt;
 
 zchxVectorMapFrameWork::zchxVectorMapFrameWork(QObject *parent) : zchxMapFrameWork(ZCHX::ZCHX_MAP_VECTOR, parent)
 {
     mGLCtrl = new glChartCanvas(0);
+    connect(mGLCtrl, SIGNAL(signalDBUpdateFinished()), this, SIGNAL(signalDBUpdateFinished()));
 }
 
 zchxVectorMapFrameWork::~zchxVectorMapFrameWork()
@@ -32,7 +33,9 @@ ZCHX::Data::Point2D  zchxVectorMapFrameWork::LatLon2Pixel(const ZCHX::Data::LatL
 //更新地图的显示范围
 void zchxVectorMapFrameWork::updateDisplayRange()
 {
-
+//    int x ,y;
+//    mGLCtrl->getPixcelOfLL(x, y, mCenter.lat, mCenter.lon);
+//    mGLCtrl->Pan( x - mGLCtrl->GetVP().pixWidth() / 2, y - mGLCtrl->GetVP().pixHeight() / 2 );
 }
 
 
@@ -98,10 +101,12 @@ void zchxVectorMapFrameWork::setSource(const QString &source, int pos)
     info.fullpath = source;
     ArrayOfCDI cdi;
     cdi.append(info);
-    if(mGLCtrl) mGLCtrl->UpdateChartDatabaseInplace(cdi, true, true);
+    if(mGLCtrl) mGLCtrl->UpdateChartDatabaseInplace(cdi);
 }
 
 void zchxVectorMapFrameWork::changeS572SENC(const QString &src)
 {
+    if(!testDump) testDump = fopen("test.txt", "w");
     if(mGLCtrl) mGLCtrl->changeS572SENC(src);
+    fclose(testDump);
 }

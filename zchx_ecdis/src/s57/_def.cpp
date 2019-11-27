@@ -371,6 +371,7 @@ QString s_locale;
 
 
 double zchxFuncUtil::m_pt_per_pixel = 0.0;
+FILE            *testDump = 0;
 
 bool zchxFuncUtil::isDirExist(const QString& name)
 {

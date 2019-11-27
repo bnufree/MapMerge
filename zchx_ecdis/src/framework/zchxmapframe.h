@@ -43,6 +43,7 @@ public:
     virtual     void        updateDisplayRange() {}
     //设定地图数据来源
     virtual     void        setSource(const QString& source, int pos);
+    QString                 getSource() const {return mSourceUrl;}
 
     //地图操作接口
     virtual     void        zoomIn();               //放大缩小
@@ -66,6 +67,7 @@ public:
 
 signals:
     void        signalSendCurMapinfo(double center_lat, double center_lon, int zoom);
+    void        signalDBUpdateFinished();
 public slots:
 
 

@@ -25,24 +25,17 @@ public:
 public slots:
     void slotUpdateCurrentPos(double lon, double lat);
     void slotDisplayMapCenterAndZoom(double lon, double lat, int zoom);
-    void slotUpdateDownloadProgress(int val);
 private slots:
-    void on_load_clicked();
-
-    void on_download_clicked();
-
-    void on_source_activated(const QString &arg1);
-
-    void on_source_currentIndexChanged(int index);
-
+    void on_loadBtn_clicked();
+    void on_tileSource_currentIndexChanged(int index);
     void on_image_num_clicked(bool checked);
-
-    //从旧的海图移植的接口
-    void on_origin_pos_activated(int index);
+    void on_vectorDirBrowseBtn_clicked();
+    void slotMaptypeButtonClicked(int id);
 
 private:
     void initSignalConnect(); //初始化信号连接
 public:
+    void   itfSetMapSource(const QString& dir);
     //其他工具接口
     double itfzchxUtilToolAngle4north(); //返加当前地图正北方向的方向角
     void   itfzchxUtilToolSetAngle4north(double ang); //设置地图的旋转角度

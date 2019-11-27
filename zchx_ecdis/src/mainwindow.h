@@ -32,10 +32,19 @@ private slots:
     void on_vectorDirBrowseBtn_clicked();
     void slotMaptypeButtonClicked(int id);
 
+    void on_colorSchemeCBX_currentIndexChanged(int index);
+
+    void on_displayCategoryCBX_currentIndexChanged(int index);
+
 private:
     void initSignalConnect(); //初始化信号连接
 public:
+    //设定图的的数据源
     void   itfSetMapSource(const QString& dir);
+    //设定地图的颜色模式和显示模式
+    void   itfSetDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category);
+    void   itfSetColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme);
+
     //其他工具接口
     double itfzchxUtilToolAngle4north(); //返加当前地图正北方向的方向角
     void   itfzchxUtilToolSetAngle4north(double ang); //设置地图的旋转角度

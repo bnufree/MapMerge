@@ -6291,6 +6291,9 @@ void s52plib::RenderToBufferFilledPolygon( ObjRazRules *rzRules, S57Obj *obj, S5
 
 int s52plib::RenderToGLAC( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 {
+//    QString content;
+//    content.sprintf("obj desciption:%s,%s", rules->INST0, rules->INSTstr);
+//    qDebug()<<content;
 #ifdef ocpnUSE_GL    
     S52color *c;
     char *str = (char*) rules->INSTstr;

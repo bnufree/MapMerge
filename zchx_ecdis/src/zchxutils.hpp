@@ -108,6 +108,19 @@ namespace ZCHX {
       ZCHX_MAP_VECTOR,                //矢量地图
   };
 
+  enum ZCHX_COLOR_SCHEME
+  {
+      ZCHX_COLOR_DAY = 0,
+      ZCHX_COLOR_DUSK,
+      ZCHX_COLOR_NIGHT,
+  };
+  enum ZCHX_DISPLAY_CATEGORY
+  {
+      ZCHX_DISPLAY_BASE = 0,
+      ZCHX_DISPLAY_STANDARD,
+      ZCHX_DISPLAY_ALL,
+  };
+
 namespace Data{
 struct Mercator{
 public:

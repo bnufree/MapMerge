@@ -3614,6 +3614,7 @@ void glChartCanvas::SetENCDisplayCategory( int category )
 {
     m_encDisplayCategory = category;
     m_s52StateHash = 0;         // Force a S52 PLIB re-configure
+    mFrameWork->ReloadVP();
 }
 
 

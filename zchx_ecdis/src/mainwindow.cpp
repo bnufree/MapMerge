@@ -53,6 +53,12 @@ MainWindow::MainWindow(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) :
         slotMaptypeButtonClicked(type);
         ui->tileSource->addItem(tr("自建瓦片地图"), 0);
         ui->tileSource->addItem(tr("谷歌在线地图"), 1);
+        ui->colorSchemeCBX->addItem(tr("白天"), ZCHX::ZCHX_COLOR_DAY);
+        ui->colorSchemeCBX->addItem(tr("傍晚"), ZCHX::ZCHX_COLOR_DUSK);
+        ui->colorSchemeCBX->addItem(tr("夜晚"), ZCHX::ZCHX_COLOR_NIGHT);
+        ui->displayCategoryCBX->addItem(tr("基本"), ZCHX::ZCHX_DISPLAY_BASE);
+        ui->displayCategoryCBX->addItem(tr("标准"), ZCHX::ZCHX_DISPLAY_STANDARD);
+        ui->displayCategoryCBX->addItem(tr("全部"), ZCHX::ZCHX_DISPLAY_ALL);
 
     }
 }
@@ -915,6 +921,16 @@ double MainWindow::itfzchxUtilToolAngle4north()
 void MainWindow::itfSetMapSource(const QString &dir)
 {
     if(mMapWidget) mMapWidget->setSource(dir, 0);
+}
+
+void MainWindow::itfSetDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category)
+{
+    if(mMapWidget) mMapWidget->setDisplayCategory(category);
+}
+
+void MainWindow::itfSetColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme)
+{
+    if(mMapWidget) mMapWidget->setColorScheme(scheme);
 }
 
 void MainWindow::itfzchxUtilToolSetAngle4north(double ang)
@@ -1969,4 +1985,16 @@ void MainWindow::slotMaptypeButtonClicked(int id)
 {
     ui->tileGroup->setVisible(id == 0);
     ui->vectorGroup->setVisible(id == 1);
+}
+
+void qt::MainWindow::on_colorSchemeCBX_currentIndexChanged(int index)
+{
+    ZCHX::ZCHX_COLOR_SCHEME scheme = (ZCHX::ZCHX_COLOR_SCHEME)(ui->colorSchemeCBX->currentData().toInt());
+    itfSetColorScheme(scheme);
+}
+
+void qt::MainWindow::on_displayCategoryCBX_currentIndexChanged(int index)
+{
+    ZCHX::ZCHX_DISPLAY_CATEGORY scheme = (ZCHX::ZCHX_DISPLAY_CATEGORY)(ui->displayCategoryCBX->currentData().toInt());
+    itfSetDisplayCategory(scheme);
 }

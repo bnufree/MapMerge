@@ -48,6 +48,7 @@ public:
     void setCenterAndZoom(const ZCHX::Data::LatLon &ll, int zoom);
     void setCenterAtTargetLL(double lat, double lon);
     ZCHX::Data::LatLon centerLatLon() const;
+    //设定地图的数据源
     void setSource(const QString& source, int pos);
     QString getSource() const;
     zchxMapFrameWork* framework() const {return mFrameWork;}
@@ -588,6 +589,10 @@ public Q_SLOTS:
     //相机网格
     void setETool2DrawCameraNetGrid(const QSizeF& size, const QString& camera);
     //void slotSetRadarTailTrack();
+    //设定地图的显示模式
+    void setColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme);
+    //设定地图的颜色模式
+    void setDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category);
 
 
 private slots:

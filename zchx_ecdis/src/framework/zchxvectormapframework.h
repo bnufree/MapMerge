@@ -37,6 +37,9 @@ public:
     virtual void  initEcdis();
     //
     void  changeS572SENC(const QString& src);
+    //矢量地图标准,基本,全部接口
+    void  setDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category);
+    void  setColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme);
 private:
     glChartCanvas*          mGLCtrl;
 

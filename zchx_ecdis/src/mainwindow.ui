@@ -120,6 +120,12 @@
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QComboBox" name="colorSchemeCBX"/>
+            </item>
+            <item>
+             <widget class="QComboBox" name="displayCategoryCBX"/>
+            </item>
            </layout>
           </widget>
          </item>

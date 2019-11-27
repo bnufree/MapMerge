@@ -110,3 +110,37 @@ void zchxVectorMapFrameWork::changeS572SENC(const QString &src)
     if(mGLCtrl) mGLCtrl->changeS572SENC(src);
     fclose(testDump);
 }
+
+void zchxVectorMapFrameWork::setDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY src)
+{
+    DisCat category = DISPLAYBASE;
+    switch (src) {
+    case ZCHX::ZCHX_DISPLAY_BASE:
+        category = DISPLAYBASE;
+        break;
+    case ZCHX::ZCHX_DISPLAY_STANDARD:
+        category = STANDARD;
+    default:
+        category = OTHER;
+        break;
+    }
+    if(mGLCtrl->GetENCDisplayCategory() == category) return;
+    mGLCtrl->SetENCDisplayCategory(category);
+}
+
+void zchxVectorMapFrameWork::setColorScheme(ZCHX::ZCHX_COLOR_SCHEME src)
+{
+    ColorScheme category = GLOBAL_COLOR_SCHEME_DAY;
+    switch (src) {
+    case ZCHX::ZCHX_COLOR_DAY:
+        category = GLOBAL_COLOR_SCHEME_DAY;
+        break;
+    case ZCHX::ZCHX_COLOR_DUSK:
+        category = GLOBAL_COLOR_SCHEME_DUSK;
+    default:
+        category = GLOBAL_COLOR_SCHEME_NIGHT;
+        break;
+    }
+    if(mGLCtrl->GetColorScheme() == category) return;
+    mGLCtrl->SetColorScheme(category);
+}

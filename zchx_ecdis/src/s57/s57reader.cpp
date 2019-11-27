@@ -338,7 +338,7 @@ int S57Reader::Ingest(CallBackFunction pcallback)
 
         DDFField        *poKeyField = poRecord->GetField(1);
         const char *pszname = poKeyField->GetFieldDefn()->GetName();
-
+        if(testDump )poRecord->Dump(testDump);
         if( EQUAL(pszname,"VRID") )
         {
 #if 0
@@ -393,7 +393,7 @@ int S57Reader::Ingest(CallBackFunction pcallback)
         else if( EQUAL(pszname,"FRID") )
         {
 
-             if(testDump )poRecord->Dump(testDump);               //  for debugging, try ./opencpn &>test.dbg
+//             if(testDump )poRecord->Dump(testDump);               //  for debugging, try ./opencpn &>test.dbg
 
             int         nRCID = poRecord->GetIntSubfield( "FRID",0, "RCID",0);
             oFE_Index.AddRecord( nRCID, poRecord->Copy() );

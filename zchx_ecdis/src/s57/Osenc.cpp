@@ -1664,6 +1664,7 @@ int Osenc::createSenc200(const QString& FullPath000, const QString& SENCFileName
     
     int iObj = 0;
     pos = stream->TellI();
+    FILE *fp = fopen(QString("%1_feature.txt").arg(SENCFileName).toStdString().data(), "w");
     while( bcont ) {
         objectDef = poReader->ReadNextFeature();
         
@@ -1698,7 +1699,7 @@ int Osenc::createSenc200(const QString& FullPath000, const QString& SENCFileName
             //      e.g. US5MD11M.017
             //      In this case, all we can do is skip the feature....sigh.
             
-            if(iObj >= 401)
+            if(iObj >= 294)
             {
                 int test = 1;
             }
@@ -1711,7 +1712,13 @@ int Osenc::createSenc200(const QString& FullPath000, const QString& SENCFileName
                 CreateSENCRecord200( objectDef, stream.data(), 1, poReader );
             }
             pos = stream->TellI();
-            qDebug()<<"object count:"<<iObj<<" pos:"<<pos<<" feature:"<<objectDef->GetFID()<<" "<<objectDef->GetDefnRef()->GetName();
+            QString feature = QString("").sprintf("object count: %d pos = %lld feature = %d  %s",
+                                                  iObj,
+                                                  pos,
+                                                  objectDef->GetFID(),
+                                                  objectDef->GetDefnRef()->GetName());
+            fprintf(fp, "%s\n", feature.toStdString().data());
+//            qDebug()<<"object count:"<<iObj<<" pos:"<<pos<<" feature:"<<objectDef->GetFID()<<" "<<objectDef->GetDefnRef()->GetName();
 
             delete objectDef;
 
@@ -1719,6 +1726,7 @@ int Osenc::createSenc200(const QString& FullPath000, const QString& SENCFileName
             break;
         
     }
+    fclose(fp);
     pos = stream->TellI();
     if( bcont ) {
         //      Create and write the Vector Edge Table
@@ -3002,7 +3010,16 @@ bool Osenc::CreateSENCRecord200( OGRFeature *pFeature, Osenc_outstream *stream, 
                             (0 == strncmp("NTXTDS",pAttrName, 6) ) )
                     {
                         if( poReader->GetNall() == 2) {     // ENC is using UCS-2 / UTF-16 encoding
-                            wxAttrValue = zchxFuncUtil::convertCodesStringToUtf8( pAttrVal, "UTF-16");
+                            //计算对应的字符的长度,有效长度到1F结束
+                            int size = 0;
+                            while (*(pAttrVal + size) != 0x1F) {
+                                size++;
+                            }
+                            if(size == 0) size = -1;
+                            QByteArray test(pAttrVal, size);
+                            qDebug()<<"content:"<<test.toHex();
+
+                            wxAttrValue = zchxFuncUtil::convertCodesStringToUtf8( pAttrVal, "UTF-16", -1);
                             if(wxAttrValue.endsWith(QChar(0x1F)))
                             {
                                 wxAttrValue.remove(wxAttrValue.size() - 1, 1);// Remove the \037 that terminates UTF-16 strings in S57

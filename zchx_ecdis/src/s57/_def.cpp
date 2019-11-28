@@ -389,11 +389,11 @@ QTextCodec* zchxFuncUtil::codesOfName(const QString& name)
     return QTextCodec::codecForName(name.toLatin1().data());
 }
 
-QString zchxFuncUtil::convertCodesStringToUtf8(const char* str, const QString& codes)
+QString zchxFuncUtil::convertCodesStringToUtf8(const char* str, const QString& codes, int size)
 {
     QTextCodec *src_codes = codesOfName(codes);
     QTextCodec *utf8 = codesOfName("UTF-8");
-    QString unicode = src_codes->toUnicode(str);
+    QString unicode = src_codes->toUnicode(QByteArray(str, size));
     return QString::fromUtf8(utf8->fromUnicode(unicode));
 }
 

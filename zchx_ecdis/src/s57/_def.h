@@ -398,7 +398,7 @@ public:
     static bool isDirExist(const QString& name);
     static bool isFileExist(const QString& name);
     static QTextCodec* codesOfName(const QString& name);
-    static QString convertCodesStringToUtf8(const char* str, const QString& codes);
+    static QString convertCodesStringToUtf8(const char* str, const QString& codes, int size= -1);
     static bool isSameAs(const QString& p1, const QString& p2, bool caseSensitive );
     static bool renameFileExt(QString& newPath,
                               const QString& oldFile,

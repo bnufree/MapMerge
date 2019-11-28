@@ -935,6 +935,7 @@ void S57Reader::ApplyObjectClassAttributes( DDFRecord * poRecord,
                 DDFField    *poField;
                 int nLength = 0;
                 poField = poRecord->FindField( "NATF", 0 );
+
                 if( poField ) {
                     DDFSubfieldDefn     *poSFDefn;
             
@@ -958,6 +959,8 @@ void S57Reader::ApplyObjectClassAttributes( DDFRecord * poRecord,
                     int index = poFeature->GetFieldIndex(pszAcronym);
                     OGRField *field = poFeature->GetRawFieldRef( index );
                     field->String =  aa;
+//                    QByteArray test(aa, nLength);
+//                    qDebug()<<"content:"<<test.toHex();
                 }
             }
             else {      //  encoded as ISO8859_1, pass it along

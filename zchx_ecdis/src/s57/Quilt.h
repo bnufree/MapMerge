@@ -79,8 +79,15 @@ private:
 
 };
 
+class ArrayOfSortedQuiltCandidates : public QList< QuiltCandidate*>
+{
+public:
+    ArrayOfSortedQuiltCandidates() : QList<QuiltCandidate*>() {}
+    void push_back(QuiltCandidate * const &t);
+};
+
 typedef QList<QuiltPatch*>   PatchList;
-typedef QList< QuiltCandidate*> ArrayOfSortedQuiltCandidates;
+//typedef QList< QuiltCandidate*> ArrayOfSortedQuiltCandidates;
 typedef QuiltPatch*        PatchListNode;
 
 class Quilt

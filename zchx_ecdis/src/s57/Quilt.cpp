@@ -66,7 +66,11 @@ extern double  g_overzoom_emphasis_base;
 
 static int CompareScales( int i1, int i2 )
 {
-    if( !ChartData ) return 0;
+    if( !ChartData )
+    {
+        qDebug()<<"abnormal db";
+        return 0;
+    }
 
     const ChartTableEntry &cte1 = ChartData->GetChartTableEntry( i1 );
     const ChartTableEntry &cte2 = ChartData->GetChartTableEntry( i2 );
@@ -89,7 +93,7 @@ static int CompareScales( int i1, int i2 )
             return (lat1 < lat2)?1:-1;
     }
     else
-        return cte1.GetScale() - cte2.GetScale();
+        return cte1.GetScale() < cte2.GetScale();
 }
 static bool CompareScalesStd(int i1, int i2) {
 	return CompareScales(i1, i2)<0;
@@ -97,8 +101,32 @@ static bool CompareScalesStd(int i1, int i2) {
 
 static int CompareQuiltCandidateScales( QuiltCandidate *qc1, QuiltCandidate *qc2 )
 {
-    if( !ChartData ) return 0;
-    return CompareScales(qc1->dbIndex, qc2->dbIndex);
+    if( !ChartData )
+    {
+        qDebug()<<"abnormal db";
+        return 0;
+    }
+    int res = CompareScales(qc1->dbIndex, qc2->dbIndex);
+//    qDebug()<<"compare result:"<<res<<ChartData->GetChartTableEntry(qc1->dbIndex).GetScale()<<
+    ChartData->GetChartTableEntry( qc2->dbIndex ).GetScale();
+    return res;
+}
+
+void ArrayOfSortedQuiltCandidates::push_back(QuiltCandidate * const &t)
+{
+    append(t);
+//    for(int i=0; i<size(); i++)
+//    {
+//        QuiltCandidate* t = this->at(i);
+//        qDebug()<<"before candidate:"<<i<<t->dbIndex<<t->ChartScale<<ChartData->GetDBChartFileName(t->dbIndex);
+//    }
+//    std::sort(this->begin(), this->end(), CompareQuiltCandidateScales);
+    qSort(this->begin(), this->end(), CompareQuiltCandidateScales);
+//    for(int i=0; i<size(); i++)
+//    {
+//        QuiltCandidate* t = this->at(i);
+//        qDebug()<<"after candidate:"<<i<<t->dbIndex<<t->ChartScale<<ChartData->GetDBChartFileName(t->dbIndex);
+//    }
 }
 
 const LLRegion &QuiltCandidate::GetCandidateRegion()

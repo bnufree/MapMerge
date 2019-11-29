@@ -1699,7 +1699,7 @@ int Osenc::createSenc200(const QString& FullPath000, const QString& SENCFileName
             //      e.g. US5MD11M.017
             //      In this case, all we can do is skip the feature....sigh.
             
-            if(iObj >= 294)
+            if(iObj >= 6359)
             {
                 int test = 1;
             }
@@ -3012,14 +3012,23 @@ bool Osenc::CreateSENCRecord200( OGRFeature *pFeature, Osenc_outstream *stream, 
                         if( poReader->GetNall() == 2) {     // ENC is using UCS-2 / UTF-16 encoding
                             //计算对应的字符的长度,有效长度到1F结束
                             int size = 0;
-                            while (*(pAttrVal + size) != 0x1F) {
+                            int zero_num = 0;
+                            while (true) {
                                 size++;
+                                if(*(pAttrVal + size) == 0x00)
+                                {
+                                    zero_num++;
+                                } else
+                                {
+                                    if(zero_num >0) zero_num--;
+                                }
+                                if(zero_num == 2) break;
                             }
                             if(size == 0) size = -1;
-                            QByteArray test(pAttrVal, size);
-                            qDebug()<<"content:"<<test.toHex();
+//                            QByteArray test(pAttrVal, size);
+//                            qDebug()<<"content:"<<test.toHex();
 
-                            wxAttrValue = zchxFuncUtil::convertCodesStringToUtf8( pAttrVal, "UTF-16", -1);
+                            wxAttrValue = zchxFuncUtil::convertCodesStringToUtf8( pAttrVal, "UTF-16", size);
                             if(wxAttrValue.endsWith(QChar(0x1F)))
                             {
                                 wxAttrValue.remove(wxAttrValue.size() - 1, 1);// Remove the \037 that terminates UTF-16 strings in S57

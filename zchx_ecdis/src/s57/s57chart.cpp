@@ -3855,6 +3855,10 @@ int s57chart::BuildSENCFile( const QString& FullPath000, const QString& SENCFile
 int s57chart::BuildRAZFromSENCFile( const QString& FullPath )
 {
     int ret_val = 0;                    // default is OK
+    if(FullPath.contains("CN1cs101"))
+    {
+        int debug = true;
+    }
 
     Osenc sencfile;
 

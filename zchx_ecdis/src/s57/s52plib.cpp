@@ -355,7 +355,7 @@ s52plib::s52plib( const QString& PLib, bool b_forceLegacy )
     //        Set up some default flags
     m_bDeClutterText = false;
     m_bShowAtonText = true;
-    m_bShowNationalTexts = false;
+    m_bShowNationalTexts = true;
 
     m_bShowSoundg = true;
     m_bShowLdisText = true;
@@ -7077,6 +7077,7 @@ int s52plib::RenderAreaToGL(ObjRazRules *rzRules, ViewPort *vp )
     while( rules != NULL ) {
         switch( rules->ruleType ){
         case RUL_ARE_CO:
+            //这里显示陆地
             RenderToGLAC( rzRules, rules, vp );
             break; // AC
 
@@ -7096,6 +7097,7 @@ int s52plib::RenderAreaToGL(ObjRazRules *rzRules, ViewPort *vp )
             while( NULL != rules ) {
                 switch( rules->ruleType ){
                 case RUL_ARE_CO:
+                    //这里显示海洋
                     RenderToGLAC( rzRules, rules, vp );
                     break;
                 case RUL_ARE_PA:

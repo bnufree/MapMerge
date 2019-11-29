@@ -352,6 +352,7 @@ extern int              g_route_prop_sx, g_route_prop_sy;
 extern QString                g_gpx_path;
 extern bool                    g_bLayersLoaded;
 extern zchxGLOptions g_GLOptions;
+extern  s52plib          *ps52plib;
 
 /*-------------------------------------------
  * 实例化
@@ -1240,10 +1241,10 @@ int zchxConfig::LoadMyConfigRaw( bool bAsTemplate )
 
 void zchxConfig::LoadS57Config()
 {
-#if 0
+#if 1
     if( !ps52plib )  return;
     BeginGroup("Settings/GlobalState");
-    ps52plib->SetShowS57Text( Read("bShowS57Text", PARAM_BOOL, 0, 0).toBool() );
+    ps52plib->SetShowS57Text( Read("bShowS57Text", PARAM_BOOL, 0, true).toBool() );
     ps52plib->SetShowS57ImportantTextOnly(Read("bShowS57ImportantTextOnly", PARAM_BOOL, 0, 0).toBool() );
     ps52plib->SetShowLdisText(Read("bShowLightDescription", PARAM_BOOL, 0, 0).toBool());
     ps52plib->SetExtendLightSectors(Read("bExtendLightSectors", PARAM_BOOL, 0, 0).toBool());
@@ -1255,9 +1256,9 @@ void zchxConfig::LoadS57Config()
     ps52plib->m_bUseSCAMIN = Read("bUseSCAMIN", PARAM_BOOL, 0, 1).toBool();
     ps52plib->m_bShowAtonText =  Read("bShowAtonText",PARAM_BOOL, 0, 1).toBool();
     ps52plib->m_bDeClutterText = Read("bDeClutterText", PARAM_BOOL, 0,0).toBool();
-    ps52plib->m_bShowNationalTexts = Read("bShowNationalText", PARAM_BOOL, 0, 0).toBool();
+    ps52plib->m_bShowNationalTexts = Read("bShowNationalText", PARAM_BOOL, 0, 1).toBool();
 
-    double dval = Read("S52_MAR_SAFETY_CONTOUR", PARAM_DOUBLE, 0, 5.0).toDouble();
+    double dval = Read("S52_MAR_SAFETY_CONTOUR", PARAM_DOUBLE, 0, 8.0).toDouble();
     S52_setMarinerParam( S52_MAR_SAFETY_CONTOUR, dval );
     S52_setMarinerParam( S52_MAR_SAFETY_DEPTH, dval ); // Set safety_contour and safety_depth the same
 
@@ -1274,42 +1275,42 @@ void zchxConfig::LoadS57Config()
     int read_int = Read("S52_DEPTH_UNIT_SHOW", PARAM_INT,0, 1).toInt();
     read_int = qMax(read_int, 0);        // qualify value
     read_int = qMin(read_int, 2);
-    ps52plib->m_nDepthUnitDisplay = read_int;
+    ps52plib->m_nDepthUnitDisplay = /*read_int*/1;
     g_nDepthUnitDisplay = read_int;
 
     //    S57 Object Class Visibility
     endGroup();
-    OBJLElement *pOLE;
-    QString section = "Settings/ObjectFilter";
-    int iOBJMax = getChildCount(section);
-    if( iOBJMax ) {
-        QStringList keys = getChildKeys(section);
-        BeginGroup(section);
-        foreach (QString key, keys) {
-            long val = Read(key, PARAM_INT,0).toLongLong();
-            bool bNeedNew = false;
-            QString sObj;
-            if(key.startsWith("viz"))
-            {
-                sObj = key.mid(3);
-                for( unsigned int iPtr = 0; iPtr <  ps52plib->pOBJLArray->count(); iPtr++ ) {
-                    pOLE = (OBJLElement *) (  ps52plib->pOBJLArray->at( iPtr ) );
-                    if( !strncmp( pOLE->OBJLName, sObj.toUtf8().data(), 6 ) ) {
-                        pOLE->nViz = val;
-                        bNeedNew = false;
-                        break;
-                    }
-                }
-                if( bNeedNew ) {
-                    pOLE = (OBJLElement *) calloc( sizeof(OBJLElement), 1 );
-                    memcpy( pOLE->OBJLName, sObj.toUtf8().data(), OBJL_NAME_LEN );
-                    pOLE->nViz = 1;
-                    ps52plib->pOBJLArray->append((void *) pOLE );
-                }
-            }
-        }
-        endGroup();
-    }
+//    OBJLElement *pOLE;
+//    QString section = "Settings/ObjectFilter";
+//    int iOBJMax = getChildCount(section);
+//    if( iOBJMax ) {
+//        QStringList keys = getChildKeys(section);
+//        BeginGroup(section);
+//        foreach (QString key, keys) {
+//            long val = Read(key, PARAM_INT,0).toLongLong();
+//            bool bNeedNew = false;
+//            QString sObj;
+//            if(key.startsWith("viz"))
+//            {
+//                sObj = key.mid(3);
+//                for( unsigned int iPtr = 0; iPtr <  ps52plib->pOBJLArray->count(); iPtr++ ) {
+//                    pOLE = (OBJLElement *) (  ps52plib->pOBJLArray->at( iPtr ) );
+//                    if( !strncmp( pOLE->OBJLName, sObj.toUtf8().data(), 6 ) ) {
+//                        pOLE->nViz = val;
+//                        bNeedNew = false;
+//                        break;
+//                    }
+//                }
+//                if( bNeedNew ) {
+//                    pOLE = (OBJLElement *) calloc( sizeof(OBJLElement), 1 );
+//                    memcpy( pOLE->OBJLName, sObj.toUtf8().data(), OBJL_NAME_LEN );
+//                    pOLE->nViz = 1;
+//                    ps52plib->pOBJLArray->append((void *) pOLE );
+//                }
+//            }
+//        }
+//        endGroup();
+//    }
 #endif
 }
 

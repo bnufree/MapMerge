@@ -2043,6 +2043,7 @@ void glChartCanvas::RenderRasterChartRegionGL( ChartBase *chart, ViewPort &vp, L
 
 void glChartCanvas::RenderQuiltViewGL( ViewPort &vp, const OCPNRegion &rect_region )
 {
+    qDebug()<<"start draw chart now";
     if( !mFrameWork->m_pQuilt->GetnCharts() || mFrameWork->m_pQuilt->IsBusy() )
         return;
 
@@ -2059,6 +2060,7 @@ void glChartCanvas::RenderQuiltViewGL( ViewPort &vp, const OCPNRegion &rect_regi
 
     LLRegion rendered_region;
     while( chart ) {
+        qDebug()<<"draw chart:"<<chart->GetFullPath()<<chart->GetNativeScale()<<ChartData->FinddbIndex(chart->GetFullPath());
             
         //  This test does not need to be done for raster charts, since
         //  we can assume that texture binding is acceptably fast regardless of the render region,
@@ -2300,7 +2302,8 @@ void glChartCanvas::RenderQuiltViewGL( ViewPort &vp, const OCPNRegion &rect_regi
             }
         }
     }
-#endif    
+#endif
+    qDebug()<<"end draw chart now";
 }
 
 void glChartCanvas::RenderQuiltViewGLText( ViewPort &vp, const OCPNRegion &rect_region )

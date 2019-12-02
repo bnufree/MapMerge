@@ -26,41 +26,9 @@ MainWindow::MainWindow(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) :
     mMapWidget = new zchxMapWidget(type, ui->ecdis_frame);
     ui->ecdis_frame->layout()->addWidget(mMapWidget);
     connect(mMapWidget, SIGNAL(signalDisplayCurPos(double,double)), this, SLOT(slotUpdateCurrentPos(double,double)));
-    connect(mMapWidget, SIGNAL(signalSendNewMap(double,double,int)), this, SLOT(slotDisplayMapCenterAndZoom(double,double,int)));
     initSignalConnect();
     MapLayerMgr::instance()->setDrawWidget(mMapWidget);
     MapLayerMgr::instance()->loadEcdisLayers();
-    //开始进行控制的设定
-    if(0)
-    {
-        ui->control->setVisible(false);
-        ui->pos_frame->setVisible(false);
-    } else
-    {
-        ui->control->setVisible(true);
-        ui->pos_frame->setVisible(true);
-        ui->mapTypeBtnGroup->setId(ui->tileRadioBtn, 0);
-        ui->mapTypeBtnGroup->setId(ui->vectorRadioBtn, 1);
-        connect(ui->mapTypeBtnGroup, SIGNAL(buttonClicked(int)), this, SLOT(slotMaptypeButtonClicked(int)));
-        if(type == ZCHX::ZCHX_MAP_TILE)
-        {
-            ui->tileRadioBtn->setChecked(true);
-        } else
-        {
-            ui->vectorRadioBtn->setChecked(true);
-            ui->vectorDir->setText(mMapWidget->getSource());
-        }
-        slotMaptypeButtonClicked(type);
-        ui->tileSource->addItem(tr("自建瓦片地图"), 0);
-        ui->tileSource->addItem(tr("谷歌在线地图"), 1);
-        ui->colorSchemeCBX->addItem(tr("白天"), ZCHX::ZCHX_COLOR_DAY);
-        ui->colorSchemeCBX->addItem(tr("傍晚"), ZCHX::ZCHX_COLOR_DUSK);
-        ui->colorSchemeCBX->addItem(tr("夜晚"), ZCHX::ZCHX_COLOR_NIGHT);
-        ui->displayCategoryCBX->addItem(tr("基本"), ZCHX::ZCHX_DISPLAY_BASE);
-        ui->displayCategoryCBX->addItem(tr("标准"), ZCHX::ZCHX_DISPLAY_STANDARD);
-        ui->displayCategoryCBX->addItem(tr("全部"), ZCHX::ZCHX_DISPLAY_ALL);
-
-    }
 }
 
 MainWindow::~MainWindow()
@@ -84,49 +52,30 @@ void MainWindow::resizeEvent(QResizeEvent *e)
 //    if(mMapWidget) mMapWidget->setGeometry(0, 0, ui->ecdis_frame->size().width(), ui->ecdis_frame->size().height());
 //}
 
-
-
-void MainWindow::on_loadBtn_clicked()
-{
-    //QRect rect =  ui->ecdis->geometry();
-    double lon = ui->centerLon->text().toDouble();
-    double lat = ui->centerLat->text().toDouble();
-    int zoom = ui->zoom->text().toInt();
-    if(mMapWidget) mMapWidget->setCenterAndZoom(ZCHX::Data::LatLon(lat, lon), zoom);
-}
-
 void MainWindow::slotUpdateCurrentPos(double lon, double lat)
 {
     ui->pos_label->setText(QString("%1, %2").arg(lon, 0, 'f', 6).arg(lat, 0, 'f', 6));
     emit itfSignalSendCurPos(lat, lon);
 }
 
-void MainWindow::slotDisplayMapCenterAndZoom(double lon, double lat, int zoom)
-{
-    ui->centerLat->setText(FLOAT_STRING(lat, 6));
-    ui->centerLon->setText(FLOAT_STRING(lon, 6));
-    ui->zoom->setText(INT_STRING(zoom));
-}
+//void MainWindow::on_tileSource_currentIndexChanged(int index)
+//{
+//    if(!mMapWidget) return;
+//    if(mMapWidget->getMapType() == ZCHX::ZCHX_MAP_VECTOR) return;
+//    QString url = "http://mt2.google.cn/vt/lyrs=m@167000000&hl=zh-CN&gl=cn&x=%1&y=%2&z=%3&s=Galil";
+//    int pos = TILE_ORIGIN_TOPLEFT;
+//    if(index != 1)
+//    {
+//        pos = TILE_ORIGIN_BOTTEMLEFT;
+//        url = "http://192.168.20.31:11440/ECDIS/YANGJIANG";
+//    }
+//    if(mMapWidget) mMapWidget->setSource(url, pos);
+//}
 
-
-void MainWindow::on_tileSource_currentIndexChanged(int index)
-{
-    if(!mMapWidget) return;
-    if(mMapWidget->getMapType() == ZCHX::ZCHX_MAP_VECTOR) return;
-    QString url = "http://mt2.google.cn/vt/lyrs=m@167000000&hl=zh-CN&gl=cn&x=%1&y=%2&z=%3&s=Galil";
-    int pos = TILE_ORIGIN_TOPLEFT;
-    if(index != 1)
-    {
-        pos = TILE_ORIGIN_BOTTEMLEFT;
-        url = "http://192.168.20.31:11440/ECDIS/YANGJIANG";
-    }
-    if(mMapWidget) mMapWidget->setSource(url, pos);
-}
-
-void MainWindow::on_image_num_clicked(bool checked)
-{
-    if(mMapWidget) mMapWidget->setImgNumberVisible(checked);
-}
+//void MainWindow::on_image_num_clicked(bool checked)
+//{
+//    if(mMapWidget) mMapWidget->setImgNumberVisible(checked);
+//}
 
 void MainWindow::initSignalConnect()
 {
@@ -931,6 +880,21 @@ void MainWindow::itfSetDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category)
 void MainWindow::itfSetColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme)
 {
     if(mMapWidget) mMapWidget->setColorScheme(scheme);
+}
+
+void MainWindow::itfSetShallowDepth(double depth)
+{
+    if(mMapWidget) mMapWidget->setShallowDepth(depth);
+}
+
+void MainWindow::itfSetSafeDepth(double depth)
+{
+    if(mMapWidget) mMapWidget->setSafeDepth(depth);
+}
+
+void MainWindow::itfSetDeepDepth(double depth)
+{
+    if(mMapWidget) mMapWidget->setDeepDepth(depth);
 }
 
 void MainWindow::itfzchxUtilToolSetAngle4north(double ang)
@@ -1918,7 +1882,7 @@ void MainWindow::setEcdisMapSource(const QString& source, TILE_ORIGIN_POS pos)
 
 void MainWindow::setCtrlFrameVisible(bool sts)
 {
-    ui->control->setVisible(sts);
+//    ui->control->setVisible(sts);
     ui->pos_frame->setVisible(sts);
 }
 
@@ -1970,31 +1934,4 @@ void MainWindow::itfToolBarRotateReset()
 void MainWindow::itfToolBarSetMapUrl(const QString& url)
 {
     if(mMapWidget) mMapWidget->setMapUrl(url);
-}
-
-
-void qt::MainWindow::on_vectorDirBrowseBtn_clicked()
-{
-    QString dir = QFileDialog::getExistingDirectory();
-    if(dir.isEmpty()) return;
-    ui->vectorDir->setText(dir);
-    itfSetMapSource(dir);
-}
-
-void MainWindow::slotMaptypeButtonClicked(int id)
-{
-    ui->tileGroup->setVisible(id == 0);
-    ui->vectorGroup->setVisible(id == 1);
-}
-
-void qt::MainWindow::on_colorSchemeCBX_currentIndexChanged(int index)
-{
-    ZCHX::ZCHX_COLOR_SCHEME scheme = (ZCHX::ZCHX_COLOR_SCHEME)(ui->colorSchemeCBX->currentData().toInt());
-    itfSetColorScheme(scheme);
-}
-
-void qt::MainWindow::on_displayCategoryCBX_currentIndexChanged(int index)
-{
-    ZCHX::ZCHX_DISPLAY_CATEGORY scheme = (ZCHX::ZCHX_DISPLAY_CATEGORY)(ui->displayCategoryCBX->currentData().toInt());
-    itfSetDisplayCategory(scheme);
 }

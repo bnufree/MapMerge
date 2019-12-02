@@ -6369,7 +6369,7 @@ int s52plib::RenderToGLAC( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 
         //  Has the input vertex buffer been converted to "single_alloc float" model?
         //  and is it allowed?
-        if(!ppg_vbo->bsingle_alloc && (rzRules->obj->auxParm1 >= 0) ){
+        if(ppg_vbo && !ppg_vbo->bsingle_alloc && (rzRules->obj->auxParm1 >= 0) ){
 
             int data_size = sizeof(float);
 
@@ -6470,82 +6470,85 @@ int s52plib::RenderToGLAC( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
         
 
         PolyTriGroup *ppg = rzRules->obj->pPolyTessGeo->Get_PolyTriGroup_head();
+        if(ppg)
+        {
 
-        TriPrim *p_tp = ppg->tri_prim_head;
-        GLintptr vbo_offset = 0;
-        
-        glEnableClientState(GL_VERTEX_ARRAY);             // activate vertex coords array
+            TriPrim *p_tp = ppg->tri_prim_head;
+            GLintptr vbo_offset = 0;
 
-        //      Set up the stride sizes for the array
-        int array_data_size = sizeof(float);
-        GLint array_gl_type = GL_FLOAT;
-        
-        if(ppg->data_type == DATA_TYPE_DOUBLE){
-            array_data_size = sizeof(double);
-            array_gl_type = GL_DOUBLE;
-        }
+            glEnableClientState(GL_VERTEX_ARRAY);             // activate vertex coords array
 
-        while( p_tp ) {
-            LLBBox box;
-            if(!rzRules->obj->m_chart_context->chart) {          // This is a PlugIn Chart
-                LegacyTriPrim *p_ltp = (LegacyTriPrim *)p_tp;
-                box.Set(p_ltp->miny, p_ltp->minx, p_ltp->maxy, p_ltp->maxx);
+            //      Set up the stride sizes for the array
+            int array_data_size = sizeof(float);
+            GLint array_gl_type = GL_FLOAT;
+
+            if(ppg->data_type == DATA_TYPE_DOUBLE){
+                array_data_size = sizeof(double);
+                array_gl_type = GL_DOUBLE;
             }
-            else
-                box = p_tp->tri_box;
-            
-            if(!BBView.IntersectOut(box)) {
-                if(b_useVBO) {
-                    glVertexPointer(2, array_gl_type, 2 * array_data_size, (GLvoid *)(vbo_offset));
-                    glDrawArrays(p_tp->type, 0, p_tp->nVert);
+
+            while( p_tp ) {
+                LLBBox box;
+                if(!rzRules->obj->m_chart_context->chart) {          // This is a PlugIn Chart
+                    LegacyTriPrim *p_ltp = (LegacyTriPrim *)p_tp;
+                    box.Set(p_ltp->miny, p_ltp->minx, p_ltp->maxy, p_ltp->maxx);
                 }
-                else {
-                    if(vp->projectType() == PROJECTION_MERCATOR) {
-                        glVertexPointer(2, array_gl_type, 2 * array_data_size, p_tp->p_vertex);
+                else
+                    box = p_tp->tri_box;
+
+                if(!BBView.IntersectOut(box)) {
+                    if(b_useVBO) {
+                        glVertexPointer(2, array_gl_type, 2 * array_data_size, (GLvoid *)(vbo_offset));
                         glDrawArrays(p_tp->type, 0, p_tp->nVert);
-                    } else {
-                        // temporary slow hack
-                        glDisableClientState(GL_VERTEX_ARRAY);
+                    }
+                    else {
+                        if(vp->projectType() == PROJECTION_MERCATOR) {
+                            glVertexPointer(2, array_gl_type, 2 * array_data_size, p_tp->p_vertex);
+                            glDrawArrays(p_tp->type, 0, p_tp->nVert);
+                        } else {
+                            // temporary slow hack
+                            glDisableClientState(GL_VERTEX_ARRAY);
 
-                        glBegin(p_tp->type);
-                        float *pvert_list = (float *)p_tp->p_vertex;
-                        for(int i=0; i<p_tp->nVert; i++) {
-                            float lon = *pvert_list++;
-                            float lat = *pvert_list++;
-                            zchxPoint r;
-                            GetPointPixSingle(rzRules, lat, lon, &r, vp);
+                            glBegin(p_tp->type);
+                            float *pvert_list = (float *)p_tp->p_vertex;
+                            for(int i=0; i<p_tp->nVert; i++) {
+                                float lon = *pvert_list++;
+                                float lat = *pvert_list++;
+                                zchxPoint r;
+                                GetPointPixSingle(rzRules, lat, lon, &r, vp);
 
-                            if(r.x != INVALID_COORD)
-                                glVertex2i(r.x, r.y);
-                            else if(p_tp->type != GL_TRIANGLE_FAN) {
-                                glEnd();
-                                glBegin(p_tp->type);
-                                if(p_tp->type == GL_TRIANGLES)
-                                    while(i%3 < 2) i++;
+                                if(r.x != INVALID_COORD)
+                                    glVertex2i(r.x, r.y);
+                                else if(p_tp->type != GL_TRIANGLE_FAN) {
+                                    glEnd();
+                                    glBegin(p_tp->type);
+                                    if(p_tp->type == GL_TRIANGLES)
+                                        while(i%3 < 2) i++;
+                                }
                             }
-                        }
-                        glEnd();
+                            glEnd();
 
+                        }
                     }
                 }
-            }
-            
-            vbo_offset += p_tp->nVert * 2 * array_data_size;
-            
-            // pick up the next in chain
-            if(!rzRules->obj->m_chart_context->chart) {          // This is a PlugIn Chart
-                LegacyTriPrim *p_ltp = (LegacyTriPrim *)p_tp;
-                p_tp = (TriPrim *)p_ltp->p_next;
-            }
-            else
-                p_tp = p_tp->p_next;
-            
-        } // while
-        
-        if(b_useVBO)
-            (zchxOpenGlUtil::s_glBindBuffer)(GL_ARRAY_BUFFER_ARB, 0);
-        
-        glDisableClientState(GL_VERTEX_ARRAY);            // deactivate vertex array
+
+                vbo_offset += p_tp->nVert * 2 * array_data_size;
+
+                // pick up the next in chain
+                if(!rzRules->obj->m_chart_context->chart) {          // This is a PlugIn Chart
+                    LegacyTriPrim *p_ltp = (LegacyTriPrim *)p_tp;
+                    p_tp = (TriPrim *)p_ltp->p_next;
+                }
+                else
+                    p_tp = p_tp->p_next;
+
+            } // while
+
+            if(b_useVBO)
+                (zchxOpenGlUtil::s_glBindBuffer)(GL_ARRAY_BUFFER_ARB, 0);
+
+            glDisableClientState(GL_VERTEX_ARRAY);            // deactivate vertex array
+        }
         
         if(b_transform)
             glPopMatrix();

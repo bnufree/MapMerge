@@ -1280,37 +1280,37 @@ void zchxConfig::LoadS57Config()
 
     //    S57 Object Class Visibility
     endGroup();
-//    OBJLElement *pOLE;
-//    QString section = "Settings/ObjectFilter";
-//    int iOBJMax = getChildCount(section);
-//    if( iOBJMax ) {
-//        QStringList keys = getChildKeys(section);
-//        BeginGroup(section);
-//        foreach (QString key, keys) {
-//            long val = Read(key, PARAM_INT,0).toLongLong();
-//            bool bNeedNew = false;
-//            QString sObj;
-//            if(key.startsWith("viz"))
-//            {
-//                sObj = key.mid(3);
-//                for( unsigned int iPtr = 0; iPtr <  ps52plib->pOBJLArray->count(); iPtr++ ) {
-//                    pOLE = (OBJLElement *) (  ps52plib->pOBJLArray->at( iPtr ) );
-//                    if( !strncmp( pOLE->OBJLName, sObj.toUtf8().data(), 6 ) ) {
-//                        pOLE->nViz = val;
-//                        bNeedNew = false;
-//                        break;
-//                    }
-//                }
-//                if( bNeedNew ) {
-//                    pOLE = (OBJLElement *) calloc( sizeof(OBJLElement), 1 );
-//                    memcpy( pOLE->OBJLName, sObj.toUtf8().data(), OBJL_NAME_LEN );
-//                    pOLE->nViz = 1;
-//                    ps52plib->pOBJLArray->append((void *) pOLE );
-//                }
-//            }
-//        }
-//        endGroup();
-//    }
+    OBJLElement *pOLE;
+    QString section = "Settings/ObjectFilter";
+    int iOBJMax = getChildCount(section);
+    if( iOBJMax ) {
+        QStringList keys = getChildKeys(section);
+        BeginGroup(section);
+        foreach (QString key, keys) {
+            long val = Read(key, PARAM_INT,0).toLongLong();
+            bool bNeedNew = false;
+            QString sObj;
+            if(key.startsWith("viz"))
+            {
+                sObj = key.mid(3);
+                for( unsigned int iPtr = 0; iPtr <  ps52plib->pOBJLArray->count(); iPtr++ ) {
+                    pOLE = (OBJLElement *) (  ps52plib->pOBJLArray->at( iPtr ) );
+                    if( !strncmp( pOLE->OBJLName, sObj.toUtf8().data(), 6 ) ) {
+                        pOLE->nViz = val;
+                        bNeedNew = false;
+                        break;
+                    }
+                }
+                if( bNeedNew ) {
+                    pOLE = (OBJLElement *) calloc( sizeof(OBJLElement), 1 );
+                    memcpy( pOLE->OBJLName, sObj.toUtf8().data(), OBJL_NAME_LEN );
+                    pOLE->nViz = 1;
+                    ps52plib->pOBJLArray->append((void *) pOLE );
+                }
+            }
+        }
+        endGroup();
+    }
 #endif
 }
 

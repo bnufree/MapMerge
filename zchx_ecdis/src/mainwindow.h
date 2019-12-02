@@ -24,17 +24,6 @@ public:
     zchxMapWidget * getMapWidget()const {return mMapWidget;}
 public slots:
     void slotUpdateCurrentPos(double lon, double lat);
-    void slotDisplayMapCenterAndZoom(double lon, double lat, int zoom);
-private slots:
-    void on_loadBtn_clicked();
-    void on_tileSource_currentIndexChanged(int index);
-    void on_image_num_clicked(bool checked);
-    void on_vectorDirBrowseBtn_clicked();
-    void slotMaptypeButtonClicked(int id);
-
-    void on_colorSchemeCBX_currentIndexChanged(int index);
-
-    void on_displayCategoryCBX_currentIndexChanged(int index);
 
 private:
     void initSignalConnect(); //初始化信号连接
@@ -44,6 +33,10 @@ public:
     //设定地图的颜色模式和显示模式
     void   itfSetDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category);
     void   itfSetColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme);
+    //设定水深
+    void    itfSetShallowDepth(double depth);
+    void    itfSetSafeDepth(double depth);
+    void    itfSetDeepDepth(double depth);
 
     //其他工具接口
     double itfzchxUtilToolAngle4north(); //返加当前地图正北方向的方向角

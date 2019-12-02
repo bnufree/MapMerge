@@ -40,6 +40,10 @@ public:
     //矢量地图标准,基本,全部接口
     void  setDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category);
     void  setColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme);
+
+    void  setShallowDepth(double val);
+    void  setSafeDepth(double val);
+    void  setDeepDepth(double val);
 private:
     glChartCanvas*          mGLCtrl;
 

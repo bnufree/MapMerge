@@ -46,7 +46,6 @@ class ChartBaseBSB;
 class ChartBase;
 class canvasConfig;
 
-#include <QOpenGLWindow>
 class glChartCanvas : public QObject
 {
     Q_OBJECT
@@ -136,6 +135,11 @@ public:
     void SetShowENCDataQual( bool show );
     bool GetShowGrid(){ return m_bDisplayGrid; }
     void SetShowGrid( bool show ){ m_bDisplayGrid = show; }
+
+    void  setShallowDepth(double val);
+    void  setSafeDepth(double val);
+    void  setDeepDepth(double val);
+    void  setDepthUnit(int unit);
 
     time_t m_last_render_time;
 
@@ -287,6 +291,11 @@ protected:
     bool            m_encShowAnchor;
     bool            m_encShowDataQual;
     bool            m_bDisplayGrid;
+    double          mShallowDepth;
+    double          mSafeDepth;
+    double          mDeepdepth;
+    int             mDepthUnit;
+    int             mDistanceUnit;
 
     //
 

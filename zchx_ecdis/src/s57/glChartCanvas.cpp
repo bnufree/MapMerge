@@ -86,6 +86,7 @@ extern "C" void glOrthof(float left,  float right,  float bottom,  float top,  f
 #include "s52plib.h"
 #include "profiles.h"
 #include "zchxMapDataUtils.h"
+#include "s52utils.h"
 
 //extern bool GetMemoryStatus(int *mem_total, int *mem_used);
 
@@ -207,6 +208,10 @@ glChartCanvas::glChartCanvas(QObject* parent) : QObject(parent)
     , mIsInitValid(true)
     , mWidth(0)
     , mHeight(0)
+    , mShallowDepth(3)
+    , mSafeDepth(8)
+    , mDeepdepth(10)
+    , mDepthUnit(Depth_Meters)
 {
     glChart = this;
     m_cs = GLOBAL_COLOR_SCHEME_DAY;
@@ -3426,6 +3431,8 @@ void glChartCanvas::FastZoom(float factor)
 
 void glChartCanvas::SetColorScheme( ColorScheme cs )
 {
+    global_color_scheme = cs;
+    m_s52StateHash = 0;
     //  Set up fog effect base color
     m_fog_color = QColor( 170, 195, 240 );  // this is gshhs (backgound world chart) ocean color
     float dim = 1.0;
@@ -3569,7 +3576,8 @@ void glChartCanvas::ApplyCanvasConfig(canvasConfig *pcc)
 bool glChartCanvas::UpdateS52State()
 {
     bool retval = false;
-    if(ps52plib){
+    if(ps52plib)
+    {
         ps52plib->SetShowS57Text( m_encShowText );
         ps52plib->SetDisplayCategory( (DisCat) m_encDisplayCategory );
         ps52plib->m_bShowSoundg = m_encShowDepth;
@@ -3587,6 +3595,28 @@ bool glChartCanvas::UpdateS52State()
         // TODO ps52plib->m_bShowAtons = m_encShowBuoys;
         ps52plib->SetAnchorOn( m_encShowAnchor );
         ps52plib->SetQualityOfData( m_encShowDataQual );
+
+        // Depths
+        double dval;
+        float conv = 1;
+
+        if (mDepthUnit == 0)  // feet
+        {
+            conv = 0.3048f;    // international definiton of 1 foot is 0.3048 metres
+        }
+        else if (mDepthUnit == 2)  // fathoms
+        {
+            conv = 0.3048f * 6;     // 1 fathom is 6 feet
+        }
+        S52_setMarinerParam(S52_MAR_SAFETY_DEPTH, mSafeDepth * conv);  // controls sounding display
+        S52_setMarinerParam(S52_MAR_SAFETY_CONTOUR, mSafeDepth * conv);  // controls colour
+        S52_setMarinerParam(S52_MAR_SHALLOW_CONTOUR, mShallowDepth * conv);
+        S52_setMarinerParam(S52_MAR_DEEP_CONTOUR, mDeepdepth * conv);
+
+        ps52plib->UpdateMarinerParams();
+        ps52plib->m_nDepthUnitDisplay = mDepthUnit;
+
+        ps52plib->GenerateStateHash();
     }
 
     return retval;
@@ -4027,6 +4057,30 @@ void glChartCanvas::changeS572SENC(const QString &src)
         if(QFile::exists(dest)) QFile::remove(dest);
         s57->BuildSENCFile(src, dest, false);
     }
+}
+
+void glChartCanvas::setShallowDepth(double val)
+{
+    m_s52StateHash = 0;
+    mShallowDepth = val;
+}
+
+void glChartCanvas::setSafeDepth(double val)
+{
+    m_s52StateHash = 0;
+    mSafeDepth = val;
+}
+
+void glChartCanvas::setDeepDepth(double val)
+{
+    m_s52StateHash = 0;
+    mDeepdepth = val;
+}
+
+void glChartCanvas::setDepthUnit(int unit)
+{
+    m_s52StateHash = 0;
+    mDepthUnit = unit;
 }
 
 

@@ -912,7 +912,14 @@ void zchxMapWidget::mouseMoveEvent(QMouseEvent *e)
         {
             mDrag = true;
             QPoint pnt = e->pos();
-            mFrameWork->setOffSet(pnt.x() - mPressPnt.x(),pnt.y() - mPressPnt.y());
+            if(mType == ZCHX::ZCHX_MAP_TILE)
+            {
+                mFrameWork->setOffSet(pnt.x() - mPressPnt.x(),pnt.y() - mPressPnt.y());
+            } else
+            {
+                mFrameWork->pan(mPressPnt.x() - pnt.x(), mPressPnt.y() - pnt.y());
+                mPressPnt = pnt;
+            }
         }
         //update();
 
@@ -2070,6 +2077,37 @@ void zchxMapWidget::setColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme)
         frame->setColorScheme(scheme);
     }
 }
+
+void zchxMapWidget::setShallowDepth(double val)
+{
+    if(mType == ZCHX::ZCHX_MAP_TILE) return;
+    zchxVectorMapFrameWork* frame = qobject_cast<zchxVectorMapFrameWork*>(mFrameWork);
+    if(frame)
+    {
+        frame->setShallowDepth(val);
+    }
+}
+
+void zchxMapWidget::setSafeDepth(double val)
+{
+    if(mType == ZCHX::ZCHX_MAP_TILE) return;
+    zchxVectorMapFrameWork* frame = qobject_cast<zchxVectorMapFrameWork*>(mFrameWork);
+    if(frame)
+    {
+        frame->setSafeDepth(val);
+    }
+}
+
+void zchxMapWidget::setDeepDepth(double val)
+{
+    if(mType == ZCHX::ZCHX_MAP_TILE) return;
+    zchxVectorMapFrameWork* frame = qobject_cast<zchxVectorMapFrameWork*>(mFrameWork);
+    if(frame)
+    {
+        frame->setDeepDepth(val);
+    }
+}
+
 
 
 

@@ -593,6 +593,11 @@ public Q_SLOTS:
     void setColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme);
     //设定地图的颜色模式
     void setDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category);
+    //设定地图的水深数据等深线显示
+    void setShallowDepth(double val);
+    void setSafeDepth(double val);
+    void setDeepDepth(double val);
+
 
 
 private slots:

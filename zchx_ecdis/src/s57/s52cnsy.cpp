@@ -574,7 +574,7 @@ static QString *_UDWHAZ03(S57Obj *obj, double depth_value, ObjRazRules *rzRules,
 
         // get area DEPARE & DRGARE that intersect this point/line/area
 
-        ListOfS57Obj *pobj_list = NULL;
+        ListOfS57Obj pobj_list;
 
         
         if( obj->m_chart_context->chart )
@@ -586,10 +586,10 @@ static QString *_UDWHAZ03(S57Obj *obj, double depth_value, ObjRazRules *rzRules,
         }
             
 
-        if( pobj_list ){
-            for(int i=0; i<pobj_list->size(); i++)
+        if( pobj_list.size() > 0 ){
+            for(int i=0; i<pobj_list.size(); i++)
             {
-                S57Obj *ptest_obj = &((*pobj_list)[i]);
+                S57Obj *ptest_obj = pobj_list[i];
                 if(GEO_LINE == ptest_obj->Primitive_type)
                 {
                     double drval2 = 0.0;
@@ -622,7 +622,7 @@ static QString *_UDWHAZ03(S57Obj *obj, double depth_value, ObjRazRules *rzRules,
                 }
             }
 
-            delete pobj_list;
+//            delete pobj_list;
         }
     }
 

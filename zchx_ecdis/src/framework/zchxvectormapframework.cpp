@@ -144,3 +144,18 @@ void zchxVectorMapFrameWork::setColorScheme(ZCHX::ZCHX_COLOR_SCHEME src)
     if(mGLCtrl->GetColorScheme() == category) return;
     mGLCtrl->SetColorScheme(category);
 }
+
+void zchxVectorMapFrameWork::setShallowDepth(double val)
+{
+    mGLCtrl->setShallowDepth(val);
+}
+
+void zchxVectorMapFrameWork::setSafeDepth(double val)
+{
+    mGLCtrl->setSafeDepth(val);
+}
+
+void zchxVectorMapFrameWork::setDeepDepth(double val)
+{
+    mGLCtrl->setDeepDepth(val);
+}

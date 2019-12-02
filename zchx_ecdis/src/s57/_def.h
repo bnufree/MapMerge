@@ -474,5 +474,12 @@ QColor GetGlobalColor(const QString& colorName);
 void InitializeUserColors( void );
 void DeInitializeUserColors( void );
 
+#define SAFE_DELETE(p) \
+    if (NULL != p) \
+{ \
+    delete p; \
+    p = NULL; \
+}
+
 
 #endif // _DEF_H

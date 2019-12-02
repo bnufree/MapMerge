@@ -3296,13 +3296,13 @@ bool s57chart::GetNearestSafeContour( double safe_cnt, double &next_safe_cnt )
  --------------------------------------------------------------------------
  */
 
-ListOfS57Obj *s57chart::GetAssociatedObjects( S57Obj *obj )
+ListOfS57Obj s57chart::GetAssociatedObjects( S57Obj *obj )
 {
     int disPrioIdx;
     bool gotit;
 
-    ListOfS57Obj *pobj_list = new ListOfS57Obj;
-    pobj_list->clear();
+    ListOfS57Obj pobj_list;
+    pobj_list.clear();
 
     double lat, lon;
     fromSM( ( obj->x * obj->x_rate ) + obj->x_origin, ( obj->y * obj->y_rate ) + obj->y_origin,
@@ -3327,7 +3327,7 @@ ListOfS57Obj *s57chart::GetAssociatedObjects( S57Obj *obj )
             if( top->obj->bIsAssociable ) {
                 if( top->obj->BBObj.Contains( lat, lon ) ) {
                     if( IsPointInObjArea( lat, lon, 0.0, top->obj ) ) {
-                        pobj_list->append( *(top->obj) );
+                        pobj_list.append( top->obj );
                         gotit = true;
                         break;
                     }
@@ -3344,7 +3344,7 @@ ListOfS57Obj *s57chart::GetAssociatedObjects( S57Obj *obj )
                 if( top->obj->bIsAssociable ) {
                     if( top->obj->BBObj.Contains( lat, lon ) ) {
                         if( IsPointInObjArea( lat, lon, 0.0, top->obj ) ) {
-                            pobj_list->append( *(top->obj) );
+                            pobj_list.append( top->obj );
                             break;
                         }
                     }
@@ -4692,7 +4692,8 @@ bool s57chart::IsPointInObjArea( float lat, float lon, float select_radius, S57O
     bool ret = false;
 
     if( obj->pPolyTessGeo ) {
-        if( !obj->pPolyTessGeo->IsOk() )
+        bool isOk = obj->pPolyTessGeo->IsOk();
+        if( !isOk )
             obj->pPolyTessGeo->BuildDeferredTess();
 
         PolyTriGroup *ppg = obj->pPolyTessGeo->Get_PolyTriGroup_head();

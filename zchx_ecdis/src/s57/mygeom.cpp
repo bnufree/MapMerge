@@ -184,6 +184,16 @@ PolyTessGeo::PolyTessGeo()
     m_printStats = false;
     m_bstripify = false;
     m_LOD_meters = 0;
+    m_bOK = false;
+}
+
+PolyTessGeo::PolyTessGeo(unsigned char *polybuf, int nrecl, int index,  int senc_file_version)
+{
+    m_pxgeom = NULL;
+    m_printStats = false;
+    m_bstripify = false;
+    m_LOD_meters = 0;
+    m_bOK = false;
 }
 
 //      Build PolyTessGeo Object from Extended_Geometry
@@ -202,6 +212,7 @@ PolyTessGeo::PolyTessGeo(Extended_Geometry *pxGeom)
 PolyTessGeo::PolyTessGeo(OGRPolygon *poly, bool bSENC_SM, double ref_lat, double ref_lon,
                          double LOD_meters)
 {
+    m_bOK = false;
     m_printStats = false;
     
     ErrorCode = 0;
@@ -310,6 +321,12 @@ PolyTessGeo::~PolyTessGeo()
 {
     delete  m_ppg_head;
     delete  m_pxgeom;
+    m_ppg_head = 0;
+    m_pxgeom = 0;
+    m_cntr = 0;
+    m_buf_head = 0;
+    m_buf_ptr = 0;
+    m_vertexPtrArray = 0;
 }
 
 int PolyTessGeo::BuildDeferredTess(void)

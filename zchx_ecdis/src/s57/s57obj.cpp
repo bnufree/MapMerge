@@ -117,10 +117,10 @@ S57Obj::~S57Obj()
                 zchxOpenGlUtil::s_glDeleteBuffers(1, (GLuint *)&auxParm0);
             }
 #endif
-            delete pPolyTessGeo;
+            SAFE_DELETE(pPolyTessGeo);
         }
 
-        if( FText ) delete FText;
+        if( FText ) SAFE_DELETE(FText);
 
         if( geoPt ) free( geoPt );
         if( geoPtz ) free( geoPtz );

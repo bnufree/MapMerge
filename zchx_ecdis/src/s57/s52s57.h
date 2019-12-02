@@ -452,6 +452,17 @@ typedef struct _ObjRazRules{
    struct _ObjRazRules *child;            // child list, used only for MultiPoint Soundings
    struct _ObjRazRules *next;
    struct _mps_container *mps;
+
+   _ObjRazRules()
+   {
+       LUP = NULL;
+       obj = NULL;
+       sm_transform_parms = 0;
+       child = 0;
+       next = 0;
+       mps = 0;
+   }
+
 }ObjRazRules;
 
 

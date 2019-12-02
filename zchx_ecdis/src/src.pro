@@ -233,7 +233,8 @@ SOURCES += mainwindow.cpp \
     s57/mbtiles.cpp \
     s57/GL/zchxopenglutil.cpp \
     dialog/zchxmapsourcedialog.cpp \
-    zchxecdisprogresswidget.cpp
+    zchxecdisprogresswidget.cpp \
+    zchxvectormapsettingwidget.cpp
 
 HEADERS  += mainwindow.h \
     zchxtileimagethread.h \
@@ -360,7 +361,8 @@ HEADERS  += mainwindow.h \
     s57/mbtiles.h \
     s57/GL/zchxopenglutil.h \
     dialog/zchxmapsourcedialog.h \
-    zchxecdisprogresswidget.h
+    zchxecdisprogresswidget.h \
+    zchxvectormapsettingwidget.h
 
 FORMS    += mainwindow.ui \
     coastdatainfodialog.ui \
@@ -373,7 +375,8 @@ FORMS    += mainwindow.ui \
     dialog/mooringinfodialog.ui \
     dialog/cardmouthinfodialog.ui \
     dialog/statistcLineinfodialog.ui \
-    dialog/zchxmapsourcedialog.ui
+    dialog/zchxmapsourcedialog.ui \
+    zchxvectormapsettingwidget.ui
 
 !MyDLL{
     SOURCES += main.cpp

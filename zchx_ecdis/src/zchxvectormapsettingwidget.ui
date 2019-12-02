@@ -17,7 +17,12 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>参数设定</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">*{
+	background:red;
+}</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="13" column="0">

@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QSpacerItem>
+#include "zchxvectormapsettingwidget.h"
 
 using namespace qt;
 //namespace qt {
@@ -29,6 +30,11 @@ MainWindow::MainWindow(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) :
     initSignalConnect();
     MapLayerMgr::instance()->setDrawWidget(mMapWidget);
     MapLayerMgr::instance()->loadEcdisLayers();
+#ifdef MyTest
+    this->setDockNestingEnabled(true);
+    zchxVectorMapSettingWidget* setting = new zchxVectorMapSettingWidget(this);
+    this->addDockWidget(Qt::RightDockWidgetArea, setting);
+#endif
 }
 
 MainWindow::~MainWindow()

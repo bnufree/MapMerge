@@ -99,6 +99,11 @@ MyDLL{
     TEMPLATE = app
 }
 #DESTDIR = $$BINARIES_PATH
+!contains(CONFIG, MyDLL){
+    DEFINES += MyTest
+} else {
+    DEFINES -= MyTest
+}
 warning("dest:" + $$DESTDIR)
 
 TRANSLATIONS += $$PWD/translations/zchx_ecdis_zh_CN.ts

@@ -46,7 +46,7 @@
 #include <QDir>
 #include <QRegularExpression>
 
-extern ColorScheme GetColorScheme();
+extern ZCHX::ZCHX_COLOR_SCHEME GetColorScheme();
 extern void         LoadS57();
 
 class s52plib;
@@ -1484,7 +1484,7 @@ bool ChartDB::DeleteCacheChart(ChartBase *pDeleteCandidate)
 
 /*
 */
-void ChartDB::ApplyColorSchemeToCachedCharts(ColorScheme cs)
+void ChartDB::ApplyColorSchemeToCachedCharts(ZCHX::ZCHX_COLOR_SCHEME cs)
 {
     ChartBase *Ch;
     CacheEntry *pce;

@@ -32,19 +32,14 @@ private slots:
 
     void on_vectorDirBrowseBtn_clicked();
 
-    void on_colorSchemeCBX_currentIndexChanged(int index);
-
-    void on_displayCategoryCBX_currentIndexChanged(int index);
-
-    void on_distanceUnitCbx_currentIndexChanged(int index);
-
-    void on_showDepthTextCHK_clicked(bool checked);
-
-    void on_showTextCHK_clicked(bool checked);
-
-    void on_showLightsChk_clicked(bool checked);
-
-    void on_showNavObjectChk_clicked(bool checked);
+public slots:
+    void slotColorSchemeCBXIndexChanged(int index);
+    void slotDisplayCategoryCBXIndexChanged(int index);
+    void slotDistanceUnitCBXIndexChanged(int index);
+    void slotShowDepthTextCHKChanged(bool checked);
+    void slotShowTextCHKChanged(bool checked);
+    void slotShowLightsCHKChanged(bool checked);
+    void slotShowNavObjectCHKChanged(bool checked);
 
 private:
     Ui::zchxVectorMapSettingWidget *ui;

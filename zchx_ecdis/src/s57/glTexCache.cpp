@@ -58,7 +58,7 @@ extern GLuint g_raster_format;
 extern int          g_nCacheLimit;
 extern int          g_memCacheLimit;
 
-extern ColorScheme global_color_scheme;
+extern ZCHX::ZCHX_COLOR_SCHEME global_color_scheme;
 
 extern ChartDB      *ChartData;
 extern zchxGLOptions    g_GLOptions;
@@ -82,7 +82,7 @@ CatalogEntry::~CatalogEntry()
 {
 }
 
-CatalogEntry::CatalogEntry(int level, int x0, int y0, ColorScheme colorscheme)
+CatalogEntry::CatalogEntry(int level, int x0, int y0, ZCHX::ZCHX_COLOR_SCHEME colorscheme)
 {
     k.mip_level = level;
     k.x = x0;
@@ -116,7 +116,7 @@ void CatalogEntry::DeSerialize( unsigned char *t)
      k.mip_level = *p++;
      k.x = *p++;
      k.y = *p++;
-     k.tcolorscheme = (ColorScheme)*p++;
+     k.tcolorscheme = (ZCHX::ZCHX_COLOR_SCHEME)*p++;
      v.texture_offset = *p++;
      v.compressed_size = *p++;
      
@@ -149,7 +149,7 @@ glTexFactory::glTexFactory(ChartBase *chart, int raster_format)
     m_LRUtime = 0;
     m_ntex = 0;
     m_tiles = NULL;
-    for (int i = 0; i < N_COLOR_SCHEMES; i++) {
+    for (int i = 0; i < ZCHX::ZCHX_COLOR_SCHEME_NCOLOR; i++) {
         for (int j = 0; j < MAX_TEX_LEVEL; j++) {
             m_cache[i][j] = NULL;
         }
@@ -182,7 +182,7 @@ glTexFactory::~glTexFactory()
     DeleteAllTextures();
     DeleteAllDescriptors();
 
-    for (int i = 0; i < N_COLOR_SCHEMES; i++) {
+    for (int i = 0; i < ZCHX::ZCHX_COLOR_SCHEME_NCOLOR; i++) {
         for (int j = 0; j < MAX_TEX_LEVEL; j++) {
             CatalogEntryValue *v = m_cache[i][j];
             if (v) {
@@ -357,7 +357,7 @@ void  glTexFactory::ArrayXY(QRect *r, int index) const
     r->setX((index -((r->y()/m_tex_dim)*m_stride)) *m_tex_dim );
 }
 
-CatalogEntryValue *glTexFactory::GetCacheEntryValue(int level, int x, int y, ColorScheme color_scheme)
+CatalogEntryValue *glTexFactory::GetCacheEntryValue(int level, int x, int y, ZCHX::ZCHX_COLOR_SCHEME color_scheme)
 {
     if (level < 0 || level >= MAX_TEX_LEVEL)
         return 0;
@@ -380,7 +380,7 @@ CatalogEntryValue *glTexFactory::GetCacheEntryValue(int level, int x, int y, Col
     return r;    
 }
 
-bool glTexFactory::IsLevelInCache( int level, const QRect &rect, ColorScheme color_scheme )
+bool glTexFactory::IsLevelInCache( int level, const QRect &rect, ZCHX::ZCHX_COLOR_SCHEME color_scheme )
 {
     bool b_ret = false;
     
@@ -568,7 +568,7 @@ bool glTexFactory::BuildTexture(glTextureDescriptor *ptd, int base_level, const 
     return true;
 }
 
-bool glTexFactory::PrepareTexture( int base_level, const QRect &rect, ColorScheme color_scheme, int mem_used )
+bool glTexFactory::PrepareTexture( int base_level, const QRect &rect, ZCHX::ZCHX_COLOR_SCHEME color_scheme, int mem_used )
 {    
     glTextureDescriptor *ptd = NULL;
 
@@ -814,7 +814,7 @@ void glTexFactory::PrepareTiles(const ViewPort &vp, bool use_norm_vp, ChartBase 
 }
 
 
-bool glTexFactory::UpdateCacheLevel( const QRect &rect, int level, ColorScheme color_scheme, unsigned char *data, int size)
+bool glTexFactory::UpdateCacheLevel( const QRect &rect, int level, ZCHX::ZCHX_COLOR_SCHEME color_scheme, unsigned char *data, int size)
 {
     if( !g_GLOptions.m_bTextureCompressionCaching)
         return false;
@@ -834,7 +834,7 @@ bool glTexFactory::UpdateCacheLevel( const QRect &rect, int level, ColorScheme c
 
 }
 
-bool glTexFactory::UpdateCacheAllLevels( const QRect &rect, ColorScheme color_scheme, unsigned char **compcomp_array, int *compcomp_size)
+bool glTexFactory::UpdateCacheAllLevels( const QRect &rect, ZCHX::ZCHX_COLOR_SCHEME color_scheme, unsigned char **compcomp_array, int *compcomp_size)
 {
     if( !g_GLOptions.m_bTextureCompressionCaching)
         return false;
@@ -850,8 +850,7 @@ bool glTexFactory::UpdateCacheAllLevels( const QRect &rect, ColorScheme color_sc
     return work;
 }
 
-int glTexFactory::GetTextureLevel( glTextureDescriptor *ptd, const QRect &rect,
-                                   int level, ColorScheme color_scheme )
+int glTexFactory::GetTextureLevel( glTextureDescriptor *ptd, const QRect &rect, int level, ZCHX::ZCHX_COLOR_SCHEME color_scheme )
 {
     //  Already available in the texture descriptor?
     if(g_GLOptions.m_bTextureCompression) {
@@ -976,7 +975,7 @@ bool glTexFactory::LoadHeader(void)
 
 bool glTexFactory::AddCacheEntryValue(const CatalogEntry &p)
 {
-    if ((int)p.k.tcolorscheme < 0 || p.k.tcolorscheme >= N_COLOR_SCHEMES) 
+    if ((int)p.k.tcolorscheme < 0 || p.k.tcolorscheme >= ZCHX::ZCHX_COLOR_SCHEME_NCOLOR)
         return false;
 
     if (p.k.mip_level < 0 || p.k.mip_level >= MAX_TEX_LEVEL) 
@@ -1048,8 +1047,8 @@ bool glTexFactory::WriteCatalogAndHeader()
         int new_n_catalog_entries = 0;
         CatalogEntry p;
         QRect rect;
-        for (int i = 0; i < N_COLOR_SCHEMES; i++) {
-            p.k.tcolorscheme = (ColorScheme)i;
+        for (int i = 0; i < ZCHX::ZCHX_COLOR_SCHEME_NCOLOR; i++) {
+            p.k.tcolorscheme = (ZCHX::ZCHX_COLOR_SCHEME)i;
             for (int j = 0; j < MAX_TEX_LEVEL; j++) {
                 CatalogEntryValue *v = m_cache[i][j];
                 if (!v) 
@@ -1092,7 +1091,7 @@ bool glTexFactory::WriteCatalogAndHeader()
 }
 
 bool glTexFactory::UpdateCachePrecomp(unsigned char *data, int data_size, const QRect &rect,
-                                      int level, ColorScheme color_scheme, bool write_catalog)
+                                      int level, ZCHX::ZCHX_COLOR_SCHEME color_scheme, bool write_catalog)
 {
     if (level < 0 || level >= MAX_TEX_LEVEL)
         return false;	// XXX BUG

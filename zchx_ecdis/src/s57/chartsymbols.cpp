@@ -270,11 +270,11 @@ void ChartSymbols::ProcessLookups( pugi::xml_node &node )
             }
             
             else if( !strcmp( lookupNode.name(), "display-cat") ) {
-                if( !strcmp( nodeText,"Displaybase") ) lookup.displayCat = DISPLAYBASE;
-                else  if( !strcmp( nodeText,"Standard") ) lookup.displayCat = STANDARD;
-                else  if( !strcmp( nodeText,"Other") ) lookup.displayCat = OTHER;
-                else  if( !strcmp( nodeText,"Mariners") ) lookup.displayCat = MARINERS_STANDARD;
-                else  lookup.displayCat = OTHER;
+                if( !strcmp( nodeText,"Displaybase") ) lookup.displayCat = ZCHX::ZCHX_DISPLAY_BASE;
+                else  if( !strcmp( nodeText,"Standard") ) lookup.displayCat = ZCHX::ZCHX_DISPLAY_STANDARD;
+                else  if( !strcmp( nodeText,"Other") ) lookup.displayCat = ZCHX::ZCHX_DISPLAY_ALL;
+                else  if( !strcmp( nodeText,"Mariners") ) lookup.displayCat = ZCHX::ZCHX_DISPLAY_MARINERS_STANDARD;
+                else  lookup.displayCat = ZCHX::ZCHX_DISPLAY_ALL;
             }
             
             else if( !strcmp( lookupNode.name(), "comment") ) {
@@ -589,15 +589,15 @@ void ChartSymbols::ProcessLookups( TiXmlElement* lookupNodes )
                 goto nextNode;
             }
             if( nodeType == ("display-cat") ) {
-                if( nodeText == ("Displaybase") ) lookup.displayCat = DISPLAYBASE;
+                if( nodeText == ("Displaybase") ) lookup.displayCat = ZCHX::ZCHX_DISPLAY_BASE;
                 else
-                if( nodeText == ("Standard") ) lookup.displayCat = STANDARD;
+                if( nodeText == ("Standard") ) lookup.displayCat = ZCHX::ZCHX_DISPLAY_STANDARD;
                 else
-                if( nodeText == ("Other") ) lookup.displayCat = OTHER;
+                if( nodeText == ("Other") ) lookup.displayCat = ZCHX::ZCHX_DISPLAY_ALL;
                 else
-                if( nodeText == ("Mariners") ) lookup.displayCat = MARINERS_STANDARD;
+                if( nodeText == ("Mariners") ) lookup.displayCat = ZCHX::ZCHX_DISPLAY_MARINERS_STANDARD;
                 else
-                lookup.displayCat = OTHER;
+                lookup.displayCat = ZCHX::ZCHX_DISPLAY_ALL;
                 goto nextNode;
             }
             if( nodeType == ("comment") ) {

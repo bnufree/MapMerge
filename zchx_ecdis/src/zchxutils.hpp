@@ -110,15 +110,18 @@ namespace ZCHX {
 
   enum ZCHX_COLOR_SCHEME
   {
-      ZCHX_COLOR_DAY = 0,
-      ZCHX_COLOR_DUSK,
-      ZCHX_COLOR_NIGHT,
+      ZCHX_COLOR_SCHEME_RGB = 0,
+      ZCHX_COLOR_SCHEME_DAY = 1,
+      ZCHX_COLOR_SCHEME_DUSK,
+      ZCHX_COLOR_SCHEME_NIGHT,
+      ZCHX_COLOR_SCHEME_NCOLOR,
   };
   enum ZCHX_DISPLAY_CATEGORY
   {
       ZCHX_DISPLAY_BASE = 0,
       ZCHX_DISPLAY_STANDARD,
       ZCHX_DISPLAY_ALL,
+      ZCHX_DISPLAY_MARINERS_STANDARD,
   };
 
   enum NaviMode{
@@ -151,6 +154,28 @@ namespace ZCHX {
       Decimal_Degrees,                //度
       Degrees_Minutes_Seconds,        //度分秒
   };
+#if 0
+  enum ColorScheme
+  {
+      GLOBAL_COLOR_SCHEME_DAY = 0,
+      GLOBAL_COLOR_SCHEME_DUSK = 1,
+      GLOBAL_COLOR_SCHEME_NIGHT,
+      COLOR_SCHEME_RGB,
+      N_COLOR_SCHEMES,
+  };
+
+  // display category type
+  enum DisCat
+  {
+      DISPLAYBASE          = 'D',            //
+      STANDARD             = 'S',            //
+      OTHER                = 'O',            // O for OTHER
+      MARINERS_STANDARD    = 'M',            // Mariner specified
+      ALL                  = OTHER,
+      MARINERS_OTHER,                        // value not defined
+      DISP_CAT_NUM,                          // value not defined
+  }DisCat;
+#endif
 
 
 namespace Data{

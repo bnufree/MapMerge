@@ -104,7 +104,7 @@ class ChartMBTiles     :public ChartBase
 
       virtual bool GetChartExtent(Extent *pext);
 
-      void SetColorScheme(ColorScheme cs, bool bApplyImmediate);
+      void SetColorScheme(ZCHX::ZCHX_COLOR_SCHEME cs, bool bApplyImmediate);
 
       double GetPPM(){ return m_ppm_avg;}
       double GetZoomFactor(){ return m_zoomScaleFactor; }
@@ -112,7 +112,7 @@ class ChartMBTiles     :public ChartBase
 protected:
 //    Methods
       bool RenderViewOnDC(QPainter* dc, const ViewPort& VPoint);
-      InitReturn PreInit( const QString& name, ChartInitFlag init_flags, ColorScheme cs );
+      InitReturn PreInit( const QString& name, ChartInitFlag init_flags, ZCHX::ZCHX_COLOR_SCHEME cs );
       InitReturn PostInit(void);
 
       void PrepareTiles();

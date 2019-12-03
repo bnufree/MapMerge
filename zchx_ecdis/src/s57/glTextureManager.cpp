@@ -71,7 +71,7 @@ bool             b_inCompressAllCharts = false;
 extern glChartCanvas          *glChart;
 //extern arrayofCanvasPtr  g_canvasArray;
 
-extern ColorScheme global_color_scheme;
+extern ZCHX::ZCHX_COLOR_SCHEME global_color_scheme;
 
 //extern PFNGLGETCOMPRESSEDTEXIMAGEPROC s_glGetCompressedTexImage;
 //extern bool GetMemoryStatus( int *mem_total, int *mem_used );

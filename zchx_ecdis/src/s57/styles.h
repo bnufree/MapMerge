@@ -154,12 +154,12 @@ public:
       void DrawToolbarLineStart( wxBitmap& bmp, double scale = 1.0 );
       void DrawToolbarLineEnd( wxBitmap& bmp, double scale = 1.0 );
 
-      static wxBitmap SetBitmapBrightness( wxBitmap& bitmap, ColorScheme cs );
+      static wxBitmap SetBitmapBrightness( wxBitmap& bitmap, ZCHX::ZCHX_COLOR_SCHEME cs );
       static wxBitmap SetBitmapBrightnessAbs( wxBitmap& bitmap, double level );
       
       void SetOrientation( Direction orient );
       int GetOrientation();
-      void SetColorScheme( ColorScheme cs );
+      void SetColorScheme( ZCHX::ZCHX_COLOR_SCHEME cs );
       void Unload();
 
       QString name;
@@ -215,7 +215,7 @@ public:
 
 private:
       int currentOrientation;
-      ColorScheme colorscheme;
+      ZCHX::ZCHX_COLOR_SCHEME colorscheme;
       bool hasBackground;
 };
 

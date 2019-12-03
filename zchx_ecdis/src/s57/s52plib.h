@@ -120,7 +120,7 @@ public:
     long GetStateHash() { return m_state_hash;  }
 
     void SetPLIBColorScheme( QString scheme );
-    void SetPLIBColorScheme( ColorScheme cs );
+    void SetPLIBColorScheme( ZCHX::ZCHX_COLOR_SCHEME cs );
     QString GetPLIBColorScheme( void ) { return m_ColorScheme; }
 
     void SetGLRendererString(const QString &renderer);
@@ -139,7 +139,7 @@ public:
 
     static void DestroyLUP( LUPrec *pLUP );
     static void ClearRulesCache( Rule *pR );
-    DisCat findLUPDisCat(const char *objectName, LUPname TNAM);
+    ZCHX::ZCHX_DISPLAY_CATEGORY findLUPDisCat(const char *objectName, LUPname TNAM);
     
 //    Temporarily save/restore the current colortable index
 //    Useful for Thumbnail rendering
@@ -187,8 +187,8 @@ public:
     void SetShowLdisText( bool f ) { m_bShowLdisText = f; }
     void SetExtendLightSectors( bool f ) { m_bExtendLightSectors = f; }
 
-    void SetDisplayCategory( enum _DisCat cat );
-    DisCat GetDisplayCategory(){ return m_nDisplayCategory; }
+    void SetDisplayCategory( ZCHX::ZCHX_DISPLAY_CATEGORY cat );
+    ZCHX::ZCHX_DISPLAY_CATEGORY GetDisplayCategory(){ return m_nDisplayCategory; }
 
     void SetGLPolygonSmoothing( bool bset ){ m_GLPolygonSmoothing = bset;}
     bool GetGLPolygonSmoothing( ){ return m_GLPolygonSmoothing; }
@@ -410,7 +410,7 @@ private:
     TexFont *m_txf;
     
     bool m_benableGLLS;
-    DisCat m_nDisplayCategory;
+    ZCHX::ZCHX_DISPLAY_CATEGORY m_nDisplayCategory;
     ArrayOfNoshow m_noshow_array;
     ArrayOfNoshow m_saved_noshow;
     

@@ -43,7 +43,7 @@ public:
 	LUPname        tableName;             // FTYP:  areas, points, lines
 	std::vector<char *> attributeCodeArray;  // ArrayString of LUP Attributes
 	QString       instruction;            // Instruction Field (rules)
-	DisCat         displayCat;             // Display Categorie: D/S/O, DisplayBase, Standard, Other
+    ZCHX::ZCHX_DISPLAY_CATEGORY         displayCat;             // Display Categorie: D/S/O, DisplayBase, Standard, Other
 	int            comment;             // Look-Up Comment (PLib3.x put 'groupes' here,
 };
 

@@ -112,7 +112,7 @@ extern double           gLat, gLon, gCog, gSog, gHdt;
 //extern double           vLat, vLon;
 extern ChartDB          *ChartData;
 bool             bDBUpdateInProgress;
-extern ColorScheme      global_color_scheme;
+extern ZCHX::ZCHX_COLOR_SCHEME      global_color_scheme;
 extern int              g_nbrightness;
 extern QString          gWorldMapLocation;
 extern QString          gDefaultWorldMapLocation;

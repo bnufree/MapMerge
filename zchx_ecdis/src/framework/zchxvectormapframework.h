@@ -37,13 +37,40 @@ public:
     virtual void  initEcdis();
     //
     void  changeS572SENC(const QString& src);
-    //矢量地图标准,基本,全部接口
-    void  setDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category);
-    void  setColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme);
+    //显示模式
+    virtual void        setDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category);
+    virtual int         getDisplayCategory() const;
+    //颜色模式
+    virtual void        setColorScheme(ZCHX::ZCHX_COLOR_SCHEME cs);
+    virtual int         getColorScheme() const;
+    //水深单位
+    virtual void        setDepthUnit(ZCHX::DepthUnit unit);
+    virtual int         getDepthUnit() const;
+    //距离单位
+    virtual void        setDistanceUnit(ZCHX::DistanceUnit unit);
+    virtual int         getDistanceUnit() const;
+    //显示水深
+    virtual void        setDepthDisplayStatus(bool sts);
+    virtual bool        getDepthDisplayStatus() const;
+    //显示文本
+    virtual void        setTextDisplayStatus(bool sts);
+    virtual bool        getTextDisplayStatus() const ;
+    //显示Lights
+    virtual void        setLightsDisplayStatus(bool sts);
+    virtual bool        getLightsDisplayStatus() const ;
+    //显示NavObjects
+//    virtual void        setNavObjectsDisplayStatus(bool sts);
+//    virtual bool        getNavObjectsDisplayStatus() const ;
+    //浅水区
+    virtual void        setShallowDepthVal(double val);
+    virtual double        getShallowDepthVal() const ;
+    //安全区
+    virtual void        setSafeDepthVal(double val);
+    virtual double        getSafeDepthVal() const ;
+    //深水区
+    virtual void        setDeepDepthVal(double val);
+    virtual double        getDeepDepthVal() const;
 
-    void  setShallowDepth(double val);
-    void  setSafeDepth(double val);
-    void  setDeepDepth(double val);
 private:
     glChartCanvas*          mGLCtrl;
 

@@ -26,7 +26,7 @@
  double           vLat, vLon, gLat, gLon;
  double           kLat, kLon;
  double           initial_scale_ppm, initial_rotation;
- ColorScheme      global_color_scheme = GLOBAL_COLOR_SCHEME_DAY;
+ ZCHX::ZCHX_COLOR_SCHEME      global_color_scheme = ZCHX::ZCHX_COLOR_SCHEME_DAY;
  int              g_nbrightness = 100;
  bool             g_bShowTrue, g_bShowMag;
  double           g_UserVar;
@@ -1020,7 +1020,7 @@ double zchxFuncUtil::GetMag(double a)
     }
 }
 
-ColorScheme GetColorScheme()
+ZCHX::ZCHX_COLOR_SCHEME GetColorScheme()
 {
     return global_color_scheme;
 }

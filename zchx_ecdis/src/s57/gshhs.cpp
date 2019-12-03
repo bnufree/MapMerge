@@ -69,7 +69,7 @@ GSHHSChart::~GSHHSChart() {
     if( reader ) delete reader;
 }
 
-void GSHHSChart::SetColorScheme( ColorScheme scheme ) {
+void GSHHSChart::SetColorScheme( ZCHX::ZCHX_COLOR_SCHEME scheme ) {
 
     land = QColor ( 170, 175, 80 );
     water = QColor ( 170, 195, 240 );
@@ -77,10 +77,10 @@ void GSHHSChart::SetColorScheme( ColorScheme scheme ) {
     float dim = 1.0;
 
     switch( scheme ){
-        case GLOBAL_COLOR_SCHEME_DUSK:
+        case ZCHX::ZCHX_COLOR_SCHEME_DUSK:
             dim = 0.5;
             break;
-        case GLOBAL_COLOR_SCHEME_NIGHT:
+        case ZCHX::ZCHX_COLOR_SCHEME_NIGHT:
             dim = 0.25;
             break;
         default:

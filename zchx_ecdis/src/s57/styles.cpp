@@ -367,9 +367,9 @@ wxBitmap Style::GetToolIcon(const QString & toolname, int iconType, bool rollove
             } else {
                 if( toolname == ("mob_btn") ) {
                     double dimLevel = 1.0;
-                    if(colorscheme ==  GLOBAL_COLOR_SCHEME_DUSK)
+                    if(colorscheme ==  ZCHX::ZCHX_COLOR_SCHEME_DUSK)
                         dimLevel = 0.5;
-                    else if(colorscheme ==  GLOBAL_COLOR_SCHEME_NIGHT)
+                    else if(colorscheme ==  ZCHX::ZCHX_COLOR_SCHEME_NIGHT)
                         dimLevel = 0.5;
                     tool->icon = SetBitmapBrightnessAbs( bm, dimLevel );
                 }
@@ -547,15 +547,15 @@ wxBitmap Style::BuildPluginIcon( wxBitmap &bm, int iconType, double factor )
     return SetBitmapBrightness( iconbm, colorscheme );
 }
 
-wxBitmap Style::SetBitmapBrightness( wxBitmap& bitmap, ColorScheme cs )
+wxBitmap Style::SetBitmapBrightness( wxBitmap& bitmap, ZCHX::ZCHX_COLOR_SCHEME cs )
 {
     double dimLevel;
     switch( cs ){
-        case GLOBAL_COLOR_SCHEME_DUSK: {
+        case ZCHX::ZCHX_COLOR_SCHEME_DUSK: {
             dimLevel = 0.8;
             break;
         }
-        case GLOBAL_COLOR_SCHEME_NIGHT: {
+        case ZCHX::ZCHX_COLOR_SCHEME_NIGHT: {
             dimLevel = 0.5;
             break;
         }
@@ -684,7 +684,7 @@ int Style::GetOrientation()
     return currentOrientation;
 }
 
-void Style::SetColorScheme( ColorScheme cs )
+void Style::SetColorScheme( ZCHX::ZCHX_COLOR_SCHEME cs )
 {
     colorscheme = cs;
     Unload();
@@ -718,7 +718,7 @@ Style::Style( void )
 {
     graphics = NULL;
     currentOrientation = 0;
-    colorscheme = GLOBAL_COLOR_SCHEME_DAY;
+    colorscheme = ZCHX::ZCHX_COLOR_SCHEME_DAY;
     marginsInvisible = false;
     hasBackground = false;
     chartStatusIconWidth = 0;

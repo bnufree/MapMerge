@@ -41,9 +41,7 @@ public:
 
     //更新地图的显示范围
     virtual     void        updateDisplayRange() {}
-    //设定地图数据来源
-    virtual     void        setSource(const QString& source, int pos);
-    QString                 getSource() const {return mSourceUrl;}
+
 
     //地图操作接口
     virtual     void        zoomIn();               //放大缩小
@@ -64,6 +62,45 @@ public:
     virtual void        update() {}
     virtual void        paintGL() {}
     virtual void        initEcdis() {}
+
+    //地图参数设定
+    //设定地图数据来源
+    virtual     void        setSource(const QString& source, int pos);
+    virtual     QString     getSource() const {return mSourceUrl;}
+
+    //显示模式
+    virtual void        setDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category) {}
+    virtual int         getDisplayCategory() const {return -1;}
+    //颜色模式
+    virtual void        setColorScheme(ZCHX::ZCHX_COLOR_SCHEME cs) {}
+    virtual int         getColorScheme() const {return -1;}
+    //水深单位
+    virtual void        setDepthUnit(ZCHX::DepthUnit unit) {}
+    virtual int         getDepthUnit() const {return -1;}
+    //距离单位
+    virtual void        setDistanceUnit(ZCHX::DistanceUnit unit) {}
+    virtual int         getDistanceUnit() const {return -1;}
+    //显示水深
+    virtual void        setDepthDisplayStatus(bool sts) {}
+    virtual bool        getDepthDisplayStatus() const {return false;}
+    //显示文本
+    virtual void        setTextDisplayStatus(bool sts) {}
+    virtual bool        getTextDisplayStatus() const {return false;}
+    //显示Lights
+    virtual void        setLightsDisplayStatus(bool sts) {}
+    virtual bool        getLightsDisplayStatus() const {return false;}
+    //显示NavObjects
+    virtual void        setNavObjectsDisplayStatus(bool sts) {}
+    virtual bool        getNavObjectsDisplayStatus() const {return false;}
+    //浅水区
+    virtual void        setShallowDepthVal(double val) {}
+    virtual double        getShallowDepthVal() const {return 0;}
+    //安全区
+    virtual void        setSafeDepthVal(double val) {}
+    virtual double        getSafeDepthVal() const {return 0;}
+    //深水区
+    virtual void        setDeepDepthVal(double val) {}
+    virtual double        getDeepDepthVal() const {return 0;}
 
 signals:
     void        signalSendCurMapinfo(double center_lat, double center_lon, int zoom);

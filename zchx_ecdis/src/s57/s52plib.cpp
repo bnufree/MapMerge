@@ -337,7 +337,7 @@ s52plib::s52plib( const QString& PLib, bool b_forceLegacy )
     //      Sensible defaults
     m_nSymbolStyle = PAPER_CHART;
     m_nBoundaryStyle = PLAIN_BOUNDARIES;
-    m_nDisplayCategory = OTHER;
+    m_nDisplayCategory = ZCHX::ZCHX_DISPLAY_ALL;
     m_nDepthUnitDisplay = 1; // metres
     
     UpdateMarinerParams();
@@ -500,7 +500,7 @@ void s52plib::DestroyRulesChain( Rules *top )
 
 
 
-DisCat s52plib::findLUPDisCat(const char *objectName, LUPname TNAM)
+ZCHX::ZCHX_DISPLAY_CATEGORY s52plib::findLUPDisCat(const char *objectName, LUPname TNAM)
 {
     LUPArrayContainer *plac = SelectLUPArrayContainer( TNAM );
     
@@ -522,7 +522,7 @@ DisCat s52plib::findLUPDisCat(const char *objectName, LUPname TNAM)
         }
     }
     
-    return (DisCat)(-1);
+    return (ZCHX::ZCHX_DISPLAY_CATEGORY)(-1);
 }
 
 
@@ -537,10 +537,10 @@ bool s52plib::GetAnchorOn()
     int old_vis =  0;
     OBJLElement *pOLE = NULL;
 
-    if(  MARINERS_STANDARD == GetDisplayCategory()){
+    if(  ZCHX::ZCHX_DISPLAY_MARINERS_STANDARD == GetDisplayCategory()){
         old_vis = m_anchorOn;
     }
-    else if(OTHER == GetDisplayCategory())
+    else if(ZCHX::ZCHX_DISPLAY_ALL == GetDisplayCategory())
         old_vis = true;
 
     //other cat
@@ -558,7 +558,7 @@ bool s52plib::GetQualityOfData()
     int old_vis =  0;
     OBJLElement *pOLE = NULL;
 
-    if(  MARINERS_STANDARD == GetDisplayCategory()){
+    if(  ZCHX::ZCHX_DISPLAY_MARINERS_STANDARD == GetDisplayCategory()){
         for( unsigned int iPtr = 0; iPtr < pOBJLArray->count(); iPtr++ ) {
             OBJLElement *pOLE = (OBJLElement *) ( pOBJLArray->at( iPtr ) );
             if( !strncmp( pOLE->OBJLName, "M_QUAL", 6 ) ) {
@@ -567,7 +567,7 @@ bool s52plib::GetQualityOfData()
             }
         }
     }
-    else if(OTHER == GetDisplayCategory())
+    else if(ZCHX::ZCHX_DISPLAY_ALL == GetDisplayCategory())
         old_vis = true;
 
     old_vis &= !IsObjNoshow("M_QUAL");
@@ -1357,17 +1357,17 @@ LUPrec *s52plib::S52_LUPLookup( LUPname LUP_Name, const char * objectName, S57Ob
 }
 
 
-void  s52plib::SetPLIBColorScheme( ColorScheme cs )
+void  s52plib::SetPLIBColorScheme( ZCHX::ZCHX_COLOR_SCHEME cs )
 {
     QString SchemeName;
     switch( cs ){
-    case GLOBAL_COLOR_SCHEME_DAY:
+    case ZCHX::ZCHX_COLOR_SCHEME_DAY:
         SchemeName = "DAY";
         break;
-    case GLOBAL_COLOR_SCHEME_DUSK:
+    case ZCHX::ZCHX_COLOR_SCHEME_DUSK:
         SchemeName = "DUSK";
         break;
-    case GLOBAL_COLOR_SCHEME_NIGHT:
+    case ZCHX::ZCHX_COLOR_SCHEME_NIGHT:
         SchemeName = "NIGHT";
         break;
     default:
@@ -4984,12 +4984,12 @@ int s52plib::SetLineFeaturePriority( ObjRazRules *rzRules, int npriority )
     bool b_catfilter = true;
 
     // DEPCNT is mutable
-    if( m_nDisplayCategory == STANDARD ) {
-        if( ( DISPLAYBASE != rzRules->LUP->DISC ) && ( STANDARD != rzRules->LUP->DISC ) ) {
+    if( m_nDisplayCategory == ZCHX::ZCHX_DISPLAY_STANDARD ) {
+        if( ( ZCHX::ZCHX_DISPLAY_BASE != rzRules->LUP->DISC ) && ( ZCHX::ZCHX_DISPLAY_STANDARD != rzRules->LUP->DISC ) ) {
             b_catfilter = rzRules->obj->m_bcategory_mutable;
         }
-    } else if( m_nDisplayCategory == DISPLAYBASE ) {
-        if( DISPLAYBASE != rzRules->LUP->DISC ) {
+    } else if( m_nDisplayCategory == ZCHX::ZCHX_DISPLAY_BASE ) {
+        if( ZCHX::ZCHX_DISPLAY_BASE != rzRules->LUP->DISC ) {
             b_catfilter = rzRules->obj->m_bcategory_mutable;
         }
     }
@@ -7651,13 +7651,13 @@ bool s52plib::ObjectRenderCheckCat( ObjRazRules *rzRules, ViewPort *vp )
     bool b_visible = false;
 
     //      Do Object Type Filtering
-    DisCat obj_cat = rzRules->obj->m_DisplayCat;
+    ZCHX::ZCHX_DISPLAY_CATEGORY obj_cat = rzRules->obj->m_DisplayCat;
     
     //  Meta object filter.
     // Applied when showing display category OTHER, and
     // only for objects whose decoded S52 display category (by LUP) is also OTHER
-    if( m_nDisplayCategory == OTHER ){
-        if(OTHER == obj_cat){
+    if( m_nDisplayCategory == ZCHX::ZCHX_DISPLAY_ALL ){
+        if(ZCHX::ZCHX_DISPLAY_ALL == obj_cat){
             if( !strncmp( rzRules->LUP->OBCL, "M_", 2 ) )
                 if( !m_bShowMeta &&  strncmp( rzRules->LUP->OBCL, "M_QUAL", 6 ))
                     return false;
@@ -7671,10 +7671,10 @@ bool s52plib::ObjectRenderCheckCat( ObjRazRules *rzRules, ViewPort *vp )
     }
 
 
-    if( m_nDisplayCategory == MARINERS_STANDARD ) {
+    if( m_nDisplayCategory == ZCHX::ZCHX_DISPLAY_MARINERS_STANDARD ) {
         if( -1 == rzRules->obj->iOBJL ) UpdateOBJLArray( rzRules->obj );
 
-        if( DISPLAYBASE == obj_cat ){        // always display individual objects that were moved to DISPLAYBASE by CS Procedures
+        if( ZCHX::ZCHX_DISPLAY_BASE == obj_cat ){        // always display individual objects that were moved to DISPLAYBASE by CS Procedures
             b_visible = true;
             b_catfilter = false;
         }
@@ -7684,20 +7684,20 @@ bool s52plib::ObjectRenderCheckCat( ObjRazRules *rzRules, ViewPort *vp )
     }
 
     else
-        if( m_nDisplayCategory == OTHER ) {
-            if( ( DISPLAYBASE != obj_cat ) && ( STANDARD != obj_cat ) && ( OTHER != obj_cat ) ) {
+        if( m_nDisplayCategory == ZCHX::ZCHX_DISPLAY_ALL ) {
+            if( ( ZCHX::ZCHX_DISPLAY_BASE != obj_cat ) && ( ZCHX::ZCHX_DISPLAY_STANDARD != obj_cat ) && ( ZCHX::ZCHX_DISPLAY_ALL != obj_cat ) ) {
                 b_catfilter = false;
             }
         }
 
         else
-            if( m_nDisplayCategory == STANDARD ) {
-                if( ( DISPLAYBASE != obj_cat ) && ( STANDARD != obj_cat ) ) {
+            if( m_nDisplayCategory == ZCHX::ZCHX_DISPLAY_STANDARD ) {
+                if( ( ZCHX::ZCHX_DISPLAY_BASE != obj_cat ) && ( ZCHX::ZCHX_DISPLAY_STANDARD != obj_cat ) ) {
                     b_catfilter = false;
                 }
             } else
-                if( m_nDisplayCategory == DISPLAYBASE ) {
-                    if( DISPLAYBASE != obj_cat ) {
+                if( m_nDisplayCategory == ZCHX::ZCHX_DISPLAY_BASE ) {
+                    if( ZCHX::ZCHX_DISPLAY_BASE != obj_cat ) {
                         b_catfilter = false;
                     }
                 }
@@ -7720,7 +7720,7 @@ bool s52plib::ObjectRenderCheckCat( ObjRazRules *rzRules, ViewPort *vp )
         if( m_bUseSCAMIN ) {
 
 
-            if( ( DISPLAYBASE == rzRules->LUP->DISC ) || ( PRIO_GROUP1 == rzRules->LUP->DPRI ) )
+            if( ( ZCHX::ZCHX_DISPLAY_BASE == rzRules->LUP->DISC ) || ( PRIO_GROUP1 == rzRules->LUP->DPRI ) )
                 b_visible = true;
             else{
                 //                if( vp->chartScale() > rzRules->obj->Scamin ) b_visible = false;
@@ -7812,9 +7812,9 @@ bool s52plib::ObjectRenderCheckRules( ObjRazRules *rzRules, ViewPort *vp, bool c
 }
 
 
-void s52plib::SetDisplayCategory(enum _DisCat cat)
+void s52plib::SetDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY cat)
 {
-    enum _DisCat old = m_nDisplayCategory;
+    ZCHX::ZCHX_DISPLAY_CATEGORY old = m_nDisplayCategory;
     m_nDisplayCategory = cat;
     
     if(old != cat){
@@ -7878,7 +7878,7 @@ void s52plib::PLIB_LoadS57Config()
     SetExtendLightSectors( !( read_int == 0 ) );
     
     read_int = pconfig->getCustomValue("Settings/GlobalState", "nDisplayCategory", 0 ).toInt();
-    SetDisplayCategory((enum _DisCat) read_int );
+    SetDisplayCategory((ZCHX::ZCHX_DISPLAY_CATEGORY) read_int );
     
     read_int = pconfig->getCustomValue("Settings/GlobalState", "nSymbolStyle", (enum _LUPname) PAPER_CHART).toInt();
     m_nSymbolStyle = (LUPname) read_int;
@@ -8066,7 +8066,7 @@ void s52plib::SetAnchorOn(bool val)
     const char * categories[] = { "ACHBRT", "ACHARE", "CBLSUB", "PIPARE", "PIPSOL", "TUNNEL", "SBDARE" };
     unsigned int num = sizeof(categories) / sizeof(categories[0]);
 
-    if( (m_nDisplayCategory == OTHER) || (m_nDisplayCategory == MARINERS_STANDARD) ){
+    if( (m_nDisplayCategory == ZCHX::ZCHX_DISPLAY_ALL) || (m_nDisplayCategory == ZCHX::ZCHX_DISPLAY_MARINERS_STANDARD) ){
         bool bAnchor = val;
 
         if(!bAnchor){

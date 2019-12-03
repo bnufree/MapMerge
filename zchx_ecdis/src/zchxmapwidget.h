@@ -15,6 +15,7 @@
 #include "localmarkdlg.h"
 #include "element/drawelement.hpp"
 #include "draw_manager/zchxecdismousedefines.h"
+#include "framework/zchxmapframe.h"
 
 typedef     std::vector<std::pair<double, double> >     POLYLINE;
 typedef     QList<POLYLINE>                             POLYLINES;
@@ -136,21 +137,41 @@ public:
     int getTargetSizeIndex() const {return m_targetSizeIndex;}
     int getTraceLenIndex() const {return m_traceLenIndex;}
     int getContinueTimeInde() const {return m_continueTimeIndex;}
-    //
-    virtual void setShowDepth(bool isDisplay) {mIsShowDepth = isDisplay;}                         //是否显示水深
-    bool    showDepth() const {return mIsShowDepth;}
-    virtual void setShowText(bool isDisplay) {mIsShowText = isDisplay;}                          //是否显示地名等文本信息
-    bool    showText() const {return mIsShowText;}
-    virtual void setShowGrid(bool isDisplay) {mIsShowGrid = isDisplay;}                        //是否显示地图网格信息
-    bool    showGrid() const {return mIsShowGrid;}
-
-    virtual void rotate(double degree) {}                             //旋转地图,旋转到指定的角度值,单位度
-    virtual double getRotate() {return 0;}                                      //获取当前的旋转角度
+    void rotate(double degree) {}                             //旋转地图,旋转到指定的角度值,单位度
+    double getRotate() {return 0;}                                      //获取当前的旋转角度
     void rotateClockwise(double delta) {rotate(getRotate() + delta);}                     //旋转地图,当前地图的基础上进行顺时针旋转.单位度
     void rotateAntiClockwise(double delta) {rotate(getRotate() - delta);}                 //旋转地图,当前地图的基础上进行逆时针旋转.单位度
     void rotateReset() {rotate(0);}                                     //旋转地图.恢复到不旋转的正北状态
     virtual void setMapUrl(const QString& url) {}                    //设定地图的数据源目录.可以为在线地址或者本地文件目录
     bool isDBUpdateNow() const {return mIsDBUpdateNow;}
+
+    //设定地图的显示模式
+    void setColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme) {mFrameWork->setColorScheme(scheme);}
+    int  getColorScheme() const {return mFrameWork->getColorScheme();}
+    //设定地图的颜色模式
+    void setDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category) {mFrameWork->setDisplayCategory(category);}
+    int  getDisplayCategory() const {return mFrameWork->getDisplayCategory();}
+    //设定地图的水深数据等深线显示
+    void setShallowDepth(double val) {mFrameWork->setShallowDepthVal(val);}
+    double getShallowDepth() const {return mFrameWork->getShallowDepthVal();}
+    void setSafeDepth(double val) {mFrameWork->setSafeDepthVal(val);}
+    double getSafeDepth() const {return mFrameWork->getSafeDepthVal();}
+    void setDeepDepth(double val) {mFrameWork->setDeepDepthVal(val);}
+    double getDeepDepth() const {return mFrameWork->getDeepDepthVal();}
+    //设置距离显示单位
+    void setDistanceUnit(ZCHX::DistanceUnit unit) {mFrameWork->setDistanceUnit(unit);}
+    int  getDistanceUnit() const {return mFrameWork->getDistanceUnit();}
+    void setDepthUnit(ZCHX::DepthUnit unit) {mFrameWork->setDepthUnit(unit);}
+    int   getDepthUnit() const {return mFrameWork->getDepthUnit();}
+    //水深数据显示
+    void    setShowDepth(bool isDisplay) {mFrameWork->setDepthDisplayStatus(isDisplay);}
+    bool    getShowDepth() const {return mFrameWork->getDepthDisplayStatus();}
+    //文本数据显示
+    void    setShowText(bool isDisplay) {mFrameWork->setTextDisplayStatus(isDisplay);}
+    bool    getShowText() const {return mFrameWork->getTextDisplayStatus();}
+    //地图网格是否显示
+    void    setShowGrid(bool isDisplay) {}
+    bool    getShowGrid() const  {return false;}
 
 private:
     void updateCurrentPos(const QPoint& p);
@@ -589,14 +610,7 @@ public Q_SLOTS:
     //相机网格
     void setETool2DrawCameraNetGrid(const QSizeF& size, const QString& camera);
     //void slotSetRadarTailTrack();
-    //设定地图的显示模式
-    void setColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme);
-    //设定地图的颜色模式
-    void setDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category);
-    //设定地图的水深数据等深线显示
-    void setShallowDepth(double val);
-    void setSafeDepth(double val);
-    void setDeepDepth(double val);
+
 
 
 
@@ -978,11 +992,6 @@ private:
     int m_targetSizeIndex;
     int m_traceLenIndex;
     int m_continueTimeIndex;
-
-    //
-    bool                            mIsShowDepth;
-    bool                            mIsShowText;
-    bool                            mIsShowGrid;
     ZCHX::ZCHX_MAP_TYPE             mType;
     zchxEcdisProgressWidget*                mDBProgressWidget;
     bool                            mIsDBUpdateNow;

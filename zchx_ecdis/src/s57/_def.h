@@ -11,6 +11,7 @@
 #include <QDebug>
 #include <QDateTime>
 /*  menu and toolbar item kinds */
+#include "zchxutils.hpp"
 enum wxItemKind
 {
     wxITEM_SEPARATOR = -1,
@@ -150,24 +151,24 @@ typedef enum ChartFamilyEnum
       CHART_FAMILY_DONTCARE
 }_ChartFamilyEnum;
 
-typedef enum ColorScheme
-{
-      GLOBAL_COLOR_SCHEME_RGB,
-      GLOBAL_COLOR_SCHEME_DAY,
-      GLOBAL_COLOR_SCHEME_DUSK,
-      GLOBAL_COLOR_SCHEME_NIGHT,
-      N_COLOR_SCHEMES
-}_ColorScheme;
+//typedef enum ColorScheme
+//{
+//      GLOBAL_COLOR_SCHEME_RGB,
+//      GLOBAL_COLOR_SCHEME_DAY,
+//      GLOBAL_COLOR_SCHEME_DUSK,
+//      GLOBAL_COLOR_SCHEME_NIGHT,
+//      N_COLOR_SCHEMES
+//}_ColorScheme;
 
-// display category type
-typedef enum _DisCat{
-   DISPLAYBASE          = 'D',            //
-   STANDARD             = 'S',            //
-   OTHER                = 'O',            // O for OTHER
-   MARINERS_STANDARD    = 'M',            // Mariner specified
-   MARINERS_OTHER,                        // value not defined
-   DISP_CAT_NUM,                          // value not defined
-}DisCat;
+//// display category type
+//typedef enum _DisCat{
+//   DISPLAYBASE          = 'D',            //
+//   STANDARD             = 'S',            //
+//   OTHER                = 'O',            // O for OTHER
+//   MARINERS_STANDARD    = 'M',            // Mariner specified
+//   MARINERS_OTHER,                        // value not defined
+//   DISP_CAT_NUM,                          // value not defined
+//}DisCat;
 
 
 

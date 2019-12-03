@@ -111,51 +111,109 @@ void zchxVectorMapFrameWork::changeS572SENC(const QString &src)
     fclose(testDump);
 }
 
-void zchxVectorMapFrameWork::setDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY src)
+void zchxVectorMapFrameWork::setDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category)
 {
-    DisCat category = DISPLAYBASE;
-    switch (src) {
-    case ZCHX::ZCHX_DISPLAY_BASE:
-        category = DISPLAYBASE;
-        break;
-    case ZCHX::ZCHX_DISPLAY_STANDARD:
-        category = STANDARD;
-    default:
-        category = OTHER;
-        break;
-    }
     if(mGLCtrl->GetENCDisplayCategory() == category) return;
     mGLCtrl->SetENCDisplayCategory(category);
 }
 
-void zchxVectorMapFrameWork::setColorScheme(ZCHX::ZCHX_COLOR_SCHEME src)
+int zchxVectorMapFrameWork::getDisplayCategory() const
 {
-    ColorScheme category = GLOBAL_COLOR_SCHEME_DAY;
-    switch (src) {
-    case ZCHX::ZCHX_COLOR_DAY:
-        category = GLOBAL_COLOR_SCHEME_DAY;
-        break;
-    case ZCHX::ZCHX_COLOR_DUSK:
-        category = GLOBAL_COLOR_SCHEME_DUSK;
-    default:
-        category = GLOBAL_COLOR_SCHEME_NIGHT;
-        break;
-    }
-    if(mGLCtrl->GetColorScheme() == category) return;
-    mGLCtrl->SetColorScheme(category);
+    return mGLCtrl->GetENCDisplayCategory();
 }
 
-void zchxVectorMapFrameWork::setShallowDepth(double val)
+int  zchxVectorMapFrameWork::getColorScheme() const
+{
+    return mGLCtrl->GetColorScheme();
+}
+
+void zchxVectorMapFrameWork::setColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme)
+{
+    if(mGLCtrl->GetColorScheme() == scheme) return;
+    mGLCtrl->SetColorScheme(scheme);
+}
+
+void zchxVectorMapFrameWork::setDepthUnit(ZCHX::DepthUnit unit)
+{
+    mGLCtrl->setDepthUnit(unit);
+}
+
+int zchxVectorMapFrameWork::getDepthUnit() const
+{
+    return mGLCtrl->getDepthUnit();
+}
+
+
+
+void zchxVectorMapFrameWork::setShallowDepthVal(double val)
 {
     mGLCtrl->setShallowDepth(val);
 }
 
-void zchxVectorMapFrameWork::setSafeDepth(double val)
+double zchxVectorMapFrameWork::getShallowDepthVal() const
+{
+    return mGLCtrl->getShallowDepth();
+}
+
+void zchxVectorMapFrameWork::setSafeDepthVal(double val)
 {
     mGLCtrl->setSafeDepth(val);
 }
 
-void zchxVectorMapFrameWork::setDeepDepth(double val)
+double zchxVectorMapFrameWork::getSafeDepthVal() const
+{
+    return mGLCtrl->getSafeDepth();
+}
+
+void zchxVectorMapFrameWork::setDeepDepthVal(double val)
 {
     mGLCtrl->setDeepDepth(val);
 }
+
+double zchxVectorMapFrameWork::getDeepDepthVal() const
+{
+    return mGLCtrl->getDeepDepth();
+}
+
+
+void zchxVectorMapFrameWork::setDistanceUnit(ZCHX::DistanceUnit unit)
+{
+    mGLCtrl->setDistanceUnit(unit);
+}
+
+int zchxVectorMapFrameWork::getDistanceUnit() const
+{
+    return mGLCtrl->getDistanceUnit();
+}
+
+void zchxVectorMapFrameWork::setDepthDisplayStatus(bool sts)
+{
+    mGLCtrl->SetShowENCDepth(sts);
+}
+
+bool zchxVectorMapFrameWork::getDepthDisplayStatus() const
+{
+    return mGLCtrl->GetShowENCDepth();
+}
+
+void zchxVectorMapFrameWork::setTextDisplayStatus(bool sts)
+{
+    mGLCtrl->SetShowENCText(sts);
+}
+
+bool zchxVectorMapFrameWork::getTextDisplayStatus() const
+{
+    return mGLCtrl->GetShowENCText();
+}
+
+void zchxVectorMapFrameWork::setLightsDisplayStatus(bool sts)
+{
+    mGLCtrl->SetShowENCLights(sts);
+}
+
+bool zchxVectorMapFrameWork::getLightsDisplayStatus() const
+{
+    return mGLCtrl->GetShowENCLights();
+}
+
+

@@ -32,6 +32,7 @@
 #include "TexFont.h"
 #include <QObject>
 #include "gshhs.h"
+#include "zchxutils.hpp"
 
  #define FORMAT_BITS           GL_RGB
 
@@ -63,7 +64,7 @@ public:
     static void SetClipRegion( ViewPort &vp, const LLRegion &region);
     static void SetClipRect(const ViewPort &vp, const QRect &rect, bool g_clear=false);
     static void DisableClipRegion();
-    void SetColorScheme(ColorScheme cs);
+    void SetColorScheme(ZCHX::ZCHX_COLOR_SCHEME cs);
     
     static bool         s_b_useScissorTest;
     static bool         s_b_useStencil;
@@ -137,16 +138,22 @@ public:
     void SetShowGrid( bool show ){ m_bDisplayGrid = show; }
 
     void  setShallowDepth(double val);
+    double getShallowDepth() const {return mShallowDepth;}
     void  setSafeDepth(double val);
+    double getSafeDepth() const {return mSafeDepth;}
     void  setDeepDepth(double val);
+    double getDeepDepth() const {return mDeepdepth;}
     void  setDepthUnit(int unit);
+    int   getDepthUnit() const {return mDepthUnit;}
+    void  setDistanceUnit(int unit);
+    int   getDistanceUnit() const {return mDistanceUnit;}
 
     time_t m_last_render_time;
 
     int viewport[4];
     double mvmatrix[16], projmatrix[16];
     void CanvasApplyLocale();
-    ColorScheme GetColorScheme(){ return m_cs;}
+    ZCHX::ZCHX_COLOR_SCHEME GetColorScheme(){ return m_cs;}
     QColor GetFogColor(){ return m_fog_color; }
     GSHHSChart* GetWorldBackgroundChart() { return pWorldBackgroundChart; }
     void ResetWorldBackgroundChart() { pWorldBackgroundChart->Reset(); }
@@ -300,7 +307,7 @@ protected:
     //
 
 
-    ColorScheme m_cs;
+    ZCHX::ZCHX_COLOR_SCHEME m_cs;
     QColor    m_fog_color;
 
     GSHHSChart  *pWorldBackgroundChart;

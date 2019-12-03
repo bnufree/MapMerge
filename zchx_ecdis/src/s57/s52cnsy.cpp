@@ -643,7 +643,7 @@ static QString *_UDWHAZ03(S57Obj *obj, double depth_value, ObjRazRules *rzRules,
               }
 
               //  Move this object to DisplayBase category
-              rzRules->obj->m_DisplayCat = DISPLAYBASE;
+              rzRules->obj->m_DisplayCat = ZCHX::ZCHX_DISPLAY_BASE;
 
 /*
             GString *watlevstr = S57_getAttVal(geo, "WATLEV");
@@ -987,7 +987,7 @@ static void *DEPCNT02 (void *param)
 //            S57_setAtt(geo, "SCAMIN", "INFINITE");
 //            rule_str.Prepend(";OP(8OD13010");       //depcnt02 = g_string_prepend(depcnt02, ";OP(8OD13010";
            //  Move this object to DisplayBase category
-            rzRules->obj->m_DisplayCat = DISPLAYBASE;
+            rzRules->obj->m_DisplayCat = ZCHX::ZCHX_DISPLAY_BASE;
             rzRules->obj->Scamin = 1e8;                 // effectively no SCAMIN
 //            rzRules->LUP->DPRI = PRIO_HAZARDS;
 
@@ -1983,7 +1983,7 @@ static void *OBSTRN04 (void *param)
                               }
                               if(b_promote){
                                   //  Move this UWTROC object to DisplayBase category
-                                  rzRules->obj->m_DisplayCat = DISPLAYBASE;
+                                  rzRules->obj->m_DisplayCat = ZCHX::ZCHX_DISPLAY_BASE;
                               }
                         }
                         else
@@ -2031,7 +2031,7 @@ static void *OBSTRN04 (void *param)
 
                         if(b_promote){
                             //  Move this UWTROC object to DisplayBase category
-                            rzRules->obj->m_DisplayCat = DISPLAYBASE;
+                            rzRules->obj->m_DisplayCat = ZCHX::ZCHX_DISPLAY_BASE;
                         }
                   }
                   else

@@ -39,7 +39,7 @@
 extern ChartDB *ChartData;
 extern std::vector<int> g_quilt_noshow_index_array;
 extern s52plib *ps52plib;
-extern ColorScheme global_color_scheme;
+extern ZCHX::ZCHX_COLOR_SCHEME global_color_scheme;
 extern int g_chart_zoom_modifier;
 extern int g_chart_zoom_modifier_vector;
 extern bool g_fog_overzoom;

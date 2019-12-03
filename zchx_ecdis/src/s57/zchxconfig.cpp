@@ -26,7 +26,7 @@ extern ArrayOfCDI       g_ChartDirArray;
 extern double           vLat, vLon, gLat, gLon;
 extern double           kLat, kLon;
 extern double           initial_scale_ppm, initial_rotation;
-extern ColorScheme      global_color_scheme;
+extern ZCHX::ZCHX_COLOR_SCHEME      global_color_scheme;
 extern int              g_nbrightness;
 extern bool             g_bShowTrue, g_bShowMag;
 extern double           g_UserVar;
@@ -595,7 +595,7 @@ int zchxConfig::loadMyConfig()
 
         g_Show_Target_Name_Scale = qMax( 5000, g_Show_Target_Name_Scale );
         if ( g_bInlandEcdis )
-            global_color_scheme = GLOBAL_COLOR_SCHEME_DUSK; //startup in duskmode if inlandEcdis
+            global_color_scheme = ZCHX::ZCHX_COLOR_SCHEME_DUSK; //startup in duskmode if inlandEcdis
     }
 
     if(!mInitFlag) mInitFlag = true;
@@ -1022,7 +1022,7 @@ int zchxConfig::LoadMyConfigRaw( bool bAsTemplate )
     BeginGroup("Settings/GlobalState");
 
     Read("nColorScheme", PARAM_INT, &read_int, 1 );
-    global_color_scheme = (ColorScheme) read_int;
+    global_color_scheme = (ZCHX::ZCHX_COLOR_SCHEME) read_int;
     QString st;
 
     double st_lat = 0.0, st_lon = 0.0;
@@ -1248,7 +1248,7 @@ void zchxConfig::LoadS57Config()
     ps52plib->SetShowS57ImportantTextOnly(Read("bShowS57ImportantTextOnly", PARAM_BOOL, 0, 0).toBool() );
     ps52plib->SetShowLdisText(Read("bShowLightDescription", PARAM_BOOL, 0, 0).toBool());
     ps52plib->SetExtendLightSectors(Read("bExtendLightSectors", PARAM_BOOL, 0, 0).toBool());
-    ps52plib->SetDisplayCategory((enum _DisCat) Read("nDisplayCategory", PARAM_INT, 0, (enum _DisCat) STANDARD).toInt() );
+    ps52plib->SetDisplayCategory((ZCHX::ZCHX_DISPLAY_CATEGORY) Read("nDisplayCategory", PARAM_INT, 0, ZCHX::ZCHX_DISPLAY_STANDARD).toInt() );
     ps52plib->m_nSymbolStyle = (LUPname) Read("nSymbolStyle", PARAM_INT,  0, (enum _LUPname) PAPER_CHART).toInt();
     ps52plib->m_nBoundaryStyle = (LUPname) Read("nBoundaryStyle", PARAM_INT, 0, PLAIN_BOUNDARIES).toInt();
     ps52plib->m_bShowSoundg = Read("bShowSoundg", PARAM_BOOL, 0, 1).toBool();

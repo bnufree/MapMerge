@@ -192,7 +192,7 @@ public:
       virtual void GetValidCanvasRegion(const ViewPort& VPoint, OCPNRegion *pValidRegion) = 0;
       virtual LLRegion GetValidRegion() = 0;
 
-      virtual void SetColorScheme(ColorScheme cs, bool bApplyImmediate = true ) = 0;
+      virtual void SetColorScheme(ZCHX::ZCHX_COLOR_SCHEME cs, bool bApplyImmediate = true ) = 0;
 
       virtual double GetNearestPreferredScalePPM(double target_scale_ppm) = 0;
 
@@ -232,7 +232,7 @@ protected:
 
       ThumbData         *pThumbData;
 
-      ColorScheme       m_global_color_scheme;
+      ZCHX::ZCHX_COLOR_SCHEME       m_global_color_scheme;
       bool              bReadyToRender;
 
       double            Chart_Error_Factor;
@@ -295,7 +295,7 @@ public:
       virtual void GetValidCanvasRegion(const ViewPort& VPoint, OCPNRegion *pValidRegion);
       virtual LLRegion GetValidRegion();
 
-      virtual void SetColorScheme(ColorScheme cs, bool bApplyImmediate);
+      virtual void SetColorScheme(ZCHX::ZCHX_COLOR_SCHEME cs, bool bApplyImmediate);
 
       virtual double GetNearestPreferredScalePPM(double target_scale_ppm){ return target_scale_ppm; }
 

@@ -2061,55 +2061,7 @@ void zchxMapWidget::slotDBUpdateFinished()
     mIsDBUpdateNow = false;
 }
 
-void zchxMapWidget::setDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category)
-{
-    if(mType == ZCHX::ZCHX_MAP_TILE) return;
-    zchxVectorMapFrameWork* frame = qobject_cast<zchxVectorMapFrameWork*>(mFrameWork);
-    if(frame)
-    {
-        frame->setDisplayCategory(category);
-    }
-}
 
-void zchxMapWidget::setColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme)
-{
-    if(mType == ZCHX::ZCHX_MAP_TILE) return;
-    zchxVectorMapFrameWork* frame = qobject_cast<zchxVectorMapFrameWork*>(mFrameWork);
-    if(frame)
-    {
-        frame->setColorScheme(scheme);
-    }
-}
-
-void zchxMapWidget::setShallowDepth(double val)
-{
-    if(mType == ZCHX::ZCHX_MAP_TILE) return;
-    zchxVectorMapFrameWork* frame = qobject_cast<zchxVectorMapFrameWork*>(mFrameWork);
-    if(frame)
-    {
-        frame->setShallowDepth(val);
-    }
-}
-
-void zchxMapWidget::setSafeDepth(double val)
-{
-    if(mType == ZCHX::ZCHX_MAP_TILE) return;
-    zchxVectorMapFrameWork* frame = qobject_cast<zchxVectorMapFrameWork*>(mFrameWork);
-    if(frame)
-    {
-        frame->setSafeDepth(val);
-    }
-}
-
-void zchxMapWidget::setDeepDepth(double val)
-{
-    if(mType == ZCHX::ZCHX_MAP_TILE) return;
-    zchxVectorMapFrameWork* frame = qobject_cast<zchxVectorMapFrameWork*>(mFrameWork);
-    if(frame)
-    {
-        frame->setDeepDepth(val);
-    }
-}
 
 
 

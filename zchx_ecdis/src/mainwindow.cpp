@@ -888,9 +888,14 @@ double MainWindow::itfzchxUtilToolAngle4north()
     return mMapWidget->zchxUtilToolAngle4north();
 }
 
-void MainWindow::itfSetMapSource(const QString &dir)
+void MainWindow::itfSetMapSource(const QString &dir, int pos)
 {
-    if(mMapWidget) mMapWidget->setSource(dir, 0);
+    if(mMapWidget) mMapWidget->setSource(dir, pos);
+}
+
+QString MainWindow::itfGetMapSource() const
+{
+    return mMapWidget->getSource();
 }
 
 void MainWindow::itfSetDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category)
@@ -898,9 +903,18 @@ void MainWindow::itfSetDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category)
     if(mMapWidget) mMapWidget->setDisplayCategory(category);
 }
 
+int MainWindow::itfGetDispkayCategory() const
+{
+    return mMapWidget->getDisplayCategory();
+}
 void MainWindow::itfSetColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme)
 {
     if(mMapWidget) mMapWidget->setColorScheme(scheme);
+}
+
+int MainWindow::itfGetColorScheme() const
+{
+    return mMapWidget->getColorScheme();
 }
 
 void MainWindow::itfSetShallowDepth(double depth)
@@ -908,14 +922,58 @@ void MainWindow::itfSetShallowDepth(double depth)
     if(mMapWidget) mMapWidget->setShallowDepth(depth);
 }
 
+double MainWindow::itfGetShallowDepth() const
+{
+    return mMapWidget->getShallowDepth();
+}
 void MainWindow::itfSetSafeDepth(double depth)
 {
     if(mMapWidget) mMapWidget->setSafeDepth(depth);
 }
 
+double MainWindow::itfGetSafeDepth() const
+{
+    return mMapWidget->getSafeDepth();
+}
+
 void MainWindow::itfSetDeepDepth(double depth)
 {
     if(mMapWidget) mMapWidget->setDeepDepth(depth);
+}
+
+double MainWindow::itfGetDeepDepth() const
+{
+    return mMapWidget->getDeepDepth();
+}
+
+void MainWindow::itfSetDistanceUnit(ZCHX::DistanceUnit unit)
+{
+    if(mMapWidget) mMapWidget->setDistanceUnit(unit);
+}
+
+int MainWindow::itfGetDistanceUnit() const
+{
+    return mMapWidget->getDistanceUnit();
+}
+
+void MainWindow::itfSetShowDepth(bool sts)
+{
+    if(mMapWidget) mMapWidget->setShowDepth(sts);
+}
+
+bool MainWindow::itfGetShowDepth() const
+{
+    return mMapWidget->getShowDepth();
+}
+
+void MainWindow::itfSetShowText(bool sts)
+{
+    if(mMapWidget) mMapWidget->setShowText(sts);
+}
+
+bool MainWindow::itfGetShowText() const
+{
+    return mMapWidget->getShowText();
 }
 
 void MainWindow::itfzchxUtilToolSetAngle4north(double ang)

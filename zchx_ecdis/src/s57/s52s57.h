@@ -195,7 +195,7 @@ public:
    LUPname        TNAM;             // FTYP:  areas, points, lines
    std::vector<char *> ATTArray;    // Array of LUP Attributes
    QString       *INST;            // Instruction Field (rules)
-   DisCat         DISC;             // Display Categorie: D/S/O, DisplayBase, Standard, Other
+   ZCHX::ZCHX_DISPLAY_CATEGORY         DISC;             // Display Categorie: D/S/O, DisplayBase, Standard, Other
    int            LUCM;             // Look-Up Comment (PLib3.x put 'groupes' here,
                                     // hence 'int', but its a string in the specs)
    int            nSequence;        // A sequence number, indicating order of encounter in
@@ -408,7 +408,7 @@ public:
       line_segment_element    *m_ls_list;
       PI_line_segment_element *m_ls_list_legacy;
       
-      DisCat                  m_DisplayCat;
+      ZCHX::ZCHX_DISPLAY_CATEGORY                  m_DisplayCat;
       int                     m_DPRI;                 // display priority, assigned from initial LUP
                                                       // May be adjusted by CS
       bool                    m_bcategory_mutable;    //  CS procedure may move this object to a higher category.

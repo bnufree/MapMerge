@@ -144,7 +144,7 @@ public:
       void SetFullExtent(Extent& ext);
       bool GetChartExtent(Extent *pext);
 
-      void SetColorScheme(ColorScheme cs, bool bApplyImmediate = true);
+      void SetColorScheme(ZCHX::ZCHX_COLOR_SCHEME cs, bool bApplyImmediate = true);
       virtual void UpdateLUPs(s57chart *pOwner);
 
       int _insertRules(S57Obj *obj, LUPrec *LUP, s57chart *pOwner);
@@ -219,7 +219,7 @@ public:
       static int GetUpdateFileArray(const QFileInfo& file000, QStringList *UpFiles,
                                     QDateTime date000, QString edtn000 );
       QString GetISDT(void);
-      InitReturn PostInit( ChartInitFlag flags, ColorScheme cs );
+      InitReturn PostInit( ChartInitFlag flags, ZCHX::ZCHX_COLOR_SCHEME cs );
 
       char GetUsageChar(void){ return m_usage_char; }
       static bool IsCellOverlayType(char *pFullPath);
@@ -282,7 +282,7 @@ private:
 
       void BuildLineVBO( void );
       
-      void ChangeThumbColor(ColorScheme cs);
+      void ChangeThumbColor(ZCHX::ZCHX_COLOR_SCHEME cs);
       void LoadThumb();
       
  // Private Data

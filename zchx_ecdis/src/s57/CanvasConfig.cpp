@@ -70,7 +70,7 @@ void canvasConfig::Reset( void){
         bShowAIS = true;
         bAttenAIS = false;
         bQuilt = true;
-        nENCDisplayCategory = (int)(enum _DisCat) STANDARD;
+        nENCDisplayCategory = ZCHX::ZCHX_DISPLAY_STANDARD;
 
 }
 
@@ -85,7 +85,7 @@ void canvasConfig::LoadFromLegacyConfig( QSettings *conf )
     conf->beginGroup("Settings/GlobalState" );
     bShowENCText = conf->value("bShowS57Text", 0).toBool();
     bShowENCLightDescriptions = conf->value("bShowLightDescription", 0).toBool();
-    nENCDisplayCategory = conf->value("nDisplayCategory", (enum _DisCat) STANDARD ).toInt();
+    nENCDisplayCategory = conf->value("nDisplayCategory", ZCHX::ZCHX_DISPLAY_STANDARD ).toInt();
     bShowENCDepths = conf->value("bShowSoundg", 1 ).toBool();
     bShowENCBuoyLabels = conf->value("bShowAtonText", 1).toBool();
     bShowENCLights = true;

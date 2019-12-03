@@ -31,14 +31,30 @@ private:
     void initSignalConnect(); //初始化信号连接
 public:
     //设定图的的数据源
-    void   itfSetMapSource(const QString& dir);
+    void   itfSetMapSource(const QString& dir, int pos = 0); //dir 地图数据的目录或者http地址 pos只对瓦片图有效  0:左上位置 1:左下位置
+    QString  itfGetMapSource() const;
     //设定地图的颜色模式和显示模式
     void   itfSetDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category);
+    int    itfGetDispkayCategory() const;
     void   itfSetColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme);
+    int    itfGetColorScheme() const;
     //设定水深
     void    itfSetShallowDepth(double depth);
+    double  itfGetShallowDepth() const;
     void    itfSetSafeDepth(double depth);
+    double  itfGetSafeDepth() const;
     void    itfSetDeepDepth(double depth);
+    double  itfGetDeepDepth() const;
+    //设置距离单位
+    void    itfSetDistanceUnit(ZCHX::DistanceUnit unit);
+    int     itfGetDistanceUnit() const;
+    // 水深数据
+    void    itfSetShowDepth( bool sts);
+    bool    itfGetShowDepth() const;
+    //文本数据
+    void    itfSetShowText(bool sts);
+    bool    itfGetShowText() const;
+
 
     //其他工具接口
     double itfzchxUtilToolAngle4north(); //返加当前地图正北方向的方向角

@@ -58,7 +58,7 @@ public:
     int x;
     int y;
     int nGPU_compressed;
-    ColorScheme m_colorscheme;
+    ZCHX::ZCHX_COLOR_SCHEME m_colorscheme;
 
     int                tex_mem_used;
 

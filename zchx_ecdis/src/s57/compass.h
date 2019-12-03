@@ -43,7 +43,7 @@ public:
       void UpdateStatus( bool newColorScheme = false );
 
       bool MouseEvent( QMouseEvent& event );
-      void SetColorScheme( ColorScheme cs );
+      void SetColorScheme( ZCHX::ZCHX_COLOR_SCHEME cs );
       int GetXOffset(void) const { return m_xoffset; }
       int GetYOffset(void) const { return m_yoffset; }
       float GetScaleFactor(){ return m_scale; }
@@ -70,7 +70,7 @@ private:
       QRect m_rect;
       bool m_shown;
       bool m_bshowGPS;
-      ColorScheme m_cs;
+      ZCHX::ZCHX_COLOR_SCHEME m_cs;
       
 #ifdef ocpnUSE_GL
       unsigned int texobj;

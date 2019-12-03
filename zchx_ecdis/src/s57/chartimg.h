@@ -172,7 +172,7 @@ class  ChartBaseBSB     :public ChartBase
 
       virtual bool GetChartExtent(Extent *pext);
 
-      void SetColorScheme(ColorScheme cs, bool bApplyImmediate);
+      void SetColorScheme(ZCHX::ZCHX_COLOR_SCHEME cs, bool bApplyImmediate);
 
       QImage *GetImage();
 
@@ -213,7 +213,7 @@ protected:
       virtual bool CreateLineIndex(void);
 
 
-      virtual wxBitmap *CreateThumbnail(int tnx, int tny, ColorScheme cs);
+      virtual wxBitmap *CreateThumbnail(int tnx, int tny, ZCHX::ZCHX_COLOR_SCHEME cs);
       virtual int BSBGetScanline( unsigned char *pLineBuf, int y, int xs, int xl, int sub_samp);
 
 
@@ -228,7 +228,7 @@ protected:
       
       virtual bool SetMinMax(void);
 
-      InitReturn PreInit( const QString& name, ChartInitFlag init_flags, ColorScheme cs );
+      InitReturn PreInit( const QString& name, ChartInitFlag init_flags, ZCHX::ZCHX_COLOR_SCHEME cs );
       InitReturn PostInit(void);
 
       double AdjustLongitude(double lon);
@@ -404,7 +404,7 @@ class ChartPlugInWrapper : public ChartBaseBSB
 
             virtual void GetValidCanvasRegion(const ViewPort& VPoint, OCPNRegion *pValidRegion);
 
-            virtual void SetColorScheme(ColorScheme cs, bool bApplyImmediate);
+            virtual void SetColorScheme(ZCHX::ZCHX_COLOR_SCHEME cs, bool bApplyImmediate);
 
             virtual double GetNearestPreferredScalePPM(double target_scale_ppm);
             

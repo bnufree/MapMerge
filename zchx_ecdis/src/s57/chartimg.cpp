@@ -147,7 +147,7 @@ ChartBase::ChartBase()
 
     pThumbData = new ThumbData;
 
-    m_global_color_scheme = GLOBAL_COLOR_SCHEME_RGB;
+    m_global_color_scheme = ZCHX::ZCHX_COLOR_SCHEME_DAY;
 
     bReadyToRender = false;
 
@@ -239,7 +239,7 @@ InitReturn ChartDummy::Init( const QString& name, ChartInitFlag init_flags )
     return INIT_OK;
 }
 
-void ChartDummy::SetColorScheme(ColorScheme cs, bool bApplyImmediate)
+void ChartDummy::SetColorScheme(ZCHX::ZCHX_COLOR_SCHEME cs, bool bApplyImmediate)
 {
 }
 
@@ -344,7 +344,7 @@ InitReturn ChartGEO::Init( const QString& name, ChartInitFlag init_flags)
 {
 #define BUF_LEN_MAX 4096
 
-    PreInit(name, init_flags, GLOBAL_COLOR_SCHEME_DAY);
+    PreInit(name, init_flags, ZCHX::ZCHX_COLOR_SCHEME_DAY);
 
     char buffer[BUF_LEN_MAX];
 
@@ -812,7 +812,7 @@ InitReturn ChartKAP::Init( const QString& name, ChartInitFlag init_flags )
     int nPlypoint = 0;
     Plypoint *pPlyTable = (Plypoint *)malloc(sizeof(Plypoint));
 
-    PreInit(name, init_flags, GLOBAL_COLOR_SCHEME_DAY);
+    PreInit(name, init_flags, ZCHX::ZCHX_COLOR_SCHEME_DAY);
 
     char buffer[BUF_LEN_MAX];
 
@@ -1800,11 +1800,11 @@ double ChartBaseBSB::GetClosestValidNaturalScalePPM(double target_scale, double 
 
 InitReturn ChartBaseBSB::Init( const QString& name, ChartInitFlag init_flags )
 {
-    m_global_color_scheme = GLOBAL_COLOR_SCHEME_RGB;
+    m_global_color_scheme = ZCHX::ZCHX_COLOR_SCHEME_DAY;
     return INIT_OK;
 }
 
-InitReturn ChartBaseBSB::PreInit( const QString& name, ChartInitFlag init_flags, ColorScheme cs )
+InitReturn ChartBaseBSB::PreInit( const QString& name, ChartInitFlag init_flags, ZCHX::ZCHX_COLOR_SCHEME cs )
 {
     m_global_color_scheme = cs;
     return INIT_OK;
@@ -2267,23 +2267,23 @@ bool ChartBaseBSB::SetMinMax(void)
     return true;
 }
 
-void ChartBaseBSB::SetColorScheme(ColorScheme cs, bool bApplyImmediate)
+void ChartBaseBSB::SetColorScheme(ZCHX::ZCHX_COLOR_SCHEME cs, bool bApplyImmediate)
 {
     //  Here we convert (subjectively) the Global ColorScheme
     //  to an appropriate BSB_Color_Capability index.
 
     switch(cs)
     {
-    case GLOBAL_COLOR_SCHEME_RGB:
-        m_mapped_color_index = COLOR_RGB_DEFAULT;
-        break;
-    case GLOBAL_COLOR_SCHEME_DAY:
+//    case GLOBAL_COLOR_SCHEME_RGB:
+//        m_mapped_color_index = COLOR_RGB_DEFAULT;
+//        break;
+    case ZCHX::ZCHX_COLOR_SCHEME_DAY:
         m_mapped_color_index = DAY;
         break;
-    case GLOBAL_COLOR_SCHEME_DUSK:
+    case ZCHX::ZCHX_COLOR_SCHEME_DUSK:
         m_mapped_color_index = DUSK;
         break;
-    case GLOBAL_COLOR_SCHEME_NIGHT:
+    case ZCHX::ZCHX_COLOR_SCHEME_NIGHT:
         m_mapped_color_index = NIGHT;
         break;
     default:
@@ -2308,7 +2308,7 @@ void ChartBaseBSB::SetColorScheme(ColorScheme cs, bool bApplyImmediate)
 }
 
 
-wxBitmap *ChartBaseBSB::CreateThumbnail(int tnx, int tny, ColorScheme cs)
+wxBitmap *ChartBaseBSB::CreateThumbnail(int tnx, int tny, ZCHX::ZCHX_COLOR_SCHEME cs)
 {
 
     //    Calculate the size and divisors
@@ -2340,7 +2340,7 @@ wxBitmap *ChartBaseBSB::CreateThumbnail(int tnx, int tny, ColorScheme cs)
     unsigned char *pxd;
 
     //    Temporarily set the color scheme
-    ColorScheme cs_tmp = m_global_color_scheme;
+    ZCHX::ZCHX_COLOR_SCHEME cs_tmp = m_global_color_scheme;
     SetColorScheme(cs, false);
 
 

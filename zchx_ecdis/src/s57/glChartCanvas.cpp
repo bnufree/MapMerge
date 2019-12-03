@@ -115,7 +115,7 @@ QString gDefaultWorldMapLocation;
 extern int              g_iDistanceFormat;
 
 extern int g_memCacheLimit;
-extern ColorScheme global_color_scheme;
+extern ZCHX::ZCHX_COLOR_SCHEME global_color_scheme;
 extern ThumbWin         *pthumbwin;
 extern bool             g_bDisplayGrid;
 extern int g_mipmap_max_level;
@@ -199,7 +199,7 @@ glChartCanvas::glChartCanvas(QObject* parent) : QObject(parent)
     , m_bQuiting(false)
     , m_bShowDepthUnits(false)
     , m_bDisplayGrid(false)
-    , m_encDisplayCategory((int)STANDARD)
+    , m_encDisplayCategory(ZCHX::ZCHX_DISPLAY_STANDARD)
     , m_encShowLights(true)
     , m_encShowAnchor(true)
     , m_encShowDataQual(false)
@@ -214,7 +214,7 @@ glChartCanvas::glChartCanvas(QObject* parent) : QObject(parent)
     , mDepthUnit(ZCHX::Depth_Meters)
 {
     glChart = this;
-    m_cs = GLOBAL_COLOR_SCHEME_DAY;
+    m_cs = ZCHX::ZCHX_COLOR_SCHEME_DAY;
     pWorldBackgroundChart = new GSHHSChart;
     
     m_cache_current_ch = NULL;
@@ -2202,13 +2202,13 @@ void glChartCanvas::RenderQuiltViewGL( ViewPort &vp, const OCPNRegion &rect_regi
 
         double hitrans;
         switch( global_color_scheme ) {
-        case GLOBAL_COLOR_SCHEME_DAY:
+        case ZCHX::ZCHX_COLOR_SCHEME_DAY:
             hitrans = .4;
             break;
-        case GLOBAL_COLOR_SCHEME_DUSK:
+        case ZCHX::ZCHX_COLOR_SCHEME_DUSK:
             hitrans = .2;
             break;
-        case GLOBAL_COLOR_SCHEME_NIGHT:
+        case ZCHX::ZCHX_COLOR_SCHEME_NIGHT:
             hitrans = .1;
             break;
         default:
@@ -3429,7 +3429,7 @@ void glChartCanvas::FastZoom(float factor)
 }
 
 
-void glChartCanvas::SetColorScheme( ColorScheme cs )
+void glChartCanvas::SetColorScheme( ZCHX::ZCHX_COLOR_SCHEME cs )
 {
     global_color_scheme = cs;
     m_s52StateHash = 0;
@@ -3437,10 +3437,10 @@ void glChartCanvas::SetColorScheme( ColorScheme cs )
     m_fog_color = QColor( 170, 195, 240 );  // this is gshhs (backgound world chart) ocean color
     float dim = 1.0;
     switch( cs ){
-    case GLOBAL_COLOR_SCHEME_DUSK:
+    case ZCHX::ZCHX_COLOR_SCHEME_DUSK:
         dim = 0.5;
         break;
-    case GLOBAL_COLOR_SCHEME_NIGHT:
+    case ZCHX::ZCHX_COLOR_SCHEME_NIGHT:
         dim = 0.25;
         break;
     default:
@@ -3579,7 +3579,7 @@ bool glChartCanvas::UpdateS52State()
     if(ps52plib)
     {
         ps52plib->SetShowS57Text( m_encShowText );
-        ps52plib->SetDisplayCategory( (DisCat) m_encDisplayCategory );
+        ps52plib->SetDisplayCategory( (ZCHX::ZCHX_DISPLAY_CATEGORY) m_encDisplayCategory );
         ps52plib->m_bShowSoundg = m_encShowDepth;
         ps52plib->m_bShowAtonText = m_encShowBuoyLabels;
         ps52plib->m_bShowLdisText = m_encShowLightDesc;
@@ -4081,6 +4081,12 @@ void glChartCanvas::setDepthUnit(int unit)
 {
     m_s52StateHash = 0;
     mDepthUnit = unit;
+}
+
+void glChartCanvas::setDistanceUnit(int unit)
+{
+    m_s52StateHash = 0;
+    mDistanceUnit = unit;
 }
 
 

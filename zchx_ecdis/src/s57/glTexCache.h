@@ -56,7 +56,7 @@ struct CompressedCacheHeader
 struct CatalogEntryKey
 {
     int         mip_level;
-    ColorScheme tcolorscheme;
+    ZCHX::ZCHX_COLOR_SCHEME tcolorscheme;
     int         x;
     int         y;
 };
@@ -74,7 +74,7 @@ class CatalogEntry
 public:
     CatalogEntry();
     ~CatalogEntry();
-    CatalogEntry(int level, int x0, int y0, ColorScheme colorscheme);
+    CatalogEntry(int level, int x0, int y0, ZCHX::ZCHX_COLOR_SCHEME colorscheme);
     int GetSerialSize();
     void Serialize(unsigned char *);
     void DeSerialize(unsigned char *);
@@ -110,10 +110,10 @@ public:
 
     glTextureDescriptor *GetOrCreateTD(const QRect &rect);
     bool BuildTexture(glTextureDescriptor *ptd, int base_level, const QRect &rect);
-    bool PrepareTexture( int base_level, const QRect &rect, ColorScheme color_scheme, int mem_used );
-    int GetTextureLevel( glTextureDescriptor *ptd, const QRect &rect, int level,  ColorScheme color_scheme );
-    bool UpdateCacheAllLevels( const QRect &rect, ColorScheme color_scheme, unsigned char **compcomp_array, int *compcomp_size);
-    bool IsLevelInCache( int level, const QRect &rect, ColorScheme color_scheme );
+    bool PrepareTexture( int base_level, const QRect &rect, ZCHX::ZCHX_COLOR_SCHEME color_scheme, int mem_used );
+    int GetTextureLevel( glTextureDescriptor *ptd, const QRect &rect, int level,  ZCHX::ZCHX_COLOR_SCHEME color_scheme );
+    bool UpdateCacheAllLevels( const QRect &rect, ZCHX::ZCHX_COLOR_SCHEME color_scheme, unsigned char **compcomp_array, int *compcomp_size);
+    bool IsLevelInCache( int level, const QRect &rect, ZCHX::ZCHX_COLOR_SCHEME color_scheme );
     QString GetChartPath(){ return m_ChartPath; }
     QString GetHashKey(){ return m_HashKey; }
     void SetHashKey( QString key ){ m_HashKey = key; }
@@ -142,19 +142,19 @@ private:
     bool WriteCatalogAndHeader();
 
     bool UpdateCachePrecomp(unsigned char *data, int data_size, const QRect &rect, int level,
-                                          ColorScheme color_scheme, bool write_catalog = true);
-    bool UpdateCacheLevel( const QRect &rect, int level, ColorScheme color_scheme, unsigned char *data, int size);
+                                          ZCHX::ZCHX_COLOR_SCHEME color_scheme, bool write_catalog = true);
+    bool UpdateCacheLevel( const QRect &rect, int level, ZCHX::ZCHX_COLOR_SCHEME color_scheme, unsigned char *data, int size);
     
     void DeleteSingleTexture( glTextureDescriptor *ptd );
 
-    CatalogEntryValue *GetCacheEntryValue(int level, int x, int y, ColorScheme color_scheme);
+    CatalogEntryValue *GetCacheEntryValue(int level, int x, int y, ZCHX::ZCHX_COLOR_SCHEME color_scheme);
     bool AddCacheEntryValue(const CatalogEntry &p);
     int  ArrayIndex(int x, int y) const { return ((y / m_tex_dim) * m_stride) + (x / m_tex_dim); } 
     void  ArrayXY(QRect *r, int index) const;
 
     int         n_catalog_entries;
 
-    CatalogEntryValue *m_cache[N_COLOR_SCHEMES][MAX_TEX_LEVEL];
+    CatalogEntryValue *m_cache[ZCHX::ZCHX_COLOR_SCHEME_NCOLOR][MAX_TEX_LEVEL];
 
 
 

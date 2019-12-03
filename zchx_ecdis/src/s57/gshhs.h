@@ -43,6 +43,7 @@
 #include "ocpndc.h"
 #include "viewport.h"
 #include "cutil.h"
+#include "zchxutils.hpp"
 
 #include <QMutex>
 
@@ -292,7 +293,7 @@ class GSHHSChart {
 public:
     GSHHSChart();
     ~GSHHSChart();
-    void SetColorScheme( ColorScheme scheme );
+    void SetColorScheme( ZCHX::ZCHX_COLOR_SCHEME scheme );
     void RenderViewOnDC( ocpnDC& dc, ViewPort& VPoint );
     void Reset();
     void SetColorsDirect( QColor newLand, QColor newWater );

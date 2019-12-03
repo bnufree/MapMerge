@@ -103,7 +103,7 @@ extern glChartCanvas          *glChart;
 extern bool              g_b_overzoom_x;
 extern bool              g_b_EnableVBO;
 extern SENCThreadManager *g_SencThreadManager;
-extern ColorScheme       global_color_scheme;
+extern ZCHX::ZCHX_COLOR_SCHEME       global_color_scheme;
 extern int               g_nCPUCount;
 
 extern int                      g_SENC_LOD_pixels;
@@ -353,20 +353,20 @@ LLRegion s57chart::GetValidRegion()
     return LLRegion(4, ll);
 }
 
-void s57chart::SetColorScheme( ColorScheme cs, bool bApplyImmediate )
+void s57chart::SetColorScheme( ZCHX::ZCHX_COLOR_SCHEME cs, bool bApplyImmediate )
 {
     if( !ps52plib ) return;
     //  Here we convert (subjectively) the Global ColorScheme
     //  to an appropriate S52 Color scheme, by name.
 
     switch( cs ){
-    case GLOBAL_COLOR_SCHEME_DAY:
+    case ZCHX::ZCHX_COLOR_SCHEME_DAY:
         ps52plib->SetPLIBColorScheme(("DAY") );
         break;
-    case GLOBAL_COLOR_SCHEME_DUSK:
+    case ZCHX::ZCHX_COLOR_SCHEME_DUSK:
         ps52plib->SetPLIBColorScheme(("DUSK") );
         break;
-    case GLOBAL_COLOR_SCHEME_NIGHT:
+    case ZCHX::ZCHX_COLOR_SCHEME_NIGHT:
         ps52plib->SetPLIBColorScheme(("NIGHT") );
         break;
     default:
@@ -388,19 +388,19 @@ void s57chart::SetColorScheme( ColorScheme cs, bool bApplyImmediate )
 
 }
 
-void s57chart::ChangeThumbColor(ColorScheme cs)
+void s57chart::ChangeThumbColor(ZCHX::ZCHX_COLOR_SCHEME cs)
 {
     if( 0 == m_pDIBThumbDay )
         return;
 
     switch( cs ){
     default:
-    case GLOBAL_COLOR_SCHEME_DAY:
+    case ZCHX::ZCHX_COLOR_SCHEME_DAY:
         pThumbData->pDIBThumb = m_pDIBThumbDay;
         m_pDIBThumbOrphan = m_pDIBThumbDim;
         break;
-    case GLOBAL_COLOR_SCHEME_DUSK:
-    case GLOBAL_COLOR_SCHEME_NIGHT: {
+    case ZCHX::ZCHX_COLOR_SCHEME_DUSK:
+    case ZCHX::ZCHX_COLOR_SCHEME_NIGHT: {
         if( NULL == m_pDIBThumbDim ) {
             QImage img = m_pDIBThumbDay->ConvertToImage();
 
@@ -2682,7 +2682,7 @@ int s57chart::FindOrCreateSenc( const QString& name, bool b_progress )
     return INIT_OK;
 }
 
-InitReturn s57chart::PostInit( ChartInitFlag flags, ColorScheme cs )
+InitReturn s57chart::PostInit( ChartInitFlag flags, ZCHX::ZCHX_COLOR_SCHEME cs )
 {
 
     //    SENC file is ready, so build the RAZ structure
@@ -2909,8 +2909,8 @@ bool s57chart::BuildThumbnail( const QString &bmpname )
     ps52plib->m_bShowS57Text = false;
     
     //      Use display category MARINERS_STANDARD to force use of OBJLArray
-    DisCat dsave = ps52plib->GetDisplayCategory();
-    ps52plib->SetDisplayCategory( MARINERS_STANDARD );
+    ZCHX::ZCHX_DISPLAY_CATEGORY dsave = ps52plib->GetDisplayCategory();
+    ps52plib->SetDisplayCategory( ZCHX::ZCHX_DISPLAY_MARINERS_STANDARD);
 
     ps52plib->AddObjNoshow( "BRIDGE" );
     ps52plib->AddObjNoshow( "GATCON" );
@@ -5951,8 +5951,8 @@ bool s57_CheckExtendedLightSectors( ChartFrameWork *cc, int mx, int my, ViewPort
     bool bleading_attribute = false;
 
     int opacity = 100;
-    if( cc->getGL()->GetColorScheme() == GLOBAL_COLOR_SCHEME_DUSK ) opacity = 50;
-    if( cc->getGL()->GetColorScheme() == GLOBAL_COLOR_SCHEME_NIGHT) opacity = 20;
+    if( cc->getGL()->GetColorScheme() == ZCHX::ZCHX_COLOR_SCHEME_DUSK ) opacity = 50;
+    if( cc->getGL()->GetColorScheme() == ZCHX::ZCHX_COLOR_SCHEME_NIGHT) opacity = 20;
 
     int yOpacity = (float)opacity*1.3; // Matched perception of white/yellow with red/green
 

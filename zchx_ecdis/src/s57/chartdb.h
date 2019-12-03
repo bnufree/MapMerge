@@ -133,7 +133,7 @@ public:
       ChartBase *OpenChartFromDBAndLock(QString chart_path, ChartInitFlag init_flag);
       ChartBase *OpenChartFromDB(QString chart_path, ChartInitFlag init_flag);
       
-      void ApplyColorSchemeToCachedCharts(ColorScheme cs);
+      void ApplyColorSchemeToCachedCharts(ZCHX::ZCHX_COLOR_SCHEME cs);
       void PurgeCache();
       void PurgeCachePlugins();
       bool DeleteCacheChart(ChartBase *pChart);

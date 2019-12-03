@@ -438,7 +438,7 @@ void ChartMBTiles::InitFromTiles( const QString& name )
 
 InitReturn ChartMBTiles::Init( const QString& name, ChartInitFlag init_flags )
 {
-      m_global_color_scheme = GLOBAL_COLOR_SCHEME_RGB;
+      m_global_color_scheme = ZCHX::ZCHX_COLOR_SCHEME_DAY;
 
       m_FullPath = name;
       m_Description = m_FullPath;
@@ -639,7 +639,7 @@ InitReturn ChartMBTiles::Init( const QString& name, ChartInitFlag init_flags )
       
 }
 
-InitReturn ChartMBTiles::PreInit( const QString& name, ChartInitFlag init_flags, ColorScheme cs )
+InitReturn ChartMBTiles::PreInit( const QString& name, ChartInitFlag init_flags, ZCHX::ZCHX_COLOR_SCHEME cs )
 {
       m_global_color_scheme = cs;
       return INIT_OK;
@@ -744,7 +744,7 @@ bool ChartMBTiles::GetChartExtent(Extent *pext)
 
 
 
-void ChartMBTiles::SetColorScheme(ColorScheme cs, bool bApplyImmediate)
+void ChartMBTiles::SetColorScheme(ZCHX::ZCHX_COLOR_SCHEME cs, bool bApplyImmediate)
 {
     if(m_global_color_scheme != cs){
         m_global_color_scheme = cs;
@@ -815,14 +815,14 @@ bool ChartMBTiles::getTileTexture( mbTileDescriptor *tile)
                 int blobHeight = blobImage.height();
                 unsigned char *imgdata = blobImage.bits();
                 
-                if( (m_global_color_scheme != GLOBAL_COLOR_SCHEME_RGB) && (m_global_color_scheme != GLOBAL_COLOR_SCHEME_DAY) ){
+                if( (m_global_color_scheme != ZCHX::ZCHX_COLOR_SCHEME_RGB) && (m_global_color_scheme != ZCHX::ZCHX_COLOR_SCHEME_DAY) ){
                     double dimLevel;
                     switch( m_global_color_scheme ){
-                        case GLOBAL_COLOR_SCHEME_DUSK: {
+                        case ZCHX::ZCHX_COLOR_SCHEME_DUSK: {
                             dimLevel = 0.8;
                             break;
                         }
-                        case GLOBAL_COLOR_SCHEME_NIGHT: {
+                        case ZCHX::ZCHX_COLOR_SCHEME_NIGHT: {
                             dimLevel = 0.3;
                             break;
                         }

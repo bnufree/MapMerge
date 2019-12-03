@@ -6,6 +6,8 @@
 #include "zchx_ecdis_global.h"
 #include "zchxmapwidget.h"
 
+class zchxDockWidget;
+
 namespace Ui {
 class MainWindow;
 }
@@ -740,9 +742,13 @@ protected Q_SLOTS:
          */
     void OnSetMapAngle(double angle);
 
+private slots:
+    void slotSetParam();
+
 private:
     Ui::MainWindow *ui;
     zchxMapWidget *mMapWidget;
+    zchxDockWidget   *mSettingDockWidget;
 };
 }
 

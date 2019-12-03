@@ -965,7 +965,7 @@ QString zchxFuncUtil::getPluginDir()
 
 QString zchxFuncUtil::getConfigFileName()
 {
-    return QString("%1/opencpn.ini").arg(getDataDir());
+    return QString("%1/settings.ini").arg(getDataDir());
 }
 
 float zchxFuncUtil::getChartScaleFactorExp( float scale_linear )

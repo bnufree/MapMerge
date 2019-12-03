@@ -16,7 +16,8 @@ using namespace qt;
 MainWindow::MainWindow(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    mMapWidget(0)
+    mMapWidget(0),
+    mSettingDockWidget(0)
 {
     ui->setupUi(this);
     QString style = QString("background-color:%1;").arg(Profiles::instance()->value(MAP_INDEX, MAP_BACK_GROUND).toString());
@@ -30,11 +31,7 @@ MainWindow::MainWindow(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) :
     initSignalConnect();
     MapLayerMgr::instance()->setDrawWidget(mMapWidget);
     MapLayerMgr::instance()->loadEcdisLayers();
-#ifdef MyTest
-    this->setDockNestingEnabled(true);
-    zchxVectorMapSettingWidget* setting = new zchxVectorMapSettingWidget(this);
-    this->addDockWidget(Qt::RightDockWidgetArea, setting);
-#endif
+
 }
 
 MainWindow::~MainWindow()
@@ -190,6 +187,24 @@ void MainWindow::initSignalConnect()
     connect(mMapWidget,SIGNAL(signalSendPTZLocation(double, double)),this,SIGNAL(itfSignalSendPTZLocation(double, double)));
     connect(mMapWidget, SIGNAL(sigElementHoverChanged(qt::Element*)), this, SIGNAL(sigLayerElementHoverChanged(qt::Element*)));
     connect(mMapWidget,  SIGNAL(sigElementSelectionChanged(qt::Element*)), this, SIGNAL(sigLayerElementSelectionChanged(qt::Element*)));
+    connect(mMapWidget, SIGNAL(signalSetParam()), this, SLOT(slotSetParam()));
+}
+
+void MainWindow::slotSetParam()
+{
+#ifdef MyTest
+    this->setDockNestingEnabled(true);
+    if(!mSettingDockWidget)
+    {
+        mSettingDockWidget = new zchxDockWidget(tr("参数设定"), this);
+        mSettingDockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
+        mSettingDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        zchxVectorMapSettingWidget* setting = new zchxVectorMapSettingWidget(this);
+        mSettingDockWidget->setWidget(setting);
+        this->addDockWidget(Qt::RightDockWidgetArea, mSettingDockWidget);
+    }
+    mSettingDockWidget->show();
+#endif
 }
 
 void MainWindow::itfSetAisData(const QList<ZCHX::Data::ITF_AIS> &data)

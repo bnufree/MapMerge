@@ -897,6 +897,8 @@ signals: //发送外部信号
     //目标选择
     void sigElementSelectionChanged(qt::Element* ele);
     void sigElementHoverChanged(qt::Element* ele);
+    //参数设定
+    void signalSetParam();
 
 public:
 //    static std::vector<std::pair<double, double>> convertLatLonPath(const std::vector<LatLon> &path);

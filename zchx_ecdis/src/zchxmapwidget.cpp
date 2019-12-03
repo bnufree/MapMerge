@@ -782,8 +782,11 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                     //                menu.addAction(tr("关注点"),this,SLOT(setLocationMark()));
                     //                menu.addAction(tr("固定参考点"),this,SLOT(setFixedReferencePoint()));
                     menu.addAction(tr("热点"),this,SLOT(invokeHotSpot()));
-                    menu.addAction(tr("设定地图数据源"), this, SLOT(resetMapSource()));
-                    menu.addAction(tr("地图数据转换"), this, SLOT(changeS572Senc()));
+#ifdef MyTest
+                    menu.addAction(tr("参数设定"), this, SIGNAL(signalSetParam()));
+#endif
+//                    menu.addAction(tr("设定地图数据源"), this, SLOT(resetMapSource()));
+//                    menu.addAction(tr("地图数据转换"), this, SLOT(changeS572Senc()));
                 }
 
             } else

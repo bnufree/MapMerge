@@ -211,7 +211,7 @@ glChartCanvas::glChartCanvas(QObject* parent) : QObject(parent)
     , mShallowDepth(3)
     , mSafeDepth(8)
     , mDeepdepth(10)
-    , mDepthUnit(Depth_Meters)
+    , mDepthUnit(ZCHX::Depth_Meters)
 {
     glChart = this;
     m_cs = GLOBAL_COLOR_SCHEME_DAY;
@@ -3600,11 +3600,11 @@ bool glChartCanvas::UpdateS52State()
         double dval;
         float conv = 1;
 
-        if (mDepthUnit == 0)  // feet
+        if (mDepthUnit == ZCHX::Depth_Feet)  // feet
         {
             conv = 0.3048f;    // international definiton of 1 foot is 0.3048 metres
         }
-        else if (mDepthUnit == 2)  // fathoms
+        else if (mDepthUnit == ZCHX::Depth_Fathoms)  // fathoms
         {
             conv = 0.3048f * 6;     // 1 fathom is 6 feet
         }

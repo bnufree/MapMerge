@@ -1,14 +1,23 @@
 #ifndef ZCHXVECTORMAPSETTINGWIDGET_H
 #define ZCHXVECTORMAPSETTINGWIDGET_H
 
-#include <QDockWidget>
+#include <QWidget>
 #include "mainwindow.h"
+#include <QDockWidget>
+
+class zchxDockWidget:public QDockWidget
+{
+public :
+    explicit zchxDockWidget(const QString& title, QWidget* parent = NULL) : QDockWidget(title, parent) {}
+protected:
+    void closeEvent(QCloseEvent* event) {hide();}
+};
 
 namespace Ui {
 class zchxVectorMapSettingWidget;
 }
 
-class zchxVectorMapSettingWidget : public QDockWidget
+class zchxVectorMapSettingWidget : public QWidget
 {
     Q_OBJECT
 

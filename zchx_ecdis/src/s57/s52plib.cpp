@@ -1839,6 +1839,7 @@ bool s52plib::RenderText(S52_TextC *ptext, int x, int y, QRect *pRectDrawn,
             QPen pen = mdc.pen();
             pen.setColor(QColor( 255, 255, 255 ) );
             mdc.setPen(pen);
+            mdc.setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
             mdc.drawText(QRect(0, 0, ptext->text_width, ptext->text_height),  ptext->frmtd);
             mdc.end();
             QImage image = bmp.ConvertToImage();

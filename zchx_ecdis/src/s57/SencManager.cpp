@@ -138,8 +138,8 @@ void SENCThreadManager::startJob()
     
     if(nRunning){
         QString count;
-        count.sprintf("  %ld", ticket_list.size());
-        glChart->SetAlertString("");
+        count.sprintf("  prepare map now:%ld", ticket_list.size());
+        glChart->SetAlertString(count);
     }  else{
         glChart->SetAlertString( (""));
     }

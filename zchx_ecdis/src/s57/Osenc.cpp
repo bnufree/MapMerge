@@ -1664,7 +1664,10 @@ int Osenc::createSenc200(const QString& FullPath000, const QString& SENCFileName
     
     int iObj = 0;
     pos = stream->TellI();
-    FILE *fp = fopen(QString("%1_feature.txt").arg(SENCFileName).toStdString().data(), "w");
+    FILE *fp = 0;
+#ifdef FEATURE_DEBUG
+    fp = fopen(QString("%1_feature.txt").arg(SENCFileName).toStdString().data(), "w");
+#endif
     while( bcont ) {
         objectDef = poReader->ReadNextFeature();
         
@@ -1717,8 +1720,11 @@ int Osenc::createSenc200(const QString& FullPath000, const QString& SENCFileName
                                                   pos,
                                                   objectDef->GetFID(),
                                                   objectDef->GetDefnRef()->GetName());
-            fprintf(fp, "%s\n", feature.toStdString().data());
-//            qDebug()<<"object count:"<<iObj<<" pos:"<<pos<<" feature:"<<objectDef->GetFID()<<" "<<objectDef->GetDefnRef()->GetName();
+            if(fp)
+            {
+                fprintf(fp, "%s\n", feature.toStdString().data());
+                qDebug()<<"object count:"<<iObj<<" pos:"<<pos<<" feature:"<<objectDef->GetFID()<<" "<<objectDef->GetDefnRef()->GetName();
+            }
 
             delete objectDef;
 
@@ -1726,7 +1732,7 @@ int Osenc::createSenc200(const QString& FullPath000, const QString& SENCFileName
             break;
         
     }
-    fclose(fp);
+    if(fp) fclose(fp);
     pos = stream->TellI();
     if( bcont ) {
         //      Create and write the Vector Edge Table

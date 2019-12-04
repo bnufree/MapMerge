@@ -347,7 +347,8 @@ void ChartFrameWork::slotUpdateChartDatabase(ArrayOfCDI &DirArray, bool b_force,
     gWorldMapLocation.clear();
     ChartData->Update( DirArray, b_force, 0 );
     ChartData->SaveBinary(filename);
-    qDebug("Finished chart database Update");
+    int size = ChartData->GetChartTableEntries();
+    qDebug()<<"Finished chart database Update. size:"<<size;
     if( gWorldMapLocation.isEmpty() ) { //Last resort. User might have deleted all GSHHG data, but we still might have the default dataset distributed with OpenCPN or from the package repository...
        gWorldMapLocation = gDefaultWorldMapLocation;
        gshhg_chart_loc.clear();
@@ -358,6 +359,8 @@ void ChartFrameWork::slotUpdateChartDatabase(ArrayOfCDI &DirArray, bool b_force,
         mGLCC->ResetWorldBackgroundChart();
     }
     ZCHX_CFG_INS->UpdateChartDirs( DirArray );
+    UpdateCanvasOnGroupChange();
+    SetGroupIndex(0);
     DoCanvasUpdate();
     ReloadVP();                  // once more, and good to go
 
@@ -1015,6 +1018,12 @@ void ChartFrameWork::SetCanvasRangeMeters( double range )
     double scale_ppm = minDimension / (range / cos(GetVP().lat() *PI/180.));
     SetVPScale( scale_ppm / 2 );
     
+}
+
+void  ChartFrameWork::slotUpdateWhenSencFinished()
+{
+    mGLCC->ClearS52PLIBStateHash();
+    ReloadVP();
 }
 
 

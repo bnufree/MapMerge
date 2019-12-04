@@ -1826,21 +1826,31 @@ bool s52plib::RenderText(S52_TextC *ptext, int x, int y, QRect *pRectDrawn,
             for(tex_w = 1; tex_w < ptext->text_width; tex_w *= 2);
             for(tex_h = 1; tex_h < ptext->text_height; tex_h *= 2);
 
-            QBitmap bmp( tex_w, tex_h );
+            wxBitmap bmp( tex_w, tex_h );
             QPainter mdc;
-            mdc.begin(&bmp);
+            mdc.begin(bmp.GetHandle());
             mdc.setFont(*( scaled_font ) );
             //  Render the text as white on black, so that underlying anti-aliasing of
             //  QPainter text rendering can be extracted and converted to alpha-channel values.
 
             mdc.setBackground(QBrush( QColor( 0, 0, 0 ) ) );
             mdc.setBackgroundMode(Qt::TransparentMode );
+            mdc.eraseRect(0, 0, mdc.device()->width(), mdc.device()->height());
             QPen pen = mdc.pen();
             pen.setColor(QColor( 255, 255, 255 ) );
             mdc.setPen(pen);
-            mdc.drawText(0, 0, ptext->frmtd);
+            mdc.drawText(QRect(0, 0, ptext->text_width, ptext->text_height),  ptext->frmtd);
             mdc.end();
-            QImage image = bmp.toImage();
+            QImage image = bmp.ConvertToImage();
+            if(image.format() != QImage::Format::Format_RGB888)
+            {
+                image = image.convertToFormat(QImage::Format::Format_RGB888);
+            }
+//            if(ptext->bnat)
+//            {
+//                image.save(QString("%1.png").arg(ptext->frmtd), "PNG");
+//            }
+//            int size = image.byteCount();
             int ws = image.width(), hs = image.height();
 
             ptext->RGBA_width = ws;
@@ -2307,7 +2317,7 @@ int s52plib::RenderT_All( ObjRazRules *rzRules, Rules *rules, ViewPort *vp, bool
                 // In no case should font size be less than 10, since it becomes unreadable
                 fontSize = qMax(10, fontSize);
 
-                text->pFont = new QFont(FontMgr::Get().FindOrCreateFont( fontSize, qApp->font().family(), templateFont.style(), fontweight, false));
+                text->pFont = new QFont(FontMgr::Get().FindOrCreateFont( fontSize, /*qApp->font().family()*/specFont->family(), templateFont.style(), fontweight, false));
             }
         }
 

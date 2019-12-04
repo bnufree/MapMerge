@@ -244,6 +244,7 @@ glChartCanvas::glChartCanvas(QObject* parent) : QObject(parent)
 
     if( !g_glTextureManager) g_glTextureManager = new glTextureManager;
 //    QTimer::singleShot(100, this, SLOT(slotStartLoadEcdis()));
+    qDebug()<<"category:"<<m_encDisplayCategory;
 }
 
 glChartCanvas::~glChartCanvas()
@@ -2048,7 +2049,7 @@ void glChartCanvas::RenderRasterChartRegionGL( ChartBase *chart, ViewPort &vp, L
 
 void glChartCanvas::RenderQuiltViewGL( ViewPort &vp, const OCPNRegion &rect_region )
 {
-    qDebug()<<"start draw chart now";
+//    qDebug()<<"start draw chart now";
     if( !mFrameWork->m_pQuilt->GetnCharts() || mFrameWork->m_pQuilt->IsBusy() )
         return;
 
@@ -2065,7 +2066,7 @@ void glChartCanvas::RenderQuiltViewGL( ViewPort &vp, const OCPNRegion &rect_regi
 
     LLRegion rendered_region;
     while( chart ) {
-        qDebug()<<"draw chart:"<<chart->GetFullPath()<<chart->GetNativeScale()<<ChartData->FinddbIndex(chart->GetFullPath());
+//        qDebug()<<"draw chart:"<<chart->GetFullPath()<<chart->GetNativeScale()<<ChartData->FinddbIndex(chart->GetFullPath());
             
         //  This test does not need to be done for raster charts, since
         //  we can assume that texture binding is acceptably fast regardless of the render region,
@@ -2308,7 +2309,7 @@ void glChartCanvas::RenderQuiltViewGL( ViewPort &vp, const OCPNRegion &rect_regi
         }
     }
 #endif
-    qDebug()<<"end draw chart now";
+//    qDebug()<<"end draw chart now";
 }
 
 void glChartCanvas::RenderQuiltViewGLText( ViewPort &vp, const OCPNRegion &rect_region )
@@ -3262,7 +3263,6 @@ void glChartCanvas::RenderGLAlertMessage()
     if(!GetAlertString().isEmpty())
     {
         QString msg = GetAlertString();
-
         QFont pfont("Micorosoft Yahei", 10, QFont::Weight::Normal);
         TexFont texfont;
         texfont.Build(pfont);
@@ -3292,7 +3292,6 @@ void glChartCanvas::RenderGLAlertMessage()
         glEnable(GL_TEXTURE_2D);
         texfont.RenderString( msg, xp, yp);
         glDisable(GL_TEXTURE_2D);
-
     }
 }
 
@@ -3539,7 +3538,7 @@ void glChartCanvas::slotUpdateChartFinished()
     emit signalDBUpdateFinished();
     EnablePaint(true);
 
-    Zoom(1.0001);
+    Zoom(1.000);
 //    return true;
 }
 
@@ -3570,7 +3569,7 @@ void glChartCanvas::ApplyCanvasConfig(canvasConfig *pcc)
     m_encShowBuoyLabels = pcc->bShowENCBuoyLabels;
     m_encShowLights = pcc->bShowENCLights;
     mFrameWork->m_singleChart = NULL;
-
+    qDebug()<<"category:"<<m_encDisplayCategory;
 }
 
 bool glChartCanvas::UpdateS52State()
@@ -3646,6 +3645,7 @@ void glChartCanvas::SetShowENCText( bool show )
 void glChartCanvas::SetENCDisplayCategory( int category )
 {
     m_encDisplayCategory = category;
+    qDebug()<<"category:"<<m_encDisplayCategory;
     m_s52StateHash = 0;         // Force a S52 PLIB re-configure
     mFrameWork->ReloadVP();
 }

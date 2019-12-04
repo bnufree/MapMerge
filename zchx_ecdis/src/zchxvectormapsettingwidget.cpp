@@ -24,6 +24,7 @@ zchxVectorMapSettingWidget::zchxVectorMapSettingWidget(QWidget *parent) :
     ui->showDepthTextCHK->setChecked(mMainWindow->itfGetShowDepth());
     ui->showTextCHK->setChecked(mMainWindow->itfGetShowText());
     ui->colorSchemeCBX->setCurrentIndex(mMainWindow->itfGetColorScheme() - 1);
+    qDebug()<<"category:"<<mMainWindow->itfGetDispkayCategory();
     ui->displayCategoryCBX->setCurrentIndex(mMainWindow->itfGetDispkayCategory());
     ui->distanceUnitCbx->setCurrentIndex(mMainWindow->itfGetDistanceUnit());
 

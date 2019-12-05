@@ -27,6 +27,7 @@ zchxVectorMapSettingWidget::zchxVectorMapSettingWidget(QWidget *parent) :
     qDebug()<<"category:"<<mMainWindow->itfGetDispkayCategory();
     ui->displayCategoryCBX->setCurrentIndex(mMainWindow->itfGetDispkayCategory());
     ui->distanceUnitCbx->setCurrentIndex(mMainWindow->itfGetDistanceUnit());
+    ui->vectorDir->setText(mMainWindow->itfGetMapSource());
 
     //信号槽关联
     connect(ui->colorSchemeCBX, SIGNAL(currentIndexChanged(int)), this, SLOT(slotColorSchemeCBXIndexChanged(int)));

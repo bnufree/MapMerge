@@ -172,6 +172,8 @@ bool glChartCanvas::s_b_useStencil;
 bool glChartCanvas::s_b_useStencilAP;
 bool glChartCanvas::s_b_useFBO;
 
+extern int Usercolortable_index;
+
 //#define     GL_TEST
 
 
@@ -3435,6 +3437,30 @@ void glChartCanvas::FastZoom(float factor)
 void glChartCanvas::SetColorScheme( ZCHX::ZCHX_COLOR_SCHEME cs )
 {
     global_color_scheme = cs;
+    QString SchemeName;
+    switch( cs ){
+        case ZCHX::ZCHX_COLOR_SCHEME_DAY:
+            SchemeName = "DAY";
+            break;
+        case ZCHX::ZCHX_COLOR_SCHEME_DUSK:
+            SchemeName = "DUSK";
+            break;
+        case ZCHX::ZCHX_COLOR_SCHEME_NIGHT:
+            SchemeName = "NIGHT";
+            break;
+        default:
+            SchemeName = "DAY";
+            break;
+    }
+
+    StyleMgrIns->GetCurrentStyle()->SetColorScheme( cs );
+    if( ps52plib ) ps52plib->SetPLIBColorScheme( SchemeName );
+
+    GetWorldBackgroundChart()->SetColorScheme( cs );
+    mFrameWork->SetQuiltChartHiLiteIndex( -1 );
+    if( ChartData )
+        ChartData->ApplyColorSchemeToCachedCharts( cs );
+
     m_s52StateHash = 0;
     //  Set up fog effect base color
     m_fog_color = QColor( 170, 195, 240 );  // this is gshhs (backgound world chart) ocean color
@@ -3454,8 +3480,10 @@ void glChartCanvas::SetColorScheme( ZCHX::ZCHX_COLOR_SCHEME cs )
     if(pWorldBackgroundChart) pWorldBackgroundChart->SetColorScheme( cs );
     g_glTextureManager->ClearAllRasterTextures();
     mFrameWork->ReloadVP();
-
     m_cs = cs;
+
+
+
 }
 
 

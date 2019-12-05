@@ -245,6 +245,10 @@ glChartCanvas::glChartCanvas(QObject* parent) : QObject(parent)
     if( !g_glTextureManager) g_glTextureManager = new glTextureManager;
 //    QTimer::singleShot(100, this, SLOT(slotStartLoadEcdis()));
     qDebug()<<"category:"<<m_encDisplayCategory;
+    connect(mFrameWork, SIGNAL(signalUpdateChartArrayFinished()),
+            this, SLOT(slotUpdateChartFinished()));
+    connect(mFrameWork, SIGNAL(signalBadChartDirFoundNow()),
+            this, SIGNAL(signalBadChartDirFoundNow()));
 }
 
 glChartCanvas::~glChartCanvas()
@@ -3526,9 +3530,7 @@ bool glChartCanvas::initBeforeUpdateMap()
 bool glChartCanvas::UpdateChartDatabaseInplace( ArrayOfCDI &DirArray)
 {
     if(DirArray.size()) qDebug()<<DirArray.first().fullpath;
-    EnablePaint(false);
-    connect(mFrameWork, SIGNAL(signalUpdateChartArrayFinished()),
-            this, SLOT(slotUpdateChartFinished()));
+    EnablePaint(false);    
     mFrameWork->signalUpdateChartDatabase(DirArray, true, g_chartListFileName);
 }
 
@@ -4042,7 +4044,8 @@ void glChartCanvas::slotStartLoadEcdis()
     if(initBeforeUpdateMap())
     {
         if(!m_bsetup)SetupOpenGL();
-        mFrameWork->slotInitEcidsAsDelayed();
+//        mFrameWork->slotInitEcidsAsDelayed();
+        mFrameWork->signalInitEcdisAsDelayed();
     }
 }
 void glChartCanvas::changeS572SENC(const QString &src)

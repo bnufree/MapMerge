@@ -105,6 +105,7 @@ public:
 signals:
     void        signalSendCurMapinfo(double center_lat, double center_lon, int zoom);
     void        signalDBUpdateFinished();
+    void        signalBadChartDirFoundNow();
 public slots:
 
 

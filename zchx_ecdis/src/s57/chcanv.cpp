@@ -254,6 +254,7 @@ ChartFrameWork          *gChartFrameWork = 0;
 // Define a constructor for my canvas
 ChartFrameWork::ChartFrameWork( glChartCanvas *frame ) : QObject(0) , mGLCC(frame)
 {
+    if(!ChartData)  ChartData = new ChartDB( );
     gChartFrameWork = this;
     m_groupIndex = 0;
     m_bzooming = false;
@@ -295,24 +296,56 @@ ChartFrameWork::ChartFrameWork( glChartCanvas *frame ) : QObject(0) , mGLCC(fram
 
     connect(this, SIGNAL(signalUpdateChartDatabase(ArrayOfCDI&,bool,QString)),
             this, SLOT(slotUpdateChartDatabase(ArrayOfCDI&,bool,QString)));
+    connect(this, SIGNAL(signalInitEcdisAsDelayed()),
+            this, SLOT(slotInitEcidsAsDelayed()));
     this->moveToThread(&mWorkThread);
     mWorkThread.start();
 
 }
 
 void ChartFrameWork::slotInitEcidsAsDelayed()
-{
+{    
     //读取配置文件中保存的地图数据目录
     ArrayOfCDI ChartDirArray;
     ZCHX_CFG_INS->LoadChartDirArray( ChartDirArray );
-
-
-    if( !ChartDirArray.count() )
+    //检查数据目录的设定是否正常
+    bool isChartDirOK = true;
+    if(ChartDirArray.count() == 0)
     {
+        isChartDirOK = false;
+    } else
+    {
+        foreach (ChartDirInfo info, ChartDirArray)
+        {
+            //检查指定的目录是否存在
+            QDir dir(info.fullpath);
+            if(!dir.exists())
+            {
+                isChartDirOK = false;
+                break;
+            }
+        }
+    }
+    if( !isChartDirOK)
+    {
+        //没有指定地图数据目录
+        //1)删除地图数据文件
         if(QFile::exists(g_chartListFileName )) QFile::remove(g_chartListFileName );
+        //2)删除SENC文件目录的文件
+        QDir senc(QString("%1/SENC").arg(zchxFuncUtil::getDataDir()));
+        if(senc.exists())
+        {
+            senc.removeRecursively();
+        }
+        //3)创建SENC目录
+        senc.mkpath(senc.absolutePath());
+        //4)提示信息
+        emit signalBadChartDirFoundNow();
+        qDebug()<<"$$$$$$$$$$$$$$$$$$$$$$$$$$";
+        return ;
     }
 
-    if(!ChartData)  ChartData = new ChartDB( );
+
     ChartData->LoadBinary(g_chartListFileName, ChartDirArray);
     //  Verify any saved chart database startup index
     if(g_restore_dbindex >= 0)

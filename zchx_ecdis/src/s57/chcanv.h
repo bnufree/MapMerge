@@ -70,9 +70,11 @@ public slots:
       void slotUpdateChartDatabase(ArrayOfCDI &DirArray, bool b_force, const QString &filename );
 
 signals:
+      void signalInitEcdisAsDelayed();
       void signalUpdateChartDatabase(ArrayOfCDI& cd, bool force_new, const QString& fileName);
       void signalUpdateChartArrayFinished();
       void signalResize(int width, int height);
+      void signalBadChartDirFoundNow();
 
 
 public slots:

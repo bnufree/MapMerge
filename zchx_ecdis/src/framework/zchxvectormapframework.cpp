@@ -9,6 +9,7 @@ zchxVectorMapFrameWork::zchxVectorMapFrameWork(QObject *parent) : zchxMapFrameWo
 {
     mGLCtrl = new glChartCanvas(0);
     connect(mGLCtrl, SIGNAL(signalDBUpdateFinished()), this, SIGNAL(signalDBUpdateFinished()));
+    connect(mGLCtrl, SIGNAL(signalBadChartDirFoundNow()), this, SIGNAL(signalBadChartDirFoundNow()));
 }
 
 zchxVectorMapFrameWork::~zchxVectorMapFrameWork()

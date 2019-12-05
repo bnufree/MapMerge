@@ -193,6 +193,7 @@ public:
 
 signals:
     void signalDBUpdateFinished();
+    void signalBadChartDirFoundNow();
 public slots:
     void slotStartLoadEcdis();
     void slotUpdateChartFinished();

@@ -620,6 +620,8 @@ private slots:
         */
     //void _maplayerVisibleChanged(bool visible);
     void   slotDBUpdateFinished();
+    void   slotBadChartDirFoundNow();
+    void   slotResetSourceFromDlg();
 
 protected:
     //void drawLayers(QPainter *painter);
@@ -928,23 +930,9 @@ public:
 //           * 2. 测试或者特殊需要下，强制指定
 //           */
 //    void setIsAtiAdaptor(bool isAtiAdaptor);
-private:
-//    //路由显示综合
-//    void   drawRouteLineItem(QPainter *painter, const RouteLine &ele, const QStringList& lonlat = QStringList());
-//    bool   isCurrentPointDraw(int index, int size, bool ac);
-//    void   zchxDrawRoutePoint(const QPointF& pnt, int type, const QString& name, bool isActive, QPainter* painter);
-//    void   zchxDrawRouteLine(const QLineF &line, const QColor& color,Qt::PenStyle style, int width, QPainter *painter);
-//    void   zchxDrawRouteText(const QPointF& pos, const QString& text, const QColor& color, QPainter* painter);
-//    void   zchxDrawLonLatText(const QPointF& pos, double lon, double lat, const QColor& color, QPainter* painter);
-//    void   zchxDrawOverlapLine(const POLYLINES& polylines,QPainter* painter);
-//    POLYLINES  parseRouteWarnOverlapSegments(const QStringList& lonlat);
-//    void   zchxDrawRoutePickUpInfo(const RouteLine &ele);
-//    void   zchxRoutePickupInfo(QString& text, int& width, int& height, const ZCHX::Data::RoutePoint& point, const QFont& font);
-//    int    widthOfTextList(const QStringList& list, const QFont& font);
-//    //绘制备份路由
-//    void   zchxDrawBackUpRoutePoints(const std::vector<ZCHX::Data::RoutePoint>& pnts, bool active, QPainter* painter);
-//    void   zchxDrawRoutePoints(const std::vector<ZCHX::Data::RoutePoint>& pnts, const QString& routeName, const QColor& nameColor, int stage, bool active, QPainter* painter);
-//    void   zchxDrawRouteLinkedInfo(const RouteLine &ele, QPainter* painter);
+private slots:
+    void                        slotRemovePopupWidget(QWidget* w);
+    void                        slotPopupWidgetAbouttoClose();
 private:
     zchxMapFrameWork*           mFrameWork;
     qint64                      mLastWheelTime;
@@ -995,6 +983,7 @@ private:
     ZCHX::ZCHX_MAP_TYPE             mType;
     zchxEcdisProgressWidget*                mDBProgressWidget;
     bool                            mIsDBUpdateNow;
+    QList<QWidget*>                 mPopWidgetList;
 };
 }
 #endif // ZCHXMAPWIDGET_H

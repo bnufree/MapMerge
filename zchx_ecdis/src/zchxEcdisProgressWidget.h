@@ -1,16 +1,13 @@
 #ifndef ZCHXECDISPROGRESSWIDGET_H
 #define ZCHXECDISPROGRESSWIDGET_H
 
-#include <QWidget>
+#include <zchxecdispopupwidget.h>
 
-class zchxEcdisProgressWidget : public QWidget
+class zchxEcdisProgressWidget : public zchxECdisPopupWidget
 {
     Q_OBJECT
 public:
     explicit zchxEcdisProgressWidget(QWidget *parent = 0);
-
-protected:
-    void paintEvent(QPaintEvent *event) override;
 
 signals:
 

@@ -11,7 +11,8 @@
 #include <QDomDocument>
 #include "profiles.h"
 #include "dialog/zchxmapsourcedialog.h"
-#include "zchxecdisprogresswidget.h"
+#include "zchxEcdisProgressWidget.h"
+#include "zchxecdispopupwidget.h"
 
 //#define     DEFAULT_LON         113.093664
 //#define     DEFAULT_LAT         22.216150
@@ -67,6 +68,7 @@ zchxMapWidget::zchxMapWidget(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) : QGLWid
         mFrameWork = new zchxVectorMapFrameWork();
     }
     connect(mFrameWork, SIGNAL(signalDBUpdateFinished()), this, SLOT(slotDBUpdateFinished()));
+    connect(mFrameWork, SIGNAL(signalBadChartDirFoundNow()), this, SLOT(slotBadChartDirFoundNow()));
     //地图状态初始化
     releaseDrawStatus();
     //
@@ -171,6 +173,12 @@ void zchxMapWidget::resizeGL(int w, int h)
         }
     }
     mZoomLbl->setGeometry(10, 10, 100, 60);
+
+    foreach (QWidget* w, mPopWidgetList) {
+        QRect rect = w->rect();
+        rect.moveCenter(this->rect().center());
+        w->move(rect.topLeft());
+    }
 }
 
 #if 1
@@ -1083,6 +1091,7 @@ void zchxMapWidget::setSource(const QString& source, int pos)
             if(!mDBProgressWidget)
             {
                 mDBProgressWidget = new zchxEcdisProgressWidget(this);
+                connect(mDBProgressWidget, SIGNAL(signalAbouttoClose()), this, SLOT(slotPopupWidgetAbouttoClose()));
             }
             QRect rect = mDBProgressWidget->rect();
             rect.moveCenter(this->rect().center());
@@ -2055,10 +2064,45 @@ void zchxMapWidget::slotDBUpdateFinished()
 {
     if(mDBProgressWidget)
     {
-        delete mDBProgressWidget;
+        mDBProgressWidget->signalAbouttoClose();
         mDBProgressWidget = 0;
     }
     mIsDBUpdateNow = false;
+}
+
+void zchxMapWidget::slotBadChartDirFoundNow()
+{
+    qDebug()<<"!!!!!!!!!!!!!!";
+    zchxVectorMapSourceWidget* widget = new zchxVectorMapSourceWidget(QStringLiteral("当前地图数据目录异常,请确认"), this);
+    connect(widget, SIGNAL(signalSelDir()), this, SLOT(slotResetSourceFromDlg()));
+    connect(widget, SIGNAL(signalAbouttoClose()), this, SLOT(slotPopupWidgetAbouttoClose()));
+    QRect rect = widget->rect();
+    rect.moveCenter(this->rect().center());
+    widget->move(rect.topLeft());
+    widget->show();
+    mPopWidgetList.append(widget);
+}
+
+void zchxMapWidget::slotResetSourceFromDlg()
+{
+    QString dir = QFileDialog::getExistingDirectory();
+    if(dir.isEmpty()) return;
+    setSource(dir, 0);
+}
+
+void zchxMapWidget::slotPopupWidgetAbouttoClose()
+{
+    QWidget* w = qobject_cast<QWidget*> (sender());
+    if(w)
+    {
+        slotRemovePopupWidget(w);
+    }
+}
+
+void zchxMapWidget::slotRemovePopupWidget(QWidget *w)
+{
+    mPopWidgetList.removeOne(w);
+    if(w) w->close();
 }
 
 

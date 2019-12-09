@@ -49,6 +49,7 @@
 #include "OCPNPlatform.h"
 #include "FontMgr.h"
 #include "GL/zchxopenglutil.h"
+#include <QPixmap>
 
 
 #ifndef PROJECTION_MERCATOR
@@ -6757,6 +6758,7 @@ int s52plib::RenderToGLAP( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
         z_tex_geom = .25;
     }
 
+
     PolyTriGroup *ppg = rzRules->obj->pPolyTessGeo->Get_PolyTriGroup_head();
 
     TriPrim *p_tp = ppg->tri_prim_head;
@@ -6898,7 +6900,7 @@ int s52plib::RenderToGLAP( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
         glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, ppatt_spec->w_pot, ppatt_spec->h_pot, 0,
                       GL_RGBA, GL_UNSIGNED_BYTE, ppatt_spec->pix_buff );
     }
-
+# if 1
     glEnable( GL_TEXTURE_2D );
     glBindTexture( GL_TEXTURE_2D, ppatt_spec->OGL_tex_name );
 
@@ -6949,6 +6951,7 @@ int s52plib::RenderToGLAP( ObjRazRules *rzRules, Rules *rules, ViewPort *vp )
 
     glDisable( GL_TEXTURE_2D );
     glDisable( GL_BLEND );
+#endif
 
     //    Restore the previous state
 
@@ -7197,15 +7200,14 @@ render_canvas_parms* s52plib::CreatePatternBufferSpec( ObjRazRules *rzRules, Rul
         
         // Best we can do is set the background color very dark, and hope for the best
 
-        QBitmap *pbm = NULL;
+        QPixmap *pbm = NULL;
 
         if( ( 0 != width ) && ( 0 != height ) )
         {
-            pbm = new QBitmap( width, height );
+            pbm = new QPixmap( width, height );
+            pbm->fill(local_unused_QColor);
 
-            mdc.begin(pbm );
-            mdc.setBackground( QBrush( local_unused_QColor ) );
-            //            mdc.Clear();
+            mdc.begin(pbm);
 
             int pivot_x = prule->pos.patt.pivot_x.PACL;
             int pivot_y = prule->pos.patt.pivot_y.PARW;
@@ -7225,10 +7227,9 @@ render_canvas_parms* s52plib::CreatePatternBufferSpec( ObjRazRules *rzRules, Rul
             HPGL->Render( str, col, r0, pivot, origin, 1.0, 0, false);
         } else
         {
-            pbm = new QBitmap( 2, 2 );       // substitute small, blank pattern
-            mdc.begin(pbm );
-            mdc.setBackground( QBrush( local_unused_QColor ) );
-            //            mdc.Clear();
+            pbm = new QPixmap( 2, 2 );
+            pbm->fill(local_unused_QColor);       // substitute small, blank pattern
+            mdc.begin(pbm);
         }
 
         //        mdc.SelectObject( wxNullBitmap );
@@ -7239,11 +7240,13 @@ render_canvas_parms* s52plib::CreatePatternBufferSpec( ObjRazRules *rzRules, Rul
 
         delete pbm;
     }
+
+    Image.save(QString::number(rules->razRule->RCID) + ".png", "PNG");
     
     //  Convert the wxImage to a populated render_canvas_parms struct
     
-    int sizey = Image.width();
-    int sizex = Image.height();
+    int sizey = Image.height();
+    int sizex = Image.width();
     
     render_canvas_parms *patt_spec = new render_canvas_parms;
     patt_spec->OGL_tex_name = 0;
@@ -7336,54 +7339,57 @@ render_canvas_parms* s52plib::CreatePatternBufferSpec( ObjRazRules *rzRules, Rul
         if( pd0 && ps0 ){
             for( int iy = 0; iy < sizey; iy++ ) {
                 pd = pd0 + ( iy * patt_spec->pb_pitch );
-                ps = ps0 + ( iy * sizex * 3 );
+                //                ps = ps0 + ( iy * sizex * 3 );
                 for( int ix = 0; ix < sizex; ix++ ) {
-                    if( ix < sizex ) {
-                        unsigned char r = *ps++;
-                        unsigned char g = *ps++;
-                        unsigned char b = *ps++;
-                        
-                        if(b_filter){
-                            QColor rgb(r,g,b);
-                            int h, s, v;
-                            rgb.getHsv(&h, &s, &v);
-                            double ratio = v/reference_value;
-                            
-                            if(ratio > 0.5){
-                                *pd++ = primary_r;
-                                *pd++ = primary_g;
-                                *pd++ = primary_b;
-                                *pd++ = 255;
-                            }
-                            else{
-                                *pd++ = 0;
-                                *pd++ = 0;
-                                *pd++ = 0;
-                                *pd++ = 0;
-                            }
+
+                    QColor color = Image.pixelColor(ix, iy);
+//                    unsigned char r = *ps++;
+//                    unsigned char g = *ps++;
+//                    unsigned char b = *ps++;
+                    unsigned char r = color.red();
+                    unsigned char g = color.green();
+                    unsigned char b = color.blue();
+
+                    if(b_filter){
+                        QColor rgb(r,g,b);
+                        int h, s, v;
+                        rgb.getHsv(&h, &s, &v);
+                        double ratio = v/reference_value;
+
+                        if(ratio > 0.5){
+                            *pd++ = primary_r;
+                            *pd++ = primary_g;
+                            *pd++ = primary_b;
+                            *pd++ = 255;
                         }
                         else{
+                            *pd++ = 0;
+                            *pd++ = 0;
+                            *pd++ = 0;
+                            *pd++ = 0;
+                        }
+                    }
+                    else{
 #ifdef ocpnUSE_ocpnBitmap
-                            if( b_revrgb ) {
-                                *pd++ = b;
-                                *pd++ = g;
-                                *pd++ = r;
-                            } else {
-                                *pd++ = r;
-                                *pd++ = g;
-                                *pd++ = b;
-                            }
-                            
-#else
+                        if( b_revrgb ) {
+                            *pd++ = b;
+                            *pd++ = g;
+                            *pd++ = r;
+                        } else {
                             *pd++ = r;
                             *pd++ = g;
                             *pd++ = b;
+                        }
+
+#else
+                        *pd++ = r;
+                        *pd++ = g;
+                        *pd++ = b;
 #endif
-                            if( b_use_alpha && imgAlpha ) {
-                                *pd++ = *imgAlpha++;
-                            } else {
-                                *pd++ = ( ( r == mr ) && ( g == mg ) && ( b == mb ) ? 0 : 255 );
-                            }
+                        if( b_use_alpha && imgAlpha ) {
+                            *pd++ = *imgAlpha++;
+                        } else {
+                            *pd++ = ( ( r == mr ) && ( g == mg ) && ( b == mb ) ? 0 : 255 );
                         }
                     }
                 }

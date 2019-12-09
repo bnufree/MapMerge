@@ -45,8 +45,14 @@ zchxMapWidget::zchxMapWidget(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) : QGLWid
 {
     this->setMouseTracking(true);
     mZoomLbl = new QLabel(this);
-    mZoomLbl->setStyleSheet("background-color:transparent; border:none; color:black; font-size:20pt;");
-    mZoomLbl->setVisible(false);
+    mZoomLbl->setAutoFillBackground(true);
+    mZoomLbl->setStyleSheet("border:1px; color:white; font-size:20pt;");
+
+    bool zoom_visible = false;
+#ifdef MyTest
+    zoom_visible = true;
+#endif
+    mZoomLbl->setVisible(zoom_visible);
     QTimer *timer = new QTimer;
     timer->setInterval(Profiles::instance()->value(MAP_INDEX, MAP_UPDATE_INTERVAL).toInt());
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
@@ -226,7 +232,12 @@ void zchxMapWidget::paintEvent(QPaintEvent* e)
 //    //qDebug()<<pnt.x<<pnt.y;
 //    painter.setBrush(QBrush(Qt::red));
 //    painter.drawEllipse(pnt.x, pnt.y, 5, 5);
-    mZoomLbl->setText(QString("zoom:%1").arg(mFrameWork->getZoom()));
+    if(mZoomLbl->isVisible())
+    {
+        mZoomLbl->setText(tr("zoom:%1").arg(mFrameWork->getZoom()));
+        int width_t = QFontMetrics(mZoomLbl->font()).width(mZoomLbl->text());
+        mZoomLbl->setMinimumWidth(width_t);
+    }
     updateCurrentPos(this->mapFromGlobal(QCursor::pos()));
 }
 
@@ -928,8 +939,14 @@ void zchxMapWidget::mouseMoveEvent(QMouseEvent *e)
                 mFrameWork->setOffSet(pnt.x() - mPressPnt.x(),pnt.y() - mPressPnt.y());
             } else
             {
-                mFrameWork->pan(mPressPnt.x() - pnt.x(), mPressPnt.y() - pnt.y());
-                mPressPnt = pnt;
+                int dx = mPressPnt.x() - pnt.x();
+                int dy = mPressPnt.y() - pnt.y();
+                bool enable = (dx >= 5 || dy >= 5);
+                if(/*enable*/1)
+                {
+                    mFrameWork->pan(mPressPnt.x() - pnt.x(), mPressPnt.y() - pnt.y());
+                    mPressPnt = pnt;
+                }
             }
         }
         //update();

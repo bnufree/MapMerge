@@ -39,11 +39,19 @@ void zchxVectorMapFrameWork::updateDisplayRange()
 //    mGLCtrl->Pan( x - mGLCtrl->GetVP().pixWidth() / 2, y - mGLCtrl->GetVP().pixHeight() / 2 );
 }
 
+void zchxVectorMapFrameWork::setCenter(double lon, double lat)
+{
+    zchxMapFrameWork::setCenter(lon, lat);
+    int x ,y;
+    mGLCtrl->getPixcelOfLL(x, y, mCenter.lat, mCenter.lon);
+    mGLCtrl->Pan( x - mGLCtrl->GetVP().pixWidth() / 2, y - mGLCtrl->GetVP().pixHeight() / 2 );
+}
+
 
 //地图操作接口
 void zchxVectorMapFrameWork::zoomIn()
 {
-    mGLCtrl->Zoom( 2.0, false );
+    mGLCtrl->Zoom( 2.0, true );
 }
 
 int  zchxVectorMapFrameWork::getZoom() const
@@ -57,7 +65,7 @@ int  zchxVectorMapFrameWork::getZoom() const
 
 void zchxVectorMapFrameWork::zoomOut()
 {
-    mGLCtrl->Zoom( 0.25, false );
+    mGLCtrl->Zoom( /*0.25*/0.5, true );
 }
 
 void zchxVectorMapFrameWork::pan(int x, int y)

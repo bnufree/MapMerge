@@ -51,7 +51,6 @@
 #include "lz4hc.h"
 #include "GL/zchxopenglutil.h"
 
-extern bool g_bDebugOGL;
 extern long g_tex_mem_used;
 extern int g_mipmap_max_level;
 extern GLuint g_raster_format;

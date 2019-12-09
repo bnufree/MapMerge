@@ -34,7 +34,7 @@ public:
     QSize       getViewSize() const {return QSize(mViewWidth, mViewHeight);}
 
     void        setCenterAndZoom(const ZCHX::Data::LatLon& ll, int zoom);
-    void        setCenter(double lon, double lat);
+    virtual void        setCenter(double lon, double lat);
     void        setCenter(const ZCHX::Data::Point2D& point);
     void        setCenter(const ZCHX::Data::LatLon& ll) {setCenter(ll.lon, ll.lat);}
     ZCHX::Data::LatLon      getCenter() const {return mCenter;}

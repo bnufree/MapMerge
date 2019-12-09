@@ -77,19 +77,8 @@ extern bool                      g_bshowToolbar;
 extern bool                      g_bBasicMenus;
 
 extern bool                      g_bShowOutlines;
-extern bool                      g_bShowDepthUnits;
 extern bool                      g_bDisplayGrid;  // Flag indicating weather the lat/lon grid should be displayed
-extern bool                      g_bShowChartBar;
-extern bool                      g_bShowActiveRouteHighway;
-extern int                       g_nNMEADebug;
-extern int                       g_nAWDefault;
-extern int                       g_nAWMax;
-extern bool                      g_bPlayShipsBells;
-extern bool                      g_bFullscreenToolbar;
-extern bool                      g_bShowLayers;
-extern bool                      g_bPermanentMOBIcon;
 extern bool                      g_bTempShowMenuBar;
-extern float                     g_toolbar_scalefactor;
 
 extern int                       g_iSDMMFormat;
 extern int                       g_iDistanceFormat;
@@ -136,27 +125,14 @@ extern int                       gps_watchdog_timeout_ticks;
 extern int                       sat_watchdog_timeout_ticks;
 
 extern int                       gGPS_Watchdog;
-extern bool                      bGPSValid;
 
-extern int                       gHDx_Watchdog;
-extern int                       gHDT_Watchdog;
-extern int                       gVAR_Watchdog;
-extern bool                      g_bHDT_Rx;
-extern bool                      g_bVAR_Rx;
 
-extern int                       gSAT_Watchdog;
-extern int                       g_SatsInView;
 extern bool                      g_bSatValid;
 
-extern bool                      g_bDebugCM93;
 extern bool                      g_bDebugS57;
 
-extern bool                      g_bfilter_cogsog;
-extern int                       g_COGFilterSec;
-extern int                       g_SOGFilterSec;
 
 extern int                       g_ChartUpdatePeriod;
-extern int                       g_SkewCompUpdatePeriod;
 
 extern int                       g_lastClientRectx;
 extern int                       g_lastClientRecty;
@@ -164,24 +140,14 @@ extern int                       g_lastClientRectw;
 extern int                       g_lastClientRecth;
 extern double                    g_display_size_mm;
 
-extern float                     g_selection_radius_mm;
-extern float                     g_selection_radius_touch_mm;
 
 extern bool                     g_bTrackDaily;
-extern double                   g_PlanSpeed;
-extern bool                     g_bFullScreenQuilt;
-extern bool                     g_bQuiltEnable;
 extern bool                     g_bskew_comp;
-extern bool                     g_btouch;
+
 extern bool                     g_bresponsive;
-extern bool                     g_bShowStatusBar;
-extern int                      g_cm93_zoom_factor;
-extern int                      g_GUIScaleFactor;
 extern bool                     g_fog_overzoom;
 extern double                   g_overzoom_emphasis_base;
 extern bool                     g_oz_vector_scale;
-extern int                      g_nTrackPrecision;
-extern QString                 g_toolbarConfig;
 extern bool                     g_bPreserveScaleOnX;
 
 //extern Select                    *pSelect;
@@ -191,8 +157,6 @@ extern bool                     g_bPreserveScaleOnX;
 #ifdef ocpnUSE_GL
 extern zchxGLOptions            g_GLOptions;
 #endif
-extern int                      g_default_font_size;
-extern int                       options_lastPage;
 
 
 OCPNPlatform* OCPNPlatform::minstance = 0;
@@ -224,22 +188,6 @@ OCPNPlatform::~OCPNPlatform()
 
 
 
-
-
-//  Called from MyApp() immediately before creation of MyFrame()
-//  Config is known to be loaded and stable
-//  Log is available
-void OCPNPlatform::Initialize_2( void )
-{
-#ifdef __OCPN__ANDROID__
-    ZCHX_LOGMSG(androidGetDeviceInfo());
-#endif    
-    
-    //  Set a global toolbar scale factor
-    g_toolbar_scalefactor = GetToolbarScaleFactor( g_GUIScaleFactor );
-    
-}
-
 void OCPNPlatform::Initialize_3( void )
 {
     
@@ -266,37 +214,6 @@ void OCPNPlatform::Initialize_3( void )
     }
 }
 
-//  Called from MyApp() just before end of MyApp::OnInit()
-void OCPNPlatform::Initialize_4( void )
-{
-#ifdef __OCPN__ANDROID__
-    if(pSelect) pSelect->SetSelectPixelRadius(qMax( 25, 6.0 * getAndroidDPmm()) );
-    if(pSelectTC) pSelectTC->SetSelectPixelRadius( qMax( 25, 6.0 * getAndroidDPmm()) );
-    if(pSelectAIS) pSelectAIS->SetSelectPixelRadius( qMax( 25, 6.0 * getAndroidDPmm()) );
-#endif
-
-#ifdef __WXMAC__
-    // A bit of a hack for Mojave MacOS 10.14.
-    // Force the user to actively select "Display" tab to ensure initial rendering of
-    // canvas layout select button.
-    options_lastPage = 1;
-#endif
-    
-}
-
-void OCPNPlatform::OnExit_1( void ){
-}
-    
-void OCPNPlatform::OnExit_2( void ){
-    
-#ifdef OCPN_USE_CRASHRPT
-#ifndef _DEBUG
-        // Uninstall Windows crash reporting
-//    crUninstall();
-#endif
-#endif
-    
-}
 
 
 bool OCPNPlatform::BuildGLCaps( void *pbuf )
@@ -416,14 +333,10 @@ void OCPNPlatform::SetDefaultOptions( void )
     g_bHideMoored = false;
     g_ShowMoored_Kts = 0.2;
     g_bTrackDaily = false;
-    g_PlanSpeed = 6.;
-    g_bFullScreenQuilt = true;
-    g_bQuiltEnable = true;
     g_bskew_comp = false;
     g_bShowAreaNotices = false;
     g_bDrawAISSize = false;
     g_bShowAISName = false;
-    g_nTrackPrecision = 2;
     g_bPreserveScaleOnX = true;
     g_nAWDefault = 50;
     g_nAWMax = 1852;
@@ -600,10 +513,7 @@ double OCPNPlatform::GetDisplayDPmm()
     return r / GetDisplaySizeMM();
 }
                     
-unsigned int OCPNPlatform::GetSelectRadiusPix()
-{
-    return GetDisplayDPmm() * (g_btouch ? g_selection_radius_touch_mm : g_selection_radius_mm);
-}
+
 
 void OCPNPlatform::onStagedResizeFinal()
 {

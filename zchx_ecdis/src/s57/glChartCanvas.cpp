@@ -95,19 +95,14 @@ extern "C" void glOrthof(float left,  float right,  float bottom,  float top,  f
 #endif
 
 extern s52plib *ps52plib;
-extern bool g_bDebugOGL;
 extern bool g_bShowFPS;
 extern bool g_bSoftwareGL;
-extern bool g_btouch;
-extern bool             g_bShowChartBar;
 extern glTextureManager   *g_glTextureManager;
 extern bool             b_inCompressAllCharts;
 std::vector<int> g_quilt_noshow_index_array;
 
 extern GLenum       g_texture_rectangle_format;
-extern QString                  *pInit_Chart_Dir;
 extern ChartGroupArray  *g_pGroupArray;
-extern double           g_display_size_mm;
 int                       g_mem_total, g_mem_used, g_mem_initial;
 extern QString                             g_chartListFileName;
 extern QString                  gWorldMapLocation;
@@ -120,23 +115,17 @@ extern ThumbWin         *pthumbwin;
 extern bool             g_bDisplayGrid;
 extern int g_mipmap_max_level;
 
-extern double           gLat, gLon, gCog, gSog, gHdt;
+extern double           gLat, gLon;
 
 extern int              g_OwnShipIconType;
-extern double           g_ownship_predictor_minutes;
-extern double           g_ownship_HDTpredictor_miles;
 
-extern double           g_n_ownship_length_meters;
-extern double           g_n_ownship_beam_meters;
 
 extern ChartDB          *ChartData;
 
 extern bool             b_inCompressAllCharts;
 extern bool             g_bGLexpert;
 extern bool             g_bcompression_wait;
-extern bool             g_bresponsive;
 extern float            g_ChartScaleFactorExp;
-extern float            g_ShipScaleFactorExp;
 
 float            g_GLMinSymbolLineWidth;
 float            g_GLMinCartographicLineWidth;
@@ -144,7 +133,6 @@ float            g_GLMinCartographicLineWidth;
 extern bool             g_fog_overzoom;
 extern double           g_overzoom_emphasis_base;
 extern bool             g_oz_vector_scale;
-extern unsigned int     g_canvasConfig;
 extern glChartCanvas              *glChart;
 
 extern zchxGLOptions g_GLOptions;
@@ -3489,7 +3477,6 @@ void glChartCanvas::SetColorScheme( ZCHX::ZCHX_COLOR_SCHEME cs )
 
 bool glChartCanvas::initBeforeUpdateMap()
 {
-    if(!pInit_Chart_Dir)pInit_Chart_Dir = new QString();
     g_pGroupArray = new ChartGroupArray;
     ZCHX_CFG_INS->loadMyConfig();
     StyleMgrIns->SetStyle("MUI_flat");
@@ -3503,8 +3490,8 @@ bool glChartCanvas::initBeforeUpdateMap()
         return false;
     }
 
-    g_display_size_mm = fmax(100.0, OCPNPlatform::instance()->GetDisplaySizeMM());
-    qDebug("Detected display size (horizontal): %d mm", (int) g_display_size_mm);
+    double size_mm = fmax(100.0, OCPNPlatform::instance()->GetDisplaySizeMM());
+    qDebug("Detected display size (horizontal): %d mm", (int) size_mm);
     // Instantiate and initialize the Config Manager
 //    ConfigMgr::Get();
 
@@ -3515,11 +3502,6 @@ bool glChartCanvas::initBeforeUpdateMap()
 
 //      Establish location and name of chart database
     g_chartListFileName = QString("%1/CHRTLIST.DAT").arg(zchxFuncUtil::getDataDir());
-//      Establish guessed location of chart tree
-    if( pInit_Chart_Dir->isEmpty() )
-    {
-        pInit_Chart_Dir->append(zchxFuncUtil::getDataDir());
-    }
 
 //      Establish the GSHHS Dataset location
     gDefaultWorldMapLocation = "gshhs";
@@ -3529,7 +3511,6 @@ bool glChartCanvas::initBeforeUpdateMap()
         gWorldMapLocation = gDefaultWorldMapLocation;
     }
     qDebug()<<gWorldMapLocation<<gDefaultWorldMapLocation;
-    OCPNPlatform::instance()->Initialize_2();
     InitializeUserColors();
     //  Do those platform specific initialization things that need gFrame
     OCPNPlatform::instance()->Initialize_3();
@@ -3547,7 +3528,7 @@ bool glChartCanvas::initBeforeUpdateMap()
     config->iLat = qt::Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LAT).toDouble();
     config->iLon = qt::Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LON).toDouble();
 
-    mFrameWork->SetDisplaySizeMM(g_display_size_mm);
+    mFrameWork->SetDisplaySizeMM(size_mm);
 
     ApplyCanvasConfig(config);
     SetColorScheme( global_color_scheme );
@@ -3823,7 +3804,7 @@ void glChartCanvas::GridDraw( ocpnDC& dc )
 
 void glChartCanvas::ScaleBarDraw( ocpnDC& dc )
 {
-    if(0 /*!g_bsimplifiedScalebar*/){
+    if(0 ){
         double blat, blon, tlat, tlon;
         zchxPoint r;
 

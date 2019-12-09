@@ -54,7 +54,7 @@
 
 //typedef         QList<ChartCanvas*>     arrayofCanvasPtr;
 
-extern double                   gLat, gLon, gCog, gSog, gHdt;
+extern double                   gLat, gLon;
 
 extern int g_mipmap_max_level;
 extern GLuint g_raster_format;
@@ -65,7 +65,6 @@ extern zchxGLOptions    g_GLOptions;
 extern long g_tex_mem_used;
 extern int              g_tile_size;
 extern int              g_uncompressed_tile_size;
-extern int              g_nCPUCount;
 
 bool             b_inCompressAllCharts = false;
 extern glChartCanvas          *glChart;
@@ -659,8 +658,6 @@ glTextureManager::glTextureManager() : QObject(0), m_timer(0)
     // ideally we would use the cpu count -1, and only launch jobs
     // when the idle load average is sufficient (greater than 1)
     int nCPU =  qMax(1, OCPNPlatform::instance()->getCpuCorNum());
-    if(g_nCPUCount > 0)
-        nCPU = g_nCPUCount;
 
     if (nCPU < 1) 
         // obviously there's at least one CPU!

@@ -107,3 +107,16 @@ void zchxVectorMapSettingWidget::slotShowNavObjectCHKChanged(bool checked)
 {
 
 }
+
+void zchxVectorMapSettingWidget::on_pan_x_valueChanged(int arg1)
+{
+    int dx = ui->pan_x->value();
+    int dy = ui->pan_y->value();
+//    if(mMainWindow)mMainWindow->itftoolbarp
+}
+
+void zchxVectorMapSettingWidget::on_pan_y_valueChanged(int arg1)
+{
+    int dx = ui->pan_x->value();
+    int dy = ui->pan_y->value();
+}

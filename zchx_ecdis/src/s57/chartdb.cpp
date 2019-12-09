@@ -724,6 +724,7 @@ bool ChartDB::CheckPositionWithinChart(int index, float lat, float lon)
     const ChartTableEntry *pt = &GetChartTableEntry(index);
 
     //    First check on rough Bounding box
+    bool bInside = true;
 
     if((lat <= pt->GetLatMax()) &&
             (lat >= pt->GetLatMin()) &&
@@ -732,9 +733,9 @@ bool ChartDB::CheckPositionWithinChart(int index, float lat, float lon)
     {
         //    Double check on Primary Ply points polygon
 
-        bool bInside = G_FloatPtInPolygon((MyFlPoint *)pt->GetpPlyTable(),
-                                          pt->GetnPlyEntries(),
-                                          lon, lat);
+        bInside = G_FloatPtInPolygon((MyFlPoint *)pt->GetpPlyTable(),
+                                     pt->GetnPlyEntries(),
+                                     lon, lat);
 
         if(bInside )
         {
@@ -742,19 +743,17 @@ bool ChartDB::CheckPositionWithinChart(int index, float lat, float lon)
             {
                 for(int k=0 ; k<pt->GetnAuxPlyEntries() ; k++)
                 {
-                    bool bAuxInside = G_FloatPtInPolygon((MyFlPoint *)pt->GetpAuxPlyTableEntry(k),
+                    bInside = G_FloatPtInPolygon((MyFlPoint *)pt->GetpAuxPlyTableEntry(k),
                                                          pt->GetAuxCntTableEntry(k),lon, lat);
-                    if(bAuxInside)
-                        return true;;
+                    if(bInside) break;
                 }
 
             }
-            else
-                return true;
+//            qDebug()<<"inside:"<<pt->GetpFullPath()<<bInside;
         }
     }
 
-    return false;
+    return bInside;
 }
 
 

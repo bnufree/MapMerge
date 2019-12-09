@@ -40,8 +40,6 @@
 ** You can use it any way you like.
 */
 
-extern QString galkerIdText;
-
 RESPONSE::RESPONSE()
 {
    Talker.clear();
@@ -76,14 +74,9 @@ bool RESPONSE::Write( SENTENCE& sentence )
     sentence  = ("$");
 
     if(NULL == container_p)
-          sentence.Sentence.append(("--"));
+        sentence.Sentence.append(("--"));
     else {
-        if ( galkerIdText.length() == 0) {
-          sentence.Sentence.append(container_p->TalkerID);
-        }
-        else {
-            sentence.Sentence.append( galkerIdText );
-        }
+        sentence.Sentence.append(container_p->TalkerID);
     }
     
     sentence.Sentence.append(Mnemonic);

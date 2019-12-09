@@ -16,6 +16,7 @@ public:
     virtual ZCHX::Data::Point2D     LatLon2Pixel(const ZCHX::Data::LatLon& ll);
     //更新地图的显示范围
     virtual     void        updateDisplayRange();
+    virtual     void        setCenter(double lon, double lat);
     //设定地图数据来源
     virtual     void        setSource(const QString& source, int pos);
 

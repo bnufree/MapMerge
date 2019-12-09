@@ -389,7 +389,6 @@ public:
     static QString getUsrSpeedUnit( int unit = -1  );
     static QString toSDMM(int NEflag, double a, bool hi_precision = true);
     static QString FormatDistanceAdaptive( double distance );
-    static QString formatAngle(double angle, double mag, bool show_mag, bool show_true);
     static double  fromDMM(QString sdms);
     static void AlphaBlending(int x, int y, int size_x, int size_y, float radius,
                               QColor color, unsigned char transparency );
@@ -405,7 +404,6 @@ public:
     static float getChartScaleFactorExp( float scale_linear );
     static double getFontPointsperPixel();
     static bool isFinite(double val);
-    static double GetMag(double a);
 
 public:
     static double m_pt_per_pixel;
@@ -433,9 +431,6 @@ public:
 };
 
 #define         Q_INDEX_NOT_FOUND       -1
-
-#define MAX_COG_AVERAGE_SECONDS        60
-#define MAX_COGSOG_FILTER_SECONDS      60
 
 QColor GetGlobalColor(const QString& colorName);
 void InitializeUserColors( void );

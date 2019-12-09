@@ -36,7 +36,6 @@
 extern glChartCanvas          *glChart;
 extern SENCThreadManager *g_SencThreadManager;
 extern ZCHX::ZCHX_COLOR_SCHEME       global_color_scheme;
-extern int               g_nCPUCount;
 S57ClassRegistrar *g_poRegistrar = 0;
 
 
@@ -59,7 +58,6 @@ SENCThreadManager::SENCThreadManager(QObject* parent):QObject(parent)
     // ideally we would use the cpu count -1, and only launch jobs
     // when the idle load average is sufficient (greater than 1)
      int nCPU =  fmax(1, std::thread::hardware_concurrency());
-     if(g_nCPUCount > 0)    nCPU = g_nCPUCount;
  
       // obviously there's at least one CPU!
      if (nCPU < 1)   nCPU = 1;

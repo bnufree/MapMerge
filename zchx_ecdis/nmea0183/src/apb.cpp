@@ -40,7 +40,7 @@
 ** You can use it any way you like.
 */
 
-extern int              g_NMEAAPBPrecision;
+int              g_NMEAAPBPrecision;
 
 
 APB::APB()

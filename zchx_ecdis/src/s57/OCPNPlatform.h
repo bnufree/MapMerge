@@ -58,15 +58,8 @@ public:
     //获取核心数
     int getCpuCorNum() const {return mCpuCoreNum;}
 
-    void Initialize_2( void );
-
     void Initialize_3( void );
 
-    //  Called from MyApp() just before end of MyApp::OnInit()
-    static void Initialize_4( void );
-    
-    static void OnExit_1( void );
-    static void OnExit_2( void );
     
 
     void SetDefaultOptions( void );
@@ -81,7 +74,6 @@ public:
     double GetDisplaySizeMM();
     void SetDisplaySizeMM( double size );
     double GetDisplayDPmm();
-    unsigned int GetSelectRadiusPix();
     double GetToolbarScaleFactor( int GUIScaleFactor );
     double GetCompassScaleFactor( int GUIScaleFactor );
     void onStagedResizeFinal();

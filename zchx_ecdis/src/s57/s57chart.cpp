@@ -104,7 +104,6 @@ extern bool              g_b_overzoom_x;
 extern bool              g_b_EnableVBO;
 extern SENCThreadManager *g_SencThreadManager;
 extern ZCHX::ZCHX_COLOR_SCHEME       global_color_scheme;
-extern int               g_nCPUCount;
 
 extern int                      g_SENC_LOD_pixels;
 extern ChartFrameWork          *gChartFrameWork;

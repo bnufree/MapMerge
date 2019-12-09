@@ -77,7 +77,6 @@
 
 
 extern float  g_ChartScaleFactorExp;
-extern float  g_ShipScaleFactorExp;
 QString                             g_chartListFileName;
 extern int                          g_restore_dbindex;
 extern int                       g_memCacheLimit;
@@ -108,12 +107,11 @@ extern void AlphaBlending( ocpnDC& dc, int x, int y, int size_x, int size_y, flo
 
 extern ChartBase        *Current_Vector_Ch;
 extern double           g_ChartNotRenderScaleFactor;
-extern double           gLat, gLon, gCog, gSog, gHdt;
+extern double           gLat, gLon;
 //extern double           vLat, vLon;
 extern ChartDB          *ChartData;
 bool             bDBUpdateInProgress;
 extern ZCHX::ZCHX_COLOR_SCHEME      global_color_scheme;
-extern int              g_nbrightness;
 extern QString          gWorldMapLocation;
 extern QString          gDefaultWorldMapLocation;
 
@@ -130,16 +128,12 @@ extern int               gpIDXn;
 
 //extern GoToPositionDialog *pGoToPositionDialog;
 extern QString GetLayerName(int id);
-extern bool             g_bsimplifiedScalebar;
 
 extern bool             bDrawCurrentValues;
 
 extern s52plib          *ps52plib;
 //extern CM93OffsetDialog  *g_pCM93OffsetDialog;
-
-extern bool             bGPSValid;
 //extern bool             g_bShowOutlines;
-//extern bool             g_bShowDepthUnits;
 extern bool             g_bTempShowMenuBar;
 extern bool             g_bShowMenuBar;
 
@@ -153,10 +147,7 @@ extern float            g_fNavAidRadarRingsStep;
 extern int              g_pNavAidRadarRingsStepUnits;
 extern bool             g_bWayPointPreventDragging;
 extern bool             g_bEnableZoomToCursor;
-extern bool             g_bShowChartBar;
-extern bool             g_bInlandEcdis;
 
-extern bool             g_bDarkDecorations;
 
 
 extern int              g_S57_dialog_sx, g_S57_dialog_sy;
@@ -164,29 +155,19 @@ extern int              g_S57_dialog_sx, g_S57_dialog_sy;
 //extern PopUpDSlide       *pPopupDetailSlider;
 extern bool             g_bShowDetailSlider;
 extern int              g_detailslider_dialog_x, g_detailslider_dialog_y;
-extern int              g_cm93_zoom_factor;
 
 extern bool             g_b_overzoom_x;                      // Allow high overzoom
 //extern bool             g_bDisplayGrid;
-
-extern bool             g_bUseGreenShip;
 
 extern int              g_OwnShipIconType;
 extern double           g_n_ownship_length_meters;
 extern double           g_n_ownship_beam_meters;
 extern double           g_n_gps_antenna_offset_y;
 extern double           g_n_gps_antenna_offset_x;
-extern int              g_n_ownship_min_mm;
-
-extern bool             g_bUseRaster;
-extern bool             g_bUseVector;
-extern bool             g_bUseCM93;
 
 double           g_COGAvg;               // only needed for debug....
 
 extern int              g_click_stop;
-extern double           g_ownship_predictor_minutes;
-extern double           g_ownship_HDTpredictor_miles;
 
 extern std::vector<int>      g_quilt_noshow_index_array;
 
@@ -194,26 +175,14 @@ extern bool             g_bFullScreenQuilt;
 
 extern bool             g_bsmoothpanzoom;
 
-extern bool                    g_bDebugOGL;
-
 extern bool             g_b_assume_azerty;
 
 extern ChartGroupArray  *g_pGroupArray;
 
-extern bool              g_bShowTrue, g_bShowMag;
-extern bool              g_btouch;
-extern bool              g_bresponsive;
-
-extern QString         g_toolbarConfigSecondary;
 extern zchxGLOptions g_GLOptions;
 
 extern bool              g_bShowFPS;
 extern double            g_gl_ms_per_frame;
-extern bool              g_benable_rotate;
-
-extern bool              g_bSpaceDropMark;
-extern bool              g_bAutoHideToolbar;
-extern int               g_nAutoHideToolbar;
 extern bool              g_bDeferredInitDone;
 
 //  TODO why are these static?
@@ -224,7 +193,6 @@ bool g_brightness_init;
 int   last_brightness;
 
 extern int                     g_cog_predictor_width;
-extern double           g_display_size_mm;
 
 
 // LIVE ETA OPTION
@@ -235,10 +203,7 @@ extern double                  g_defaultBoatSpeedUserUnit;
 extern int              g_nAIS_activity_timer;
 extern bool             g_bskew_comp;
 extern float            g_compass_scalefactor;
-extern int              g_COGAvgSec; // COG average period (sec.) for Course Up Mode
-
 QGLContext             *g_pGLcontext;   //shared common context
-extern unsigned int     g_canvasConfig;
 extern QString         g_lastPluginMessage;
 
 extern float            g_toolbar_scalefactor;
@@ -362,8 +327,7 @@ void ChartFrameWork::slotInitEcidsAsDelayed()
     //  Apply the inital Group Array structure to the chart data base
     ChartData->ApplyGroupArray( g_pGroupArray );
     DoCanvasUpdate();
-    ReloadVP();                  // once more, and good to go
-    OCPNPlatform::Initialize_4( );
+    ReloadVP();
 }
 
 
@@ -420,7 +384,6 @@ void ChartFrameWork::CheckGroupValid( bool showMessage, bool switchGroup0)
 
 
 //TODO
-//extern bool     g_bLookAhead;
 extern bool     g_bPreserveScaleOnX;
 /*extern*/ ChartDummy *pDummyChart;
 int      g_sticky_chart;
@@ -1439,6 +1402,8 @@ bool ChartFrameWork::Pan( double dx, double dy )
     }
 
     int cur_ref_dbIndex = m_pQuilt->GetRefChartdbIndex();
+//    qDebug()<<"[dx,dy]="<<dx<<", "<<dy<<" ll1:"<<QString::number(lat, 'f', 6)<<QString::number(lon, 'f', 6)
+//           <<QString::number(dlat, 'f', 6)<<QString::number(dlon, 'f', 6)<<" total patch:"<<m_pQuilt->GetnCharts();
 
     SetViewPoint( dlat, dlon, GetVP().viewScalePPM(), GetVP().skew(), GetVP().rotation() );
 
@@ -1451,6 +1416,8 @@ bool ChartFrameWork::Pan( double dx, double dy )
             SetVPScale( tweak_scale_ppm );
         }
     }
+//    qDebug()<<"[dx,dy]="<<dx<<", "<<dy<<" ll1:"<<QString::number(lat, 'f', 6)<<QString::number(lon, 'f', 6)
+//           <<QString::number(dlat, 'f', 6)<<QString::number(dlon, 'f', 6)<<" total patch:"<<m_pQuilt->GetnCharts();
     mGLCC->Refresh( false );
     return true;
 }
@@ -1546,7 +1513,7 @@ void ChartFrameWork::Zoom( double factor,  bool can_zoom_to_cursor )
 
     double new_scale = GetVPScale() * (GetVP().chartScale() / proposed_scale_onscreen);
     if( b_do_zoom ) {
-        if( can_zoom_to_cursor && g_bEnableZoomToCursor) {
+        if( /*can_zoom_to_cursor && g_bEnableZoomToCursor*/0) {
             //  Arrange to combine the zoom and pan into one operation for smoother appearance
             SetVPScale( new_scale, false );   // adjust, but deferred refresh
 

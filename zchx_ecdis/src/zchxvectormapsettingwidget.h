@@ -32,6 +32,10 @@ private slots:
 
     void on_vectorDirBrowseBtn_clicked();
 
+    void on_pan_x_valueChanged(int arg1);
+
+    void on_pan_y_valueChanged(int arg1);
+
 public slots:
     void slotColorSchemeCBXIndexChanged(int index);
     void slotDisplayCategoryCBXIndexChanged(int index);

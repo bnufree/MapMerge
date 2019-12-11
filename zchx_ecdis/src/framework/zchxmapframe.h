@@ -33,7 +33,7 @@ public:
     void        setViewSize(int width, int height);
     QSize       getViewSize() const {return QSize(mViewWidth, mViewHeight);}
 
-    void        setCenterAndZoom(const ZCHX::Data::LatLon& ll, int zoom);
+    virtual void        setCenterAndZoom(const ZCHX::Data::LatLon& ll, int zoom);
     virtual void        setCenter(double lon, double lat);
     void        setCenter(const ZCHX::Data::Point2D& point);
     void        setCenter(const ZCHX::Data::LatLon& ll) {setCenter(ll.lon, ll.lat);}
@@ -47,7 +47,7 @@ public:
     virtual     void        zoomIn();               //放大缩小
     virtual     void        zoomOut();
     virtual     void        pan(int x, int y);     //平移
-    double                  getRotateAngle() {return mRotateAngle;}
+    virtual     double                  getRotateAngle() {return mRotateAngle;}
     virtual     void        setRotateAngle(double ang) {mRotateAngle = ang;}
 
 

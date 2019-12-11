@@ -1673,7 +1673,7 @@ void glChartCanvas::RotateToViewPort(const ViewPort &vp)
     {
         //    Rotations occur around 0,0, so translate to rotate around screen center
         float xt = vp.pixWidth() / 2.0, yt = vp.pixHeight() / 2.0;
-        qDebug()<<"dxy:"<<xt<<yt;
+//        qDebug()<<"dxy:"<<xt<<yt;
         glTranslatef( xt, yt, 0 );
         glRotatef( angle * 180. / PI, 0, 0, 1 );
         glTranslatef( -xt, -yt, 0 );
@@ -4027,6 +4027,17 @@ double glChartCanvas::getViewScalePPM() const
     return mFrameWork->getViewScale();
 }
 
+void   glChartCanvas::setViewScalePPM(double scale)
+{
+    mFrameWork->SetVPScale(scale);
+}
+
+void   glChartCanvas::setViewCenterAndZoom(double lat, double lon, double scale)
+{
+    if(scale <= 0) mFrameWork->SetViewPoint(lat, lon);
+    else mFrameWork->SetViewPoint(lat, lon, scale);
+}
+
 void glChartCanvas::Zoom( double factor,  bool can_zoom_to_cursor )
 {
     if(mFrameWork->isZoomNow()) return;
@@ -4036,6 +4047,11 @@ void glChartCanvas::Zoom( double factor,  bool can_zoom_to_cursor )
 void glChartCanvas::Rotate(double rad)
 {
     mFrameWork->Rotate(rad);
+}
+
+double glChartCanvas::getViewRotate()
+{
+    return mFrameWork->GetVPRotation() *180 / PI;
 }
 
 void glChartCanvas::RotateDegree(double degree)

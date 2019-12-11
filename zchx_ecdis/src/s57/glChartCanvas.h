@@ -78,7 +78,10 @@ public:
     bool Pan(double dx, double dy);
     void FastZoom(float factor);
     void Zoom(double factor,  bool can_zoom_to_cursor = true);
+    void   setViewCenterAndZoom(double lat, double lon, double scale = -1);  //-1就是保持不变
     double getViewScalePPM() const;
+    void   setViewScalePPM(double scale);
+    double getViewRotate();
     void Rotate(double rad);
     void RotateDegree(double degree);
     void RotateContinus(double dir);

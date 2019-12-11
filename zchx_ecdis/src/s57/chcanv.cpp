@@ -1552,6 +1552,7 @@ void ChartFrameWork::Rotate( double rotation )
     SetVPRotation( rotation );
     UpdateGPSCompassStatusBox( true );
     DoCanvasUpdate();
+    ReloadVP();
 }
 
 void ChartFrameWork::RotateDegree(double rotation)
@@ -1741,6 +1742,11 @@ bool ChartFrameWork::SetVPScale( double scale, bool refresh )
 bool ChartFrameWork::SetViewPoint( double lat, double lon )
 {
     return SetViewPoint( lat, lon, mViewPoint.viewScalePPM(), mViewPoint.skew(), mViewPoint.rotation() );
+}
+
+bool ChartFrameWork::SetViewPoint(double lat, double lon, double scale)
+{
+    return SetViewPoint( lat, lon, scale, mViewPoint.skew(), mViewPoint.rotation() );
 }
 
 bool ChartFrameWork::SetViewPoint( double lat, double lon, double scale_ppm, double skew,

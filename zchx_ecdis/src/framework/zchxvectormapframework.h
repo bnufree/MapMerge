@@ -17,15 +17,18 @@ public:
     //更新地图的显示范围
     virtual     void        updateDisplayRange();
     virtual     void        setCenter(double lon, double lat);
+    virtual     void        setCenterAndZoom(const ZCHX::Data::LatLon& ll, int zoom);
     //设定地图数据来源
     virtual     void        setSource(const QString& source, int pos);
 
     //地图操作接口
+    virtual     void        setZoom(int zoom);
     virtual     int         getZoom() const;
     virtual     void        zoomIn();               //放大缩小
     virtual     void        zoomOut();
     virtual     void        pan(int x, int y);     //平移
     virtual     void        setRotateAngle(double ang);
+    virtual     double      getRotateAngle();
     //地图刷新
     virtual void        update();
 

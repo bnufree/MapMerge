@@ -137,11 +137,7 @@ public:
     int getTargetSizeIndex() const {return m_targetSizeIndex;}
     int getTraceLenIndex() const {return m_traceLenIndex;}
     int getContinueTimeInde() const {return m_continueTimeIndex;}
-    void rotate(double degree) {}                             //旋转地图,旋转到指定的角度值,单位度
-    double getRotate() {return 0;}                                      //获取当前的旋转角度
-    void rotateClockwise(double delta) {rotate(getRotate() + delta);}                     //旋转地图,当前地图的基础上进行顺时针旋转.单位度
-    void rotateAntiClockwise(double delta) {rotate(getRotate() - delta);}                 //旋转地图,当前地图的基础上进行逆时针旋转.单位度
-    void rotateReset() {rotate(0);}                                     //旋转地图.恢复到不旋转的正北状态
+
     virtual void setMapUrl(const QString& url) {}                    //设定地图的数据源目录.可以为在线地址或者本地文件目录
     bool isDBUpdateNow() const {return mIsDBUpdateNow;}
 
@@ -259,6 +255,7 @@ public:
     void setImgNumberVisible(bool sts);
 
 public Q_SLOTS:
+    void Pan(int x, int y);
     void ScalePlus();
     void ScaleMinus();
     //void ScalePlusLight();

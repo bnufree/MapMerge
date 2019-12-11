@@ -200,6 +200,7 @@ void MainWindow::slotSetParam()
         mSettingDockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
         mSettingDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
         zchxVectorMapSettingWidget* setting = new zchxVectorMapSettingWidget(this);
+        setting->setMaximumWidth(300);
         mSettingDockWidget->setWidget(setting);
         this->addDockWidget(Qt::RightDockWidgetArea, mSettingDockWidget);
     }
@@ -1469,6 +1470,11 @@ void MainWindow::itfzchxUtilToolCameraRodFocus(uint cameid, int tag)
     //if(mMapWidget) mMapWidget->zchxCameraRodFocus(cameid,tag);
 }
 
+void MainWindow::itfToolBarPan(int x, int y)
+{
+    mMapWidget->Pan(-x, y);
+}
+
 void MainWindow::itfToolBarZoomIn()
 {
     mMapWidget->ScalePlus();
@@ -1992,22 +1998,22 @@ void MainWindow::itfToolBarShowGrid(bool isDisplay)
 
 void MainWindow::itfToolBarRotate(double degree)
 {
-    if(mMapWidget) mMapWidget->rotate(degree);
+    if(mMapWidget) mMapWidget->zchxUtilToolSetAngle4north(degree);
 }
 
 void MainWindow::itfToolBarRotateClockwise(double delta)
 {
-    if(mMapWidget) mMapWidget->rotateClockwise(delta);
+    if(mMapWidget) mMapWidget->zchxUtilToolSetAngle4north(mMapWidget->zchxUtilToolAngle4north() + delta);
 }
 
 void MainWindow::itfToolBarRotateAntiClockwise(double delta)
 {
-    if(mMapWidget) mMapWidget->rotateAntiClockwise(delta);
+    if(mMapWidget) mMapWidget->zchxUtilToolSetAngle4north(mMapWidget->zchxUtilToolAngle4north() - delta);
 }
 
 void MainWindow::itfToolBarRotateReset()
 {
-    if(mMapWidget) mMapWidget->rotateReset();
+    if(mMapWidget) mMapWidget->zchxUtilToolSetAngle4north(0);
 }
 
 void MainWindow::itfToolBarSetMapUrl(const QString& url)

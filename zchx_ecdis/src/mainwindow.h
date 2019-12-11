@@ -110,7 +110,7 @@ public:
          */
     void   itfzchxUtilToolCameraRodFocus(uint cameid, int tag);
     //定义海图工具条接口
-
+    void itfToolBarPan(int x=10, int y= 10);  //x>0 右 y >0 上
     void itfToolBarZoomIn();  //Zoom In
     void itfToolBarZoomOut(); //Zoom Out
     void itfToolBarRoam();    //漫游

@@ -32,9 +32,35 @@ private slots:
 
     void on_vectorDirBrowseBtn_clicked();
 
-    void on_pan_x_valueChanged(int arg1);
+    void on_zoomInBtn_clicked();
 
-    void on_pan_y_valueChanged(int arg1);
+    void on_zoomOutBtn_clicked();
+
+    void on_panBtn_clicked();
+
+    void on_PanLeftBtn_clicked();
+
+    void on_PanRight_clicked();
+
+    void on_PanUp_clicked();
+
+    void on_PanDown_clicked();
+
+    void on_PanUpLeft_clicked();
+
+    void on_PanDownLeft_clicked();
+
+    void on_PanUpRight_clicked();
+
+    void on_PanDownRight_clicked();
+
+    void on_rotateBtn_clicked();
+
+    void on_clockwiseRoate_clicked();
+
+    void on_antiClockwiseRoate_clicked();
+
+    void on_resetZeroRotate_clicked();
 
 public slots:
     void slotColorSchemeCBXIndexChanged(int index);
@@ -44,6 +70,7 @@ public slots:
     void slotShowTextCHKChanged(bool checked);
     void slotShowLightsCHKChanged(bool checked);
     void slotShowNavObjectCHKChanged(bool checked);
+    void slotPan(int dx, int dy);
 
 private:
     Ui::zchxVectorMapSettingWidget *ui;

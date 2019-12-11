@@ -47,6 +47,28 @@ void zchxVectorMapFrameWork::setCenter(double lon, double lat)
     mGLCtrl->Pan( x - mGLCtrl->GetVP().pixWidth() / 2, y - mGLCtrl->GetVP().pixHeight() / 2 );
 }
 
+void zchxVectorMapFrameWork::setCenterAndZoom(const ZCHX::Data::LatLon &ll, int zoom)
+{
+    if(zoom <= 0)
+    {
+        mGLCtrl->setViewCenterAndZoom(ll.lat, ll.lon);
+    } else
+    {
+        double resolution = zchxMapDataUtils::calResolution(zoom);
+        double ppm = 1 / resolution;
+        mGLCtrl->setViewCenterAndZoom(ll.lat, ll.lon, ppm);
+    }
+}
+
+void zchxVectorMapFrameWork::setZoom(int zoom)
+{
+//    zchxMapFrameWork::setZoom(zoom);
+    //计算层级对应的分辨率
+    double resolution = zchxMapDataUtils::calResolution(zoom);
+    double ppm = 1 / resolution;
+    mGLCtrl->setViewScalePPM(ppm);
+
+}
 
 //地图操作接口
 void zchxVectorMapFrameWork::zoomIn()
@@ -76,6 +98,11 @@ void zchxVectorMapFrameWork::pan(int x, int y)
 void zchxVectorMapFrameWork::setRotateAngle(double ang)
 {
     mGLCtrl->RotateDegree(ang);
+}
+
+double zchxVectorMapFrameWork::getRotateAngle()
+{
+    return mGLCtrl->getViewRotate();
 }
 
 //地图刷新

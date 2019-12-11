@@ -1354,6 +1354,11 @@ void zchxMapWidget::setFleet(const QMap<QString, ZCHX::Data::ITF_Fleet> &fleetMa
     ZCHX_DATA_FACTORY->getDangerousMgr()->setData(list);
 }
 
+void zchxMapWidget::Pan(int x, int y)
+{
+    if(mFrameWork) mFrameWork->pan(x, y);
+}
+
 void zchxMapWidget::ScalePlus()
 {
     if(mFrameWork) mFrameWork->zoomIn();

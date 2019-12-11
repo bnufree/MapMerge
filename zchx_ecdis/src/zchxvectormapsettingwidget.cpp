@@ -108,15 +108,88 @@ void zchxVectorMapSettingWidget::slotShowNavObjectCHKChanged(bool checked)
 
 }
 
-void zchxVectorMapSettingWidget::on_pan_x_valueChanged(int arg1)
+
+void zchxVectorMapSettingWidget::on_zoomInBtn_clicked()
 {
-    int dx = ui->pan_x->value();
-    int dy = ui->pan_y->value();
-//    if(mMainWindow)mMainWindow->itftoolbarp
+    if(mMainWindow) mMainWindow->itfToolBarZoomIn();
 }
 
-void zchxVectorMapSettingWidget::on_pan_y_valueChanged(int arg1)
+void zchxVectorMapSettingWidget::on_zoomOutBtn_clicked()
 {
-    int dx = ui->pan_x->value();
-    int dy = ui->pan_y->value();
+    if(mMainWindow) mMainWindow->itfToolBarZoomOut();
+}
+
+void zchxVectorMapSettingWidget::on_panBtn_clicked()
+{
+    if(ui->pan_x->value() >0 || ui->pan_y->value() > 0)
+    {
+        int x = ui->pan_x->value();
+        int y = ui->pan_y->value();
+        slotPan(x, y);
+    }
+}
+
+void zchxVectorMapSettingWidget::on_PanLeftBtn_clicked()
+{
+    slotPan(-10, 0);
+}
+
+void zchxVectorMapSettingWidget::on_PanRight_clicked()
+{
+    slotPan(10, 0);
+}
+
+void zchxVectorMapSettingWidget::on_PanUp_clicked()
+{
+    slotPan(0, 10);
+}
+
+void zchxVectorMapSettingWidget::on_PanDown_clicked()
+{
+    slotPan(0, -10);
+}
+
+void zchxVectorMapSettingWidget::on_PanUpLeft_clicked()
+{
+    slotPan(-10, 10);
+}
+
+void zchxVectorMapSettingWidget::on_PanDownLeft_clicked()
+{
+    slotPan(-10, -10);
+}
+
+void zchxVectorMapSettingWidget::on_PanUpRight_clicked()
+{
+    slotPan(10, 10);
+}
+
+void zchxVectorMapSettingWidget::on_PanDownRight_clicked()
+{
+    slotPan(10, -10);
+}
+
+void zchxVectorMapSettingWidget::slotPan(int dx, int dy)
+{
+    if(mMainWindow) mMainWindow->itfToolBarPan(dx, dy);
+}
+
+void zchxVectorMapSettingWidget::on_rotateBtn_clicked()
+{
+    if(mMainWindow) mMainWindow->itfToolBarRotate(ui->rotate_degree->value());
+}
+
+void zchxVectorMapSettingWidget::on_clockwiseRoate_clicked()
+{
+    if(mMainWindow) mMainWindow->itfToolBarRotateClockwise(5);
+}
+
+void zchxVectorMapSettingWidget::on_antiClockwiseRoate_clicked()
+{
+    if(mMainWindow) mMainWindow->itfToolBarRotateAntiClockwise(5);
+}
+
+void zchxVectorMapSettingWidget::on_resetZeroRotate_clicked()
+{
+    if(mMainWindow) mMainWindow->itfToolBarRotateReset();
 }

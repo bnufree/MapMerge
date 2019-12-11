@@ -90,6 +90,7 @@ public slots:
       
       bool SetVPScale(double sc, bool b_refresh = true);
       bool SetViewPoint ( double lat, double lon);
+      bool SetViewPoint(double lat, double lon, double scale);
       bool SetViewPointByCorners( double latSW, double lonSW, double latNE, double lonNE );
       bool SetViewPoint(double lat, double lon, double scale_ppm, double skew, double rotation,
                         int projection = 0, bool b_adjust = true, bool b_refresh = true);

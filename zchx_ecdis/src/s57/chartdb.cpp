@@ -243,6 +243,13 @@ ChartDB::~ChartDB()
       delete pChartCache;
 }
 
+bool ChartDB::CheckBinaryPathEqual(const QString &filename, const QString &dir)
+{
+    QString path;
+    readChartDir(path, filename);
+    return path == dir;
+}
+
 bool ChartDB::LoadBinary(const QString & filename, ArrayOfCDI& dir_array_check)
 {
       m_dir_array = dir_array_check;

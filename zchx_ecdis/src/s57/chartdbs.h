@@ -310,6 +310,7 @@ public:
     bool Create(ArrayOfCDI& dir_array, QProgressDialog *pprog);
     bool Update(ArrayOfCDI& dir_array, bool bForce, QProgressDialog *pprog);
 
+    bool readChartDir(QString& path, const QString& filepath);
     bool Read(const QString &filePath);
     bool Write(const QString &filePath);
 

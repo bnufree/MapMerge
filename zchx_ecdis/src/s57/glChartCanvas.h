@@ -51,7 +51,7 @@ class glChartCanvas : public QObject
 {
     Q_OBJECT
 public:
-    glChartCanvas(QObject *parentCavas);
+    explicit glChartCanvas(double lat, double lon,  double scale, int width, int height, const QString& chartDir, QObject *parentCavas = 0);
     static bool CanClipViewport(const ViewPort &vp);
     static ViewPort ClippedViewport(const ViewPort &vp, const LLRegion &region);
 
@@ -329,6 +329,10 @@ protected:
     int         m_modkeys;
     //是否正确初始化
     bool                        mIsInitValid;
+    double                      mCenterLat;
+    double                      mCenterLon;
+    int                         mScale;
+    QString                     mChartDir;
 };
 
 extern void BuildCompressedCache();

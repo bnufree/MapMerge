@@ -166,8 +166,11 @@ public:
     void    setShowText(bool isDisplay) {mFrameWork->setTextDisplayStatus(isDisplay);}
     bool    getShowText() const {return mFrameWork->getTextDisplayStatus();}
     //地图网格是否显示
-    void    setShowGrid(bool isDisplay) {}
-    bool    getShowGrid() const  {return false;}
+    void    setShowGrid(bool isDisplay) {mFrameWork->setGridDisplayStatus(isDisplay);}
+    bool    getShowGrid() const  {return mFrameWork->getGridDisplayStatus();;}
+    //Light
+    void    setShowLight(bool isDisplay) {mFrameWork->setLightsDisplayStatus(isDisplay);}
+    bool    getShowLight() const  {return mFrameWork->getLightsDisplayStatus();}
 
 private:
     void updateCurrentPos(const QPoint& p);

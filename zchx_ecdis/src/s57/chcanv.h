@@ -60,7 +60,7 @@ class ChartFrameWork : public QObject
     Q_OBJECT
      friend class glChartCanvas;
 public:
-      ChartFrameWork(glChartCanvas* parent);
+      ChartFrameWork(const QString& chartDir,  glChartCanvas* parent);
       ~ChartFrameWork();
       glChartCanvas* getGL() {return mGLCC;}
 
@@ -272,10 +272,8 @@ private:
 
       //线程化
       QThread           mWorkThread;
-
-
-
-
+      //地图数据目录
+      QString           mChartDir;
 };
 
 QString minutesToHoursDays(float timeInMinutes);

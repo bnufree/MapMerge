@@ -31,6 +31,8 @@
 #include "config.h"
 #include "dychart.h"
 #include "OCPNPlatform.h"
+#include "profiles.h"
+#include "zchxMapDataUtils.h"
 
 #ifdef __WXOSX__
 #include "DarkMode.h"
@@ -217,7 +219,10 @@ ChartFrameWork          *gChartFrameWork = 0;
 
 
 // Define a constructor for my canvas
-ChartFrameWork::ChartFrameWork( glChartCanvas *frame ) : QObject(0) , mGLCC(frame)
+ChartFrameWork::ChartFrameWork(const QString& chartDir,  glChartCanvas *frame )
+    : QObject(0)
+    , mGLCC(frame)
+    , mChartDir(chartDir)
 {
     if(!ChartData)  ChartData = new ChartDB( );
     gChartFrameWork = this;
@@ -272,25 +277,40 @@ void ChartFrameWork::slotInitEcidsAsDelayed()
 {    
     //读取配置文件中保存的地图数据目录
     ArrayOfCDI ChartDirArray;
-    ZCHX_CFG_INS->LoadChartDirArray( ChartDirArray );
+    if(!mChartDir.isEmpty())
+    {
+        ChartDirArray.append(ChartDirInfo(mChartDir));
+    }
+//    ZCHX_CFG_INS->LoadChartDirArray( ChartDirArray );
     //检查数据目录的设定是否正常
     bool isChartDirOK = true;
-    if(ChartDirArray.count() == 0)
+    if(QFile::exists(g_chartListFileName ))
     {
-        isChartDirOK = false;
+        isChartDirOK = ChartData->CheckBinaryPathEqual(g_chartListFileName, mChartDir);
     } else
     {
-        foreach (ChartDirInfo info, ChartDirArray)
+        isChartDirOK = false;
+    }
+    if(isChartDirOK)
+    {
+        if(ChartDirArray.count() == 0)
         {
-            //检查指定的目录是否存在
-            QDir dir(info.fullpath);
-            if(!dir.exists())
+            isChartDirOK = false;
+        } else
+        {
+            foreach (ChartDirInfo info, ChartDirArray)
             {
-                isChartDirOK = false;
-                break;
+                //检查指定的目录是否存在
+                QDir dir(info.fullpath);
+                if(!dir.exists())
+                {
+                    isChartDirOK = false;
+                    break;
+                }
             }
         }
     }
+
     if( !isChartDirOK)
     {
         //没有指定地图数据目录
@@ -306,7 +326,6 @@ void ChartFrameWork::slotInitEcidsAsDelayed()
         senc.mkpath(senc.absolutePath());
         //4)提示信息
         emit signalBadChartDirFoundNow();
-        qDebug()<<"$$$$$$$$$$$$$$$$$$$$$$$$$$";
         return ;
     }
 
@@ -355,7 +374,10 @@ void ChartFrameWork::slotUpdateChartDatabase(ArrayOfCDI &DirArray, bool b_force,
     {
         mGLCC->ResetWorldBackgroundChart();
     }
-    ZCHX_CFG_INS->UpdateChartDirs( DirArray );
+    if(DirArray.size() > 0)
+    {
+        PROFILE_INS->setValue(MAP_INDEX, MAP_URL,  DirArray.first().fullpath );
+    }
     UpdateCanvasOnGroupChange();
     SetGroupIndex(0);
     DoCanvasUpdate();
@@ -1752,6 +1774,12 @@ bool ChartFrameWork::SetViewPoint(double lat, double lon, double scale)
 bool ChartFrameWork::SetViewPoint( double lat, double lon, double scale_ppm, double skew,
                                 double rotation, int projection, bool b_adjust, bool b_refresh )
 {
+    //重新设定经纬度
+    if(qt::Profiles::instance()->value(MAP_INDEX, MAP_START_WITH_LAST_POS, false).toBool())
+    {
+        qt::Profiles::instance()->setValue(MAP_INDEX, MAP_DEFAULT_LAT, lat);
+        qt::Profiles::instance()->setValue(MAP_INDEX, MAP_DEFAULT_LON, lon);
+    }
     bool b_ret = false;
 
     if(skew > PI) /* so our difference tests work, put in range of +-Pi */

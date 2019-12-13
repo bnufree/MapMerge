@@ -1161,6 +1161,40 @@ QString ChartDatabase::GetMagicNumberCached(QString dir)
 
 }
 
+bool ChartDatabase::readChartDir(QString& dest, const QString &filePath)
+{
+    QFile file(filePath);
+    if (!file.exists()) return false;
+
+    FileReadWrite ifs(filePath, FileReadWrite::E_READ);
+    if(!ifs.IsOK()) return false;
+
+    ChartTableHeader cth;
+    cth.Read(ifs);
+    if (!cth.CheckValid()) return false;
+    if(0 == cth.GetDirEntries()) return false;
+
+    QStringList dirList;
+    int ind = 0;
+    for (int iDir = 0; iDir < cth.GetDirEntries(); iDir++) {
+        QString dir;
+        int dirlen;
+        ifs.Read(&dirlen, sizeof(int));
+        while (dirlen > 0) {
+            char dirbuf[1024];
+            int alen = dirlen > 1023 ? 1023 : dirlen;
+            if(ifs.Read(&dirbuf, alen) == alen) return false;
+            dirbuf[alen] = 0;
+            dirlen -= alen;
+            dir.append(QString::fromUtf8(dirbuf));
+        }
+        qDebug("  Chart directory #%d: %s", iDir, dir.toUtf8().data());
+        dirList.append(dir);
+    }
+    if(dirList.size() == 0) return false;
+    dest = dirList.first();
+    return true;
+}
 
 
 bool ChartDatabase::Read(const QString &filePath)

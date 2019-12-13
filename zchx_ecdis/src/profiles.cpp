@@ -57,6 +57,8 @@ void Profiles::initDefaultValues()
     setDefault(MAP_INDEX, MAP_URL, "http://mt2.google.cn/vt/lyrs=m@167000000&hl=zh-CN&gl=cn&x=%1&y=%2&z=%3&s=Galil");
     setDefault(MAP_INDEX, MAP_INDEX_START_POS, "0");
     setDefault(MAP_INDEX, MAP_BACK_GROUND, "rgb(203,199,131)");
+    setDefault(MAP_INDEX, MAP_START_WITH_LAST_POS, true);
+    setDefault(MAP_INDEX, MAP_ROTATE_ANGLE, 0);
     //Ais显示配置
     setDefault(AIS_DISPLAY_SETTING, AIS_FILL_COLOR, QColor(Qt::green).name());
     setDefault(AIS_DISPLAY_SETTING, AIS_TEXT_COLOR, QColor(Qt::black).name());
@@ -85,6 +87,19 @@ void Profiles::initDefaultValues()
     setDefault(RADAR_DISPLAY_SETTING, RADAR_REPLACE_TAIL_TRACK, true);
     setDefault(RADAR_DISPLAY_SETTING, RADAR_HISTORY_TRACK_NUM, 10);
     setDefault(RADAR_DISPLAY_SETTING, RADAR_REPLACE_HISTORY_TRACK, true);
+    //ENC显示配置
+    setDefault(ENC_DISPLAY_SETTING, ENC_CATEGORY, 1);
+    setDefault(ENC_DISPLAY_SETTING, ENC_COLOR_SCHEME, 0);
+    setDefault(ENC_DISPLAY_SETTING, ENC_SHOW_BURO_LABEL, false);
+    setDefault(ENC_DISPLAY_SETTING, ENC_SHOW_DEPTH, false);
+    setDefault(ENC_DISPLAY_SETTING, ENC_SHOW_LIGHT, false);
+    setDefault(ENC_DISPLAY_SETTING, ENC_SHOW_LIGHT_DES, false);
+    setDefault(ENC_DISPLAY_SETTING, ENC_SHOW_NATIONAL_TEXT, true);
+    setDefault(ENC_DISPLAY_SETTING, ENC_SHOW_TEXT, true);
+    setDefault(ENC_DISPLAY_SETTING, ENC_SHOW_GRID, false);
+    setDefault(ENC_DISPLAY_SETTING, ENC_SHALLOW_DEPTH, 3);
+    setDefault(ENC_DISPLAY_SETTING, ENC_SAFE_DEPTH, 8);
+    setDefault(ENC_DISPLAY_SETTING, ENC_DEEP_DEPTH, 10);
 
 }
 

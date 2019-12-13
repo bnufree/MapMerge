@@ -67,7 +67,8 @@ public:
     static ZCHX::Data::LatLon mercatorToWgs84LonLat(const ZCHX::Data::Mercator& mercator);
     static ZCHX::Data::Mercator wgs84LonlatToMercator(const ZCHX::Data::LatLon& wgs84 );
     static ZCHX::Data::Mercator wgs84LatLonToMercator(double lat, double lon ) {return wgs84LonlatToMercator(ZCHX::Data::LatLon(lat, lon));}
-    static double calResolution(int zoom);
+    static double calResolution(int zoom);   //每个像素多少米
+    static double calResolutionOfPPM(int zoom); //没米多少个像素
     static int    calZoomByResolution(double resolution);
     //角度弧度换算
     static double DegToRad(double deg);
@@ -191,6 +192,8 @@ Q_DECLARE_METATYPE(qt::TileImageList)
 #define             MAP_URL                         "MapUrl"
 #define             MAP_INDEX_START_POS             "IndexStartPos"
 #define             MAP_BACK_GROUND                 "BackgroundColor"
+#define             MAP_START_WITH_LAST_POS         "StartMapWithLastPos"
+#define             MAP_ROTATE_ANGLE                "RotateAngle"
 
 //Ais显示配置
 #define             AIS_DISPLAY_SETTING                         "AIS"
@@ -222,5 +225,20 @@ Q_DECLARE_METATYPE(qt::TileImageList)
 #define             RADAR_REPLACE_TAIL_TRACK                      "AutoReplaceTailTrack"
 #define             RADAR_HISTORY_TRACK_NUM                       "HistoryTrackNum"
 #define             RADAR_REPLACE_HISTORY_TRACK                   "AutoReplaceHistoryTrack"
+
+//ENC显示配置
+#define             ENC_DISPLAY_SETTING                         "ENC"
+#define             ENC_SHOW_TEXT                               "ShowText"
+#define             ENC_SHOW_NATIONAL_TEXT                      "ShowNationalText"
+#define             ENC_SHOW_DEPTH                              "ShowDepth"
+#define             ENC_CATEGORY                                "DisplayCategory"
+#define             ENC_COLOR_SCHEME                            "ColorScheme"
+#define             ENC_SHOW_BURO_LABEL                         "ShowBuroLabel"
+#define             ENC_SHOW_LIGHT_DES                          "ShowLightDescriptions"
+#define             ENC_SHOW_LIGHT                              "ShowLight"
+#define             ENC_SHOW_GRID                               "ShowGrid"
+#define             ENC_SHALLOW_DEPTH                                 "ShallowWaterDepth"
+#define             ENC_SAFE_DEPTH                                 "SafeWaterDepth"
+#define             ENC_DEEP_DEPTH                                 "DeepWaterDepth"
 
 #endif // ZCHXECDISUTILS_H

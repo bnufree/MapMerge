@@ -18,16 +18,17 @@ zchxVectorMapSettingWidget::zchxVectorMapSettingWidget(QWidget *parent) :
     ui->distanceUnitCbx->addItem(tr("千米"), ZCHX::Kilometers);
     ui->distanceUnitCbx->addItem(tr("米"), ZCHX::Meters);
     //初始化显示
-    ui->shallowDepthTxt->setText(QString::number(mMainWindow->itfGetShallowDepth()));
-    ui->safeDepthTxt->setText(QString::number(mMainWindow->itfGetSafeDepth()));
-    ui->DeepDepthTxt->setText(QString::number(mMainWindow->itfGetDeepDepth()));
-    ui->showDepthTextCHK->setChecked(mMainWindow->itfGetShowDepth());
-    ui->showTextCHK->setChecked(mMainWindow->itfGetShowText());
-    ui->colorSchemeCBX->setCurrentIndex(mMainWindow->itfGetColorScheme() - 1);
-    qDebug()<<"category:"<<mMainWindow->itfGetDispkayCategory();
-    ui->displayCategoryCBX->setCurrentIndex(mMainWindow->itfGetDispkayCategory());
-    ui->distanceUnitCbx->setCurrentIndex(mMainWindow->itfGetDistanceUnit());
-    ui->vectorDir->setText(mMainWindow->itfGetMapSource());
+    ui->shallowDepthTxt->setText(QString::number(mMainWindow->itfToolBarGetShallowDepth()));
+    ui->safeDepthTxt->setText(QString::number(mMainWindow->itfToolBarGetSafeDepth()));
+    ui->DeepDepthTxt->setText(QString::number(mMainWindow->itfToolBarGetDeepDepth()));
+    ui->showDepthTextCHK->setChecked(mMainWindow->itfToolBarGetShowDepth());
+    ui->showTextCHK->setChecked(mMainWindow->itfToolBarGetShowText());
+    ui->colorSchemeCBX->setCurrentIndex(mMainWindow->itfToolBarGetColorScheme());
+    qDebug()<<"category:"<<mMainWindow->itfToolBarGetDispkayCategory();
+    ui->displayCategoryCBX->setCurrentIndex(mMainWindow->itfToolBarGetDispkayCategory());
+    ui->distanceUnitCbx->setCurrentIndex(mMainWindow->itfToolBarGetDistanceUnit());
+    ui->vectorDir->setText(mMainWindow->itfToolBarGetMapSource());
+    ui->showLightsChk->setChecked(mMainWindow->itfToolBarGetShowLight());
 
     //信号槽关联
     connect(ui->colorSchemeCBX, SIGNAL(currentIndexChanged(int)), this, SLOT(slotColorSchemeCBXIndexChanged(int)));
@@ -35,7 +36,7 @@ zchxVectorMapSettingWidget::zchxVectorMapSettingWidget(QWidget *parent) :
     connect(ui->distanceUnitCbx, SIGNAL(currentIndexChanged(int)), this, SLOT(slotDistanceUnitCBXIndexChanged(int)));
     connect(ui->showDepthTextCHK, SIGNAL(clicked(bool)), this, SLOT(slotShowDepthTextCHKChanged(bool)));
     connect(ui->showTextCHK, SIGNAL(clicked(bool)), this, SLOT(slotShowTextCHKChanged(bool)));
-    connect(ui->showLightsChk, SIGNAL(clicked(bool)), this, SLOT(slotShowDepthTextCHKChanged(bool)));
+    connect(ui->showLightsChk, SIGNAL(clicked(bool)), this, SLOT(slotShowLightsCHKChanged(bool)));
     connect(ui->showNavObjectChk, SIGNAL(clicked(bool)), this, SLOT(slotShowNavObjectCHKChanged(bool)));
 }
 
@@ -56,9 +57,9 @@ void zchxVectorMapSettingWidget::on_depthSettingApplyBtn_clicked()
 {
     if(mMainWindow)
     {
-        mMainWindow->itfSetShallowDepth(ui->shallowDepthTxt->text().toDouble());
-        mMainWindow->itfSetSafeDepth(ui->safeDepthTxt->text().toDouble());
-        mMainWindow->itfSetDeepDepth(ui->DeepDepthTxt->text().toDouble());
+        mMainWindow->itfToolBarSetShallowDepth(ui->shallowDepthTxt->text().toDouble());
+        mMainWindow->itfToolBarSetSafeDepth(ui->safeDepthTxt->text().toDouble());
+        mMainWindow->itfToolBarSetDeepDepth(ui->DeepDepthTxt->text().toDouble());
     }
 
 }
@@ -68,39 +69,39 @@ void zchxVectorMapSettingWidget::on_vectorDirBrowseBtn_clicked()
     QString dir = QFileDialog::getExistingDirectory();
     if(dir.isEmpty()) return;
     ui->vectorDir->setText(dir);
-    if(mMainWindow) mMainWindow->itfSetMapSource(dir);
+    if(mMainWindow) mMainWindow->itfToolBarSetMapSource(dir);
 }
 
 void zchxVectorMapSettingWidget::slotColorSchemeCBXIndexChanged(int index)
 {
     ZCHX::ZCHX_COLOR_SCHEME scheme = (ZCHX::ZCHX_COLOR_SCHEME)(ui->colorSchemeCBX->currentData().toInt());
-    if(mMainWindow) mMainWindow->itfSetColorScheme(scheme);
+    if(mMainWindow) mMainWindow->itfToolBarSetColorScheme(scheme);
 }
 
 void zchxVectorMapSettingWidget::slotDisplayCategoryCBXIndexChanged(int index)
 {
     ZCHX::ZCHX_DISPLAY_CATEGORY scheme = (ZCHX::ZCHX_DISPLAY_CATEGORY)(ui->displayCategoryCBX->currentData().toInt());
-    if(mMainWindow) mMainWindow->itfSetDisplayCategory(scheme);
+    if(mMainWindow) mMainWindow->itfToolBarSetDisplayCategory(scheme);
 }
 
 void zchxVectorMapSettingWidget::slotDistanceUnitCBXIndexChanged(int index)
 {
-    if(mMainWindow) mMainWindow->itfSetDistanceUnit(ZCHX::DistanceUnit(ui->distanceUnitCbx->itemData(index).toInt()));
+    if(mMainWindow) mMainWindow->itfToolBarSetDistanceUnit(ZCHX::DistanceUnit(ui->distanceUnitCbx->itemData(index).toInt()));
 }
 
 void zchxVectorMapSettingWidget::slotShowDepthTextCHKChanged(bool checked)
 {
-    if(mMainWindow)mMainWindow->itfSetShowDepth(checked);
+    if(mMainWindow)mMainWindow->itfToolBarSetShowDepth(checked);
 }
 
 void zchxVectorMapSettingWidget::slotShowTextCHKChanged(bool checked)
 {
-    if(mMainWindow)mMainWindow->itfSetShowText(checked);
+    if(mMainWindow)mMainWindow->itfToolBarSetShowText(checked);
 }
 
 void zchxVectorMapSettingWidget::slotShowLightsCHKChanged(bool checked)
 {
-
+    if(mMainWindow)mMainWindow->itfToolBarSetShowLight(checked);
 }
 
 void zchxVectorMapSettingWidget::slotShowNavObjectCHKChanged(bool checked)

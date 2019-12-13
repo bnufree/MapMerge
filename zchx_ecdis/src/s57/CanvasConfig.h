@@ -63,10 +63,12 @@ public:
     // ENC options
     bool bShowENCText;
     int  nENCDisplayCategory;
+    int  nColorScheme;
     bool bShowENCDepths;
     bool bShowENCBuoyLabels;
     bool bShowENCLightDescriptions;
     bool bShowENCLights;
+    bool bShowNationalText;
     
     
      

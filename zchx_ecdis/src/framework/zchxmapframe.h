@@ -101,6 +101,9 @@ public:
     //深水区
     virtual void        setDeepDepthVal(double val) {}
     virtual double        getDeepDepthVal() const {return 0;}
+    //显示网格
+    virtual void        setGridDisplayStatus(bool isDisplay) {}
+    virtual bool        getGridDisplayStatus() const  {return false;}
 
 signals:
     void        signalSendCurMapinfo(double center_lat, double center_lon, int zoom);

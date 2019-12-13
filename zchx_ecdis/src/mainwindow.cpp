@@ -889,93 +889,105 @@ double MainWindow::itfzchxUtilToolAngle4north()
     return mMapWidget->zchxUtilToolAngle4north();
 }
 
-void MainWindow::itfSetMapSource(const QString &dir, int pos)
+void MainWindow::itfToolBarSetMapSource(const QString &dir, int pos)
 {
     if(mMapWidget) mMapWidget->setSource(dir, pos);
 }
 
-QString MainWindow::itfGetMapSource() const
+QString MainWindow::itfToolBarGetMapSource() const
 {
     return mMapWidget->getSource();
 }
 
-void MainWindow::itfSetDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category)
+void MainWindow::itfToolBarSetDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category)
 {
     if(mMapWidget) mMapWidget->setDisplayCategory(category);
 }
 
-int MainWindow::itfGetDispkayCategory() const
+int MainWindow::itfToolBarGetDispkayCategory() const
 {
     return mMapWidget->getDisplayCategory();
 }
-void MainWindow::itfSetColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme)
+void MainWindow::itfToolBarSetColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme)
 {
     if(mMapWidget) mMapWidget->setColorScheme(scheme);
 }
 
-int MainWindow::itfGetColorScheme() const
+int MainWindow::itfToolBarGetColorScheme() const
 {
     return mMapWidget->getColorScheme();
 }
 
-void MainWindow::itfSetShallowDepth(double depth)
+void MainWindow::itfToolBarSetShallowDepth(double depth)
 {
     if(mMapWidget) mMapWidget->setShallowDepth(depth);
 }
 
-double MainWindow::itfGetShallowDepth() const
+double MainWindow::itfToolBarGetShallowDepth() const
 {
     return mMapWidget->getShallowDepth();
 }
-void MainWindow::itfSetSafeDepth(double depth)
+void MainWindow::itfToolBarSetSafeDepth(double depth)
 {
     if(mMapWidget) mMapWidget->setSafeDepth(depth);
 }
 
-double MainWindow::itfGetSafeDepth() const
+double MainWindow::itfToolBarGetSafeDepth() const
 {
     return mMapWidget->getSafeDepth();
 }
 
-void MainWindow::itfSetDeepDepth(double depth)
+void MainWindow::itfToolBarSetDeepDepth(double depth)
 {
     if(mMapWidget) mMapWidget->setDeepDepth(depth);
 }
 
-double MainWindow::itfGetDeepDepth() const
+double MainWindow::itfToolBarGetDeepDepth() const
 {
     return mMapWidget->getDeepDepth();
 }
 
-void MainWindow::itfSetDistanceUnit(ZCHX::DistanceUnit unit)
+void MainWindow::itfToolBarSetDistanceUnit(ZCHX::DistanceUnit unit)
 {
     if(mMapWidget) mMapWidget->setDistanceUnit(unit);
 }
 
-int MainWindow::itfGetDistanceUnit() const
+int MainWindow::itfToolBarGetDistanceUnit() const
 {
     return mMapWidget->getDistanceUnit();
 }
 
-void MainWindow::itfSetShowDepth(bool sts)
+void MainWindow::itfToolBarSetShowDepth(bool sts)
 {
     if(mMapWidget) mMapWidget->setShowDepth(sts);
 }
 
-bool MainWindow::itfGetShowDepth() const
+bool MainWindow::itfToolBarGetShowDepth() const
 {
     return mMapWidget->getShowDepth();
 }
 
-void MainWindow::itfSetShowText(bool sts)
+void MainWindow::itfToolBarSetShowText(bool sts)
 {
     if(mMapWidget) mMapWidget->setShowText(sts);
 }
 
-bool MainWindow::itfGetShowText() const
+bool MainWindow::itfToolBarGetShowText() const
 {
     return mMapWidget->getShowText();
 }
+
+void MainWindow::itfToolBarSetShowLight(bool sts)
+{
+    if(mMapWidget) mMapWidget->setShowLight(sts);
+}
+
+bool MainWindow::itfToolBarGetShowLight() const
+{
+    return mMapWidget->getShowLight();
+}
+
+
 
 void MainWindow::itfzchxUtilToolSetAngle4north(double ang)
 {
@@ -1981,17 +1993,7 @@ void MainWindow::setImgNumberVisible(bool sts)
     if(mMapWidget) mMapWidget->setImgNumberVisible(sts);
 }
 
-void MainWindow::itfToolBarShowDepth(bool isDisplay)
-{
-    if(mMapWidget) mMapWidget->setShowDepth(isDisplay);
-}
-
-void MainWindow::itfToolBarShowText(bool isDisplay)
-{
-    if(mMapWidget) mMapWidget->setShowText(isDisplay);
-}
-
-void MainWindow::itfToolBarShowGrid(bool isDisplay)
+void MainWindow::itfToolBarSetShowGrid(bool isDisplay)
 {
     if(mMapWidget) mMapWidget->setShowGrid(isDisplay);
 }

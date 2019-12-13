@@ -481,8 +481,8 @@ public:
     //    virtual void SaveCanvasConfigs( );
     //    virtual void SaveConfigCanvas( canvasConfig *cc );
 
-        virtual bool UpdateChartDirs(ArrayOfCDI &dirarray);
-        virtual bool LoadChartDirArray(ArrayOfCDI &ChartDirArray);
+//        virtual bool UpdateChartDirs(ArrayOfCDI &dirarray);
+//        virtual bool LoadChartDirArray(ArrayOfCDI &ChartDirArray);
         virtual void UpdateSettings();
     //    bool LoadLayers(QString &path);
         int LoadMyConfigRaw( bool bAsTemplate = false );

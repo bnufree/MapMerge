@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QVariant>
 
-#define PROFILE_INS     Profiles::instance()
+#define PROFILE_INS     qt::Profiles::instance()
 
 class QSettings;
 

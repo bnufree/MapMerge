@@ -30,13 +30,17 @@ void zchxECdisPopupWidget::paintEvent(QPaintEvent *event)
 
 zchxVectorMapSourceWidget::zchxVectorMapSourceWidget(const QString& msg, QWidget *parent) : zchxECdisPopupWidget(parent)
 {
+    this->setFixedHeight(80);
     this->setAttribute(Qt::WA_DeleteOnClose);
     this->setLayout(new QVBoxLayout);
     this->layout()->addWidget(new QLabel(msg, this));
 
-    QPushButton *btn = new QPushButton(QStringLiteral("重新设定地图数据目录"), this);
+
+    QPushButton *btn = new QPushButton(QStringLiteral("重新设定"), this);
+    btn->setStyleSheet("QPushButton{border:1px solid gray; min-height:30px; width:100px;} QPushButton:hover{color:blue;}");
     btn->setFlat(true);
     this->layout()->addWidget(btn);
+    this->layout()->setAlignment(btn, Qt::AlignCenter);
     connect(btn, SIGNAL(clicked(bool)), this, SLOT(slotSelDir()));
 }
 

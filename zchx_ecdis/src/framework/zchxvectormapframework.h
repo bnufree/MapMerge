@@ -11,6 +11,8 @@ class zchxVectorMapFrameWork : public zchxMapFrameWork
     Q_OBJECT
 public:
     explicit zchxVectorMapFrameWork(QObject *parent = 0);
+    explicit zchxVectorMapFrameWork(double center_lat, double center_lon, int zoom, int width, int height, const QString& source, int min_zoom, int max_zoom, QObject *parent = 0);
+
     virtual ~zchxVectorMapFrameWork();
     virtual ZCHX::Data::LatLon      Pixel2LatLon(const ZCHX::Data::Point2D& pos);
     virtual ZCHX::Data::Point2D     LatLon2Pixel(const ZCHX::Data::LatLon& ll);
@@ -19,7 +21,7 @@ public:
     virtual     void        setCenter(double lon, double lat);
     virtual     void        setCenterAndZoom(const ZCHX::Data::LatLon& ll, int zoom);
     //设定地图数据来源
-    virtual     void        setSource(const QString& source, int pos);
+    virtual     void        setSource(const QString& source, int pos = 0);
 
     //地图操作接口
     virtual     void        setZoom(int zoom);
@@ -74,6 +76,12 @@ public:
     //深水区
     virtual void        setDeepDepthVal(double val);
     virtual double        getDeepDepthVal() const;
+    //网格
+    virtual void        setGridDisplayStatus(bool sts);
+    virtual bool        getGridDisplayStatus() const;
+
+private:
+    void                    initGL(double lat, double lon,  int zoom, int width, int height, const QString& chartDir = QString());
 
 private:
     glChartCanvas*          mGLCtrl;

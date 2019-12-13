@@ -7,10 +7,30 @@ using namespace qt;
 
 zchxVectorMapFrameWork::zchxVectorMapFrameWork(QObject *parent) : zchxMapFrameWork(ZCHX::ZCHX_MAP_VECTOR, parent)
 {
-    mGLCtrl = new glChartCanvas(0);
+//    initGL();
+}
+
+zchxVectorMapFrameWork::zchxVectorMapFrameWork(double center_lat, double center_lon, int zoom, int width, int height, const QString& source, int min_zoom, int max_zoom, QObject *parent)
+    : zchxMapFrameWork(ZCHX::ZCHX_MAP_VECTOR, parent)
+{
+//    setMinZoom(min_zoom);
+//    setMaxZoom(max_zoom);
+//    setSource(source, pos);
+//    setCenter(center_lon, center_lat);
+//    setZoom(zoom);
+//    setViewSize(width, height);
+
+
+    initGL(center_lat, center_lon, zoom, width, height, source);
+}
+
+void zchxVectorMapFrameWork::initGL(double lat, double lon,  int zoom, int width, int height, const QString& chartDir)
+{
+    mGLCtrl = new glChartCanvas(lat, lon, zchxMapDataUtils::calResolutionOfPPM(zoom), width, height, chartDir);
     connect(mGLCtrl, SIGNAL(signalDBUpdateFinished()), this, SIGNAL(signalDBUpdateFinished()));
     connect(mGLCtrl, SIGNAL(signalBadChartDirFoundNow()), this, SIGNAL(signalBadChartDirFoundNow()));
 }
+
 
 zchxVectorMapFrameWork::~zchxVectorMapFrameWork()
 {
@@ -250,6 +270,17 @@ void zchxVectorMapFrameWork::setLightsDisplayStatus(bool sts)
 bool zchxVectorMapFrameWork::getLightsDisplayStatus() const
 {
     return mGLCtrl->GetShowENCLights();
+}
+
+
+void zchxVectorMapFrameWork::setGridDisplayStatus(bool sts)
+{
+    mGLCtrl->SetShowGrid(sts);
+}
+
+bool zchxVectorMapFrameWork::getGridDisplayStatus() const
+{
+    return mGLCtrl->GetShowGrid();
 }
 
 

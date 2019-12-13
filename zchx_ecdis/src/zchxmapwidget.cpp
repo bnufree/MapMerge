@@ -70,8 +70,8 @@ zchxMapWidget::zchxMapWidget(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) : QGLWid
         mFrameWork = new zchxTileMapFrameWork(lat, lon, zoom, width(), height(), source, pos, min_zoom, max_zoom);
     } else
     {
-//        mFrameWork = new zchxTileMapFrameWork(lat, lon, zoom, width(), height(), source, pos, min_zoom, max_zoom);
-        mFrameWork = new zchxVectorMapFrameWork();
+        mFrameWork = new zchxVectorMapFrameWork(lat, lon, zoom, width(), height(), source, min_zoom, max_zoom);
+//        mFrameWork = new zchxVectorMapFrameWork();
     }
     connect(mFrameWork, SIGNAL(signalDBUpdateFinished()), this, SLOT(slotDBUpdateFinished()));
     connect(mFrameWork, SIGNAL(signalBadChartDirFoundNow()), this, SLOT(slotBadChartDirFoundNow()));

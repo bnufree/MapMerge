@@ -183,9 +183,12 @@ static void print_region(OCPNRegion &Region)
 
 
 
-glChartCanvas::glChartCanvas(QObject* parent) : QObject(parent)
+glChartCanvas::glChartCanvas(double lat, double lon,  double scale, int width, int height, const QString& chartDir, QObject* parent) : QObject(parent)
     , m_bsetup( false )
-    , mFrameWork(new ChartFrameWork(this))
+    , mCenterLat(lat)
+    , mCenterLon(lon)
+    , mScale(scale)
+    , mFrameWork(0)
     , m_bQuiting(false)
     , m_bShowDepthUnits(false)
     , m_bDisplayGrid(false)
@@ -196,13 +199,20 @@ glChartCanvas::glChartCanvas(QObject* parent) : QObject(parent)
     , mIsLeftDown(false)
     , m_MouseDragging(false)
     , mIsInitValid(true)
-    , mWidth(0)
-    , mHeight(0)
+    , mWidth(width)
+    , mHeight(height)
     , mShallowDepth(3)
     , mSafeDepth(8)
     , mDeepdepth(10)
     , mDepthUnit(ZCHX::Depth_Meters)
 {
+    mChartDir = chartDir;
+
+    mShallowDepth = PROFILE_INS->value(MAP_INDEX, ENC_SHALLOW_DEPTH, 3).toDouble();
+    mSafeDepth = PROFILE_INS->value(MAP_INDEX, ENC_SAFE_DEPTH, 8).toDouble();
+    mDeepdepth = PROFILE_INS->value(MAP_INDEX, ENC_DEEP_DEPTH, 10).toDouble();
+
+    mFrameWork = new ChartFrameWork(mChartDir,this);
     glChart = this;
     m_cs = ZCHX::ZCHX_COLOR_SCHEME_DAY;
     pWorldBackgroundChart = new GSHHSChart;
@@ -3425,6 +3435,7 @@ void glChartCanvas::FastZoom(float factor)
 void glChartCanvas::SetColorScheme( ZCHX::ZCHX_COLOR_SCHEME cs )
 {
     global_color_scheme = cs;
+    PROFILE_INS->setValue(ENC_DISPLAY_SETTING, ENC_COLOR_SCHEME, cs);
     QString SchemeName;
     switch( cs ){
         case ZCHX::ZCHX_COLOR_SCHEME_DAY:
@@ -3525,11 +3536,25 @@ bool glChartCanvas::initBeforeUpdateMap()
     config->canvas = this;
 
     // Verify that glCanvas is ready, if necessary
-    config->iLat = qt::Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LAT).toDouble();
-    config->iLon = qt::Profiles::instance()->value(MAP_INDEX, MAP_DEFAULT_LON).toDouble();
+    config->iLat = mCenterLat;
+    config->iLon = mCenterLon;
+//    config->iScale = mScale;
+    config->iRotation = PROFILE_INS->value(MAP_INDEX, MAP_ROTATE_ANGLE, 0.0).toDouble();
+    config->bShowDepthUnits = false;
+    config->bShowGrid = PROFILE_INS->value(ENC_DISPLAY_SETTING, ENC_SHOW_GRID, false).toBool();
+    config->bShowOutlines = false;
+    config->bShowENCText = PROFILE_INS->value(ENC_DISPLAY_SETTING, ENC_SHOW_TEXT, false).toBool();
+    config->nENCDisplayCategory = PROFILE_INS->value(ENC_DISPLAY_SETTING, ENC_CATEGORY, 1).toInt();
+    config->bShowENCDepths = PROFILE_INS->value(ENC_DISPLAY_SETTING, ENC_SHOW_DEPTH, false).toBool();
+    config->bShowENCLightDescriptions = PROFILE_INS->value(ENC_DISPLAY_SETTING, ENC_SHOW_LIGHT_DES, false).toBool();
+    config->bShowENCLights = PROFILE_INS->value(ENC_DISPLAY_SETTING, ENC_SHOW_LIGHT, false).toBool();
+    config->bShowENCBuoyLabels = PROFILE_INS->value(ENC_DISPLAY_SETTING, ENC_SHOW_BURO_LABEL, false).toBool();
+    config->bShowNationalText = PROFILE_INS->value(ENC_DISPLAY_SETTING, ENC_SHOW_NATIONAL_TEXT, false).toBool();
+    config->nColorScheme = PROFILE_INS->value(ENC_DISPLAY_SETTING, ENC_COLOR_SCHEME, 0).toInt();
+
 
     mFrameWork->SetDisplaySizeMM(size_mm);
-
+    global_color_scheme = ZCHX::ZCHX_COLOR_SCHEME(config->nColorScheme);
     ApplyCanvasConfig(config);
     SetColorScheme( global_color_scheme );
     return true;
@@ -3555,9 +3580,9 @@ void glChartCanvas::slotUpdateChartFinished()
 
 void glChartCanvas::ApplyCanvasConfig(canvasConfig *pcc)
 {
-    mFrameWork->m_vLat = pcc->iLat;
-    mFrameWork->SetViewPoint(pcc->iLat, pcc->iLon, pcc->iScale, 0., pcc->iRotation );
+    mFrameWork->m_vLat = pcc->iLat;    
     mFrameWork->m_vLon = pcc->iLon;
+    mFrameWork->SetViewPoint(pcc->iLat, pcc->iLon, pcc->iScale, 0., pcc->iRotation );
 
     mFrameWork->m_restore_dbindex = pcc->DBindex;
     if ( pcc->GroupID < 0 )
@@ -3648,6 +3673,7 @@ void glChartCanvas::SetShowOutlines(bool show)
 
 void glChartCanvas::SetShowENCText( bool show )
 {
+    PROFILE_INS->setValue(ENC_DISPLAY_SETTING, ENC_SHOW_TEXT, show);
     m_encShowText = show;
     m_s52StateHash = 0;         // Force a S52 PLIB re-configure    
     mFrameWork->ReloadVP();
@@ -3656,6 +3682,7 @@ void glChartCanvas::SetShowENCText( bool show )
 void glChartCanvas::SetENCDisplayCategory( int category )
 {
     m_encDisplayCategory = category;
+    PROFILE_INS->setValue(ENC_DISPLAY_SETTING, ENC_CATEGORY, category);
     qDebug()<<"category:"<<m_encDisplayCategory;
     m_s52StateHash = 0;         // Force a S52 PLIB re-configure
     mFrameWork->ReloadVP();
@@ -3664,6 +3691,7 @@ void glChartCanvas::SetENCDisplayCategory( int category )
 
 void glChartCanvas::SetShowENCDepth( bool show )
 {
+    PROFILE_INS->setValue(ENC_DISPLAY_SETTING, ENC_SHOW_DEPTH, show);
     m_encShowDepth = show;
     m_s52StateHash = 0;         // Force a S52 PLIB re-configure    
     mFrameWork->ReloadVP();
@@ -3671,18 +3699,21 @@ void glChartCanvas::SetShowENCDepth( bool show )
 
 void glChartCanvas::SetShowENCLightDesc( bool show )
 {
+    PROFILE_INS->setValue(ENC_DISPLAY_SETTING, ENC_SHOW_LIGHT_DES, show);
     m_encShowLightDesc = show;
     m_s52StateHash = 0;         // Force a S52 PLIB re-configure
 }
 
 void glChartCanvas::SetShowENCBuoyLabels( bool show )
 {
+    PROFILE_INS->setValue(ENC_DISPLAY_SETTING, ENC_SHOW_BURO_LABEL, show);
     m_encShowBuoyLabels = show;
     m_s52StateHash = 0;         // Force a S52 PLIB re-configure
 }
 
 void glChartCanvas::SetShowENCLights( bool show )
 {
+    PROFILE_INS->setValue(ENC_DISPLAY_SETTING, ENC_SHOW_LIGHT, show);
     m_encShowLights = show;
     m_s52StateHash = 0;         // Force a S52 PLIB re-configure
 }
@@ -4089,18 +4120,21 @@ void glChartCanvas::changeS572SENC(const QString &src)
 
 void glChartCanvas::setShallowDepth(double val)
 {
+    PROFILE_INS->setValue(ENC_DISPLAY_SETTING, ENC_SHALLOW_DEPTH, val);
     m_s52StateHash = 0;
     mShallowDepth = val;
 }
 
 void glChartCanvas::setSafeDepth(double val)
 {
+    PROFILE_INS->setValue(ENC_DISPLAY_SETTING, ENC_SAFE_DEPTH, val);
     m_s52StateHash = 0;
     mSafeDepth = val;
 }
 
 void glChartCanvas::setDeepDepth(double val)
 {
+    PROFILE_INS->setValue(ENC_DISPLAY_SETTING, ENC_DEEP_DEPTH, val);
     m_s52StateHash = 0;
     mDeepdepth = val;
 }

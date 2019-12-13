@@ -640,92 +640,92 @@ bool zchxConfig::LoadLayers(QString &path)
 }
 #endif
 
-bool zchxConfig::LoadChartDirArray( ArrayOfCDI &ChartDirArray )
-{
-    //    Chart Directories
-    BeginGroup("ChartDirectories" );
-    QStringList keys = allKeys();
-    int iDirMax = keys.size();
-    if(iDirMax > 0) ChartDirArray.clear();
-    int nAdjustChartDirs = 0;
-    int iDir = 0;
-    for( int i=0; i<iDirMax; i++ ) {
-        QString str = keys[i];
-        QString val;
-        Read(str, PARAM_STRING, &val);
-        QString dirname( val );
-        if( !dirname.isEmpty() )
-        {
+//bool zchxConfig::LoadChartDirArray( ArrayOfCDI &ChartDirArray )
+//{
+//    //    Chart Directories
+//    BeginGroup("ChartDirectories" );
+//    QStringList keys = allKeys();
+//    int iDirMax = keys.size();
+//    if(iDirMax > 0) ChartDirArray.clear();
+//    int nAdjustChartDirs = 0;
+//    int iDir = 0;
+//    for( int i=0; i<iDirMax; i++ ) {
+//        QString str = keys[i];
+//        QString val;
+//        Read(str, PARAM_STRING, &val);
+//        QString dirname( val );
+//        if( !dirname.isEmpty() )
+//        {
 
-            /*     Special case for first time run after Windows install with sample chart data...
-   We desire that the sample configuration file opencpn.ini should not contain any
-   installation dependencies, so...
-   Detect and update the sample [ChartDirectories] entries to point to the Shared Data directory
-   For instance, if the (sample) opencpn.ini file should contain shortcut coded entries like:
+//            /*     Special case for first time run after Windows install with sample chart data...
+//   We desire that the sample configuration file opencpn.ini should not contain any
+//   installation dependencies, so...
+//   Detect and update the sample [ChartDirectories] entries to point to the Shared Data directory
+//   For instance, if the (sample) opencpn.ini file should contain shortcut coded entries like:
 
-   [ChartDirectories]
-   ChartDir1=SampleCharts\\MaptechRegion7
+//   [ChartDirectories]
+//   ChartDir1=SampleCharts\\MaptechRegion7
 
-   then this entry will be updated to be something like:
-   ChartDir1=c:\Program Files\opencpn\SampleCharts\\MaptechRegion7
+//   then this entry will be updated to be something like:
+//   ChartDir1=c:\Program Files\opencpn\SampleCharts\\MaptechRegion7
 
-   */
-            if( dirname.indexOf("SampleCharts" )  == 0 ) // only update entries starting with "SampleCharts"
-            {
-                nAdjustChartDirs++;
-                remove(str );
-                QString new_dir = dirname.mid(dirname.indexOf("SampleCharts" ) );
-                new_dir.insert(0, zchxFuncUtil::getDataDir() + "/" );
-                dirname = new_dir;
-            }
+//   */
+//            if( dirname.indexOf("SampleCharts" )  == 0 ) // only update entries starting with "SampleCharts"
+//            {
+//                nAdjustChartDirs++;
+//                remove(str );
+//                QString new_dir = dirname.mid(dirname.indexOf("SampleCharts" ) );
+//                new_dir.insert(0, zchxFuncUtil::getDataDir() + "/" );
+//                dirname = new_dir;
+//            }
 
-            ChartDirInfo cdi;
-            cdi.fullpath = dirname.left(dirname.indexOf( '^' ));
-            cdi.magic_number = dirname.mid(dirname.indexOf('^') + 1);
+//            ChartDirInfo cdi;
+//            cdi.fullpath = dirname.left(dirname.indexOf( '^' ));
+//            cdi.magic_number = dirname.mid(dirname.indexOf('^') + 1);
 
-            ChartDirArray.append(cdi );
-            iDir++;
-        }
-    }
-    endGroup();
+//            ChartDirArray.append(cdi );
+//            iDir++;
+//        }
+//    }
+//    endGroup();
 
-    if( nAdjustChartDirs ) UpdateChartDirs( ChartDirArray );
-    return true;
-}
-
-
+//    if( nAdjustChartDirs ) UpdateChartDirs( ChartDirArray );
+//    return true;
+//}
 
 
 
-bool zchxConfig::UpdateChartDirs( ArrayOfCDI& dir_array )
-{
-    QString str_buf;
 
-    BeginGroup("ChartDirectories" );
-    int iDirMax = childKeys().size();
-    if( iDirMax ) {
-        QStringList keys = childKeys();
-        foreach (QString key, keys) {
-            remove(key);
-        }
-    }
 
-    iDirMax = dir_array.count();
+//bool zchxConfig::UpdateChartDirs( ArrayOfCDI& dir_array )
+//{
+//    QString str_buf;
 
-    for( int iDir = 0; iDir < iDirMax; iDir++ ) {
-        ChartDirInfo cdi = dir_array[iDir];
+//    BeginGroup("ChartDirectories" );
+//    int iDirMax = childKeys().size();
+//    if( iDirMax ) {
+//        QStringList keys = childKeys();
+//        foreach (QString key, keys) {
+//            remove(key);
+//        }
+//    }
 
-        QString dirn = cdi.fullpath;
-        dirn.append(("^") );
-        dirn.append( cdi.magic_number );
+//    iDirMax = dir_array.count();
 
-        str_buf.sprintf("ChartDir%d", iDir + 1 );
-        setValue(str_buf, dirn);
-    }
+//    for( int iDir = 0; iDir < iDirMax; iDir++ ) {
+//        ChartDirInfo cdi = dir_array[iDir];
 
-    endGroup();
-    return true;
-}
+//        QString dirn = cdi.fullpath;
+//        dirn.append(("^") );
+//        dirn.append( cdi.magic_number );
+
+//        str_buf.sprintf("ChartDir%d", iDir + 1 );
+//        setValue(str_buf, dirn);
+//    }
+
+//    endGroup();
+//    return true;
+//}
 
 #if 0
 void zchxConfig::CreateConfigGroups( ChartGroupArray *pGroupArray )

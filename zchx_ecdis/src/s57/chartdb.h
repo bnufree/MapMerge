@@ -104,6 +104,7 @@ public:
       ChartDB();
       virtual ~ChartDB();
 
+      bool CheckBinaryPathEqual(const QString& filename, const QString& dir);
       bool LoadBinary(const QString & filename, ArrayOfCDI& dir_array_check);
       bool SaveBinary(const QString & filename) { return ChartDatabase::Write(filename); }
       int  BuildChartStack(ChartStack * cstk, float lat, float lon, int groupIndex);

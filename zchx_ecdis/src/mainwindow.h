@@ -31,29 +31,36 @@ private:
     void initSignalConnect(); //初始化信号连接
 public:
     //设定图的的数据源
-    void   itfSetMapSource(const QString& dir, int pos = 0); //dir 地图数据的目录或者http地址 pos只对瓦片图有效  0:左上位置 1:左下位置
-    QString  itfGetMapSource() const;
-    //设定地图的颜色模式和显示模式
-    void   itfSetDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category);
-    int    itfGetDispkayCategory() const;
-    void   itfSetColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme);
-    int    itfGetColorScheme() const;
+    void        itfToolBarSetMapSource(const QString& dir, int pos = 0); //dir 地图数据的目录或者http地址 pos只对瓦片图有效  0:左上位置 1:左下位置
+    QString     itfToolBarGetMapSource() const;
+    //显示模式
+    void        itfToolBarSetDisplayCategory(ZCHX::ZCHX_DISPLAY_CATEGORY category);
+    int         itfToolBarGetDispkayCategory() const;
+    //颜色模式
+    void        itfToolBarSetColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme);
+    int         itfToolBarGetColorScheme() const;
     //设定水深
-    void    itfSetShallowDepth(double depth);
-    double  itfGetShallowDepth() const;
-    void    itfSetSafeDepth(double depth);
-    double  itfGetSafeDepth() const;
-    void    itfSetDeepDepth(double depth);
-    double  itfGetDeepDepth() const;
+    void        itfToolBarSetShallowDepth(double depth);
+    double      itfToolBarGetShallowDepth() const;
+    void        itfToolBarSetSafeDepth(double depth);
+    double      itfToolBarGetSafeDepth() const;
+    void        itfToolBarSetDeepDepth(double depth);
+    double      itfToolBarGetDeepDepth() const;
     //设置距离单位
-    void    itfSetDistanceUnit(ZCHX::DistanceUnit unit);
-    int     itfGetDistanceUnit() const;
+    void        itfToolBarSetDistanceUnit(ZCHX::DistanceUnit unit);
+    int         itfToolBarGetDistanceUnit() const;
     // 水深数据
-    void    itfSetShowDepth( bool sts);
-    bool    itfGetShowDepth() const;
+    void        itfToolBarSetShowDepth( bool sts);
+    bool        itfToolBarGetShowDepth() const;
     //文本数据
-    void    itfSetShowText(bool sts);
-    bool    itfGetShowText() const;
+    void        itfToolBarSetShowText(bool sts);
+    bool        itfToolBarGetShowText() const;
+    //Light
+    void        itfToolBarSetShowLight(bool sts);
+    bool        itfToolBarGetShowLight() const;
+    //网格
+    void        itfToolBarSetShowGrid(bool isDisplay);        //是否显示地图网格信息
+    bool        itfToolBarGetShowGrid() const;
 
 
     //其他工具接口
@@ -119,10 +126,7 @@ public:
     void itfToolBarElecBearLine();    //电子方位线
     void itfToolBarPickup();          //拾取
     void itfToolBarShowAll();         // 显示世界地图（复位）
-    void itfToolBarGps();             //跟踪
-    void itfToolBarShowDepth(bool isDisplay);       //是否显示水深
-    void itfToolBarShowText(bool isDisplay);        //是否显示地名等文本信息
-    void itfToolBarShowGrid(bool isDisplay);        //是否显示地图网格信息
+    void itfToolBarGps();             //跟踪    
     void itfToolBarRotate(double degree);       //旋转地图,旋转到指定的角度值,单位度
     void itfToolBarRotateClockwise(double delta);                //旋转地图,当前地图的基础上进行顺时针旋转.单位度
     void itfToolBarRotateAntiClockwise(double delta);                //旋转地图,当前地图的基础上进行逆时针旋转.单位度

@@ -661,7 +661,7 @@ QString zchxFuncUtil::getAppDir()
 
 QString zchxFuncUtil::getDataDir()
 {
-    QString data_dir = QString("%1/map_data").arg(getAppDir());
+    QString data_dir = QString("%1/mapdata").arg(getAppDir());
     QDir dir(data_dir);
     if(!dir.exists()) dir.mkpath(data_dir);
     return data_dir;
@@ -685,7 +685,7 @@ QString zchxFuncUtil::getPluginDir()
 
 QString zchxFuncUtil::getConfigFileName()
 {
-    return QString("%1/settings.ini").arg(getDataDir());
+    return QString("%1/vector.ini").arg(getDataDir());
 }
 
 float zchxFuncUtil::getChartScaleFactorExp( float scale_linear )

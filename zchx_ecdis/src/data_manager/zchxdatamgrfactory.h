@@ -24,6 +24,8 @@ public:
     bool appendDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr);
     //具体各个数据类型获取
     zchxAisDataMgr* getAisDataMgr();
+    zchxAisSiteDataMgr* getAisSiteMgr();
+    zchxAidtoNavigationDataMgr* getAidtoNavigationMgr();
     zchxRadarDataMgr* getRadarDataMgr();
     zchxRadarSiteDataMgr* getRadarSiteMgr();
     zchxRodDataMgr* getRodDataMgr();
@@ -48,7 +50,7 @@ public:
     zchxRadarRectMgr*          getRadarRectMgr();
     zchxRadarVideoMgr*          getRadarVideoMgr();
     zchxRadarFeatureZoneDataMgr* getRadarFeatureZoneMgr();
-
+    zchxNaviMarkDataMgr* getNaviMarkDataMgr();
 
 private:
     explicit zchxDataMgrFactory();

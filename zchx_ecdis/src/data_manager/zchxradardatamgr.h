@@ -14,10 +14,12 @@ public:
     bool    updateActiveItem(const QPoint& pt);
     Element* selectItem(const QPoint &pt);
 
-    void    SetRadarDisplayInfo(int targetSizeIndex, int traceLenIndex, int continueTimeIndex); //设置雷达显示方式
+    void setClearHistoryData(bool states); //true:清空历史回放数据; false:清空实时的历史轨迹数据
+
+    void    SetRadarDisplayInfo(bool showRadarLabel, int targetSizeIndex, int traceLenIndex, int continueTimeIndex); //设置雷达显示方式
     void    setPickUpRadarPoint(QString id);          //设定当前选中的雷达
     void    setRadarPointData(int radarSiteId, const QList<ZCHX::Data::ITF_RadarPoint> &data);
-    void    setHistoryRadarPointData(const std::vector<RadarPointElement> &data);
+    void    setHistoryRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint> &data);
     void    showRadarPoint(QPainter* painter);
 
     //雷达扫描区域
@@ -40,12 +42,13 @@ private:
 
     QMap<int, QMap<QString, std::shared_ptr<RadarPointElement> > >     m_RadarPointMap; // 双雷达
 //    QMap<QString, std::shared_ptr<RadarPointElement>>     m_RadarPoint;               //实时雷达目标数据
-    std::vector<RadarPointElement>     m_HistoryRadarPoint;        //雷达历史点数据
+    QList<std::shared_ptr<RadarPointElement> >     m_HistoryRadarPoint;        //雷达历史点数据
     QMap<int, double>                               m_pRadarPointHistory;       //雷达的转向数据(历史数据使用)
     QMutex              mDataMutex;
 
     //雷达扫描区域点数据
     std::vector<RadarAreaElement>      m_RadarArea;            //雷达扫描区域数据
+    bool m_showRadarLabel;
     int m_targetSizeIndex;
     int m_traceLenIndex;
     int m_continueTimeIndex;

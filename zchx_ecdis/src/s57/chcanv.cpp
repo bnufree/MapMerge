@@ -1041,7 +1041,7 @@ void ChartFrameWork::SetCanvasRangeMeters( double range )
 void  ChartFrameWork::slotUpdateWhenSencFinished()
 {
     mGLCC->ClearS52PLIBStateHash();
-    ReloadVP();
+    ReloadVP(false);
 }
 
 

@@ -53,6 +53,8 @@ public:
     void drawText(QPainter *painter, QPointF pos, int sideLen);
     void clicked(bool isDouble);
     void showToolTip(const QPoint &pos);
+
+    void setShowRadarLabel(bool showRadarLabel);
 private:
     std::vector<std::pair<double, double>> m_path;
     RADARTYPE    m_radar_type;
@@ -62,6 +64,7 @@ private:
     uint m_status; //0不闪，1闪
     bool mRadarShapeAsRect; //true:矩形,false:圆形
     bool mDrawAsAis;  //是否将目标画为一个船舶图标
+    bool m_showRadarLabel;
 };
 
 class  RadarAreaElement: public Element

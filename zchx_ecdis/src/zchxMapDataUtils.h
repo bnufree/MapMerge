@@ -194,6 +194,8 @@ Q_DECLARE_METATYPE(qt::TileImageList)
 #define             MAP_BACK_GROUND                 "BackgroundColor"
 #define             MAP_START_WITH_LAST_POS         "StartMapWithLastPos"
 #define             MAP_ROTATE_ANGLE                "RotateAngle"
+#define           MAX_RECT_PIXEL_LENGTH           "MaxRadarRectLength"
+#define           MAP_USE_RECT_COG                "RadarRectUseCog"
 
 //Ais显示配置
 #define             AIS_DISPLAY_SETTING                         "AIS"

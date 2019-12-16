@@ -18,6 +18,7 @@ public:
 
 private:
     ZCHX::Data::ITF_RadarVideoGLow  m_data;
+    QMutex m_mutex;
 };
 
 }

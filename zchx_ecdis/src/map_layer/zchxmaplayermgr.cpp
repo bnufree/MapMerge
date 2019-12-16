@@ -31,6 +31,7 @@ void MapLayerMgr::loadEcdisLayers()
     addLayer(ZCHX::LAYER_RADARVIDEO, ZCHX::TR_LAYER_RADARVIDEO, true);
 
     //ais
+    addLayer(ZCHX::LAYER_AIS_SITE, ZCHX::TR_LAYER_AIS_SITE, true);
     addLayer(ZCHX::LAYER_AIS, ZCHX::TR_LAYER_AIS, true);
     addLayer(ZCHX::LAYER_AIS_CURRENT, ZCHX::TR_LAYER_AIS_CURRENT, true, ZCHX::LAYER_AIS);  //实时AIS
     addLayer(ZCHX::LAYER_AIS_TRACK, ZCHX::TR_LAYER_AIS_TRACK,true, ZCHX::LAYER_AIS);       //AIS尾迹
@@ -116,6 +117,8 @@ void MapLayerMgr::loadEcdisLayers()
     addLayer(ZCHX::LAYER_VESSEL_TRACK, ZCHX::TR_LAYER_VESSEL_TRACK, true);
     addLayer(ZCHX::LAYER_RECT, ZCHX::LAYER_RECT, true);
 
+    // 虚拟航标
+    addLayer(ZCHX::LAYER_NAVIMARK, ZCHX::TR_LAYER_NAVIMARK, true);
 }
 
 void MapLayerMgr::loadLayers()

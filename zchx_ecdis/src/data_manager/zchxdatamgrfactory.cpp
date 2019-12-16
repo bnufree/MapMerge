@@ -31,6 +31,12 @@ void zchxDataMgrFactory::setDisplayWidget(zchxMapWidget *w)
 void zchxDataMgrFactory::createManager(int type)
 {
     switch (type) {
+    case ZCHX::DATA_MGR_AIS_SITE:
+        mMgrList[type] = std::shared_ptr<zchxAisSiteDataMgr>(new zchxAisSiteDataMgr(mWidget));
+        break;
+    case ZCHX::DATA_MGR_AIDTO_NAVIGATION:
+        mMgrList[type] = std::shared_ptr<zchxAidtoNavigationDataMgr>(new zchxAidtoNavigationDataMgr(mWidget));
+        break;
     case ZCHX::DATA_MGR_AIS:
         mMgrList[type] = std::shared_ptr<zchxAisDataMgr>(new zchxAisDataMgr(mWidget));
         break;
@@ -106,6 +112,9 @@ void zchxDataMgrFactory::createManager(int type)
     case ZCHX::DATA_MGR_RADAR_FEATURE_ZONE:
         mMgrList[type] = std::shared_ptr<zchxRadarFeatureZoneDataMgr>(new zchxRadarFeatureZoneDataMgr(mWidget));
         break;
+    case ZCHX::DATA_MGR_NAVIMARK:
+        mMgrList[type] = std::shared_ptr<zchxNaviMarkDataMgr>(new zchxNaviMarkDataMgr(mWidget));
+        break;
     default:
         break;
     }
@@ -144,6 +153,16 @@ bool zchxDataMgrFactory::appendDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr)
 zchxAisDataMgr* zchxDataMgrFactory::getAisDataMgr()
 {
     return static_cast<zchxAisDataMgr*>(getManager(ZCHX::DATA_MGR_AIS).get());
+}
+
+zchxAisSiteDataMgr *zchxDataMgrFactory::getAisSiteMgr()
+{
+    return static_cast<zchxAisSiteDataMgr*>(getManager(ZCHX::DATA_MGR_AIS_SITE).get());
+}
+
+zchxAidtoNavigationDataMgr *zchxDataMgrFactory::getAidtoNavigationMgr()
+{
+    return static_cast<zchxAidtoNavigationDataMgr*>(getManager(ZCHX::DATA_MGR_AIDTO_NAVIGATION).get());
 }
 
 zchxRadarDataMgr* zchxDataMgrFactory::getRadarDataMgr()
@@ -264,6 +283,11 @@ zchxRadarVideoMgr* zchxDataMgrFactory::getRadarVideoMgr()
 zchxRadarFeatureZoneDataMgr* zchxDataMgrFactory::getRadarFeatureZoneMgr()
 {
     return static_cast<zchxRadarFeatureZoneDataMgr*>(getManager(ZCHX::DATA_MGR_RADAR_FEATURE_ZONE).get());
+}
+
+zchxNaviMarkDataMgr *zchxDataMgrFactory::getNaviMarkDataMgr()
+{
+    return static_cast<zchxNaviMarkDataMgr*>(getManager(ZCHX::DATA_MGR_NAVIMARK).get());
 }
 
 }

@@ -3,24 +3,8 @@
 
 #include "zchxecdisdatamgr.h"
 #include <QMutex>
-#include <QRunnable>
 
 namespace qt {
-class zchxAisDataMgr;
-class zchxAisDraw : public QThread
-{
-    Q_OBJECT
-public:
-    zchxAisDraw(zchxAisDataMgr* mgr, const QSize& size, const QList<std::shared_ptr<AisElement>>& list);
-    void run();
-
-private:
-    int                 mWidth;
-    int                 mHeight;
-    QList<std::shared_ptr<AisElement>>  mList;
-    zchxAisDataMgr*  mMgr;
-};
-
 class zchxAisDataMgr : public zchxEcdisDataMgr
 {
     Q_OBJECT
@@ -56,10 +40,9 @@ public:
     QList<QAction*> getRightMenuActions(const QPoint &pt);
     //船舶相机更新
     void updateCamera(const QList<ZCHX::Data::ITF_CameraDev>& cam);
-public slots:
-    //添加图片信息
-    void setPixmap(const QPixmap& map);
-    QPixmap  getPixmap();
+
+    bool onHisTraceWheelEvent(QWheelEvent *e);
+
 signals:
     //船队
     void signalFleet(const ZCHX::Data::ITF_AIS& data);    
@@ -86,13 +69,12 @@ public slots:
 
 private:
     QMutex              mDataMutex;
-    QMutex              mPixMutex;
-public:
     QHash<QString, std::shared_ptr<AisElement>>    m_aisData;              //船舶模拟数据
     QHash<QString, std::shared_ptr<AisElement>>    m_aisMap;               //实时AIS对象
     //船舶的轨迹合并到了船舶图元,这里暂且注释掉
     QString             mSelHistoryTrackID;
     int                 mSelHistoryPointIndex;
+    std::shared_ptr<AisElement> mCurrentAis;
     //QMap<QString, QList<ZCHX::Data::ITF_AIS>>                   m_aisTraceMap;          //船舶历史轨迹
     //QMap<QString, int>                                          m_aisIndexMap;          //当前船舶历史轨迹线上放大显示的轨迹点下标
     QHash<QString, std::shared_ptr<AisElement>>    m_historyAisMap;        //AIS历史对象,历史回放时使用
@@ -102,8 +84,6 @@ public:
     QString                                                     m_sPrepushTrackStyle;
     int                                                         m_iPrepushTrackWidth;
     QList<ZCHX::Data::ITF_AIS>                                  m_pShipSiumtionExtrapolation;
-    QPixmap                                                     mCurPixmap;
-
 };
 }
 

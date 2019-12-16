@@ -20,6 +20,7 @@ public:
     int getEnterStatus();
     bool isAisUnopened();
     bool getWarning();
+    bool getIsPhoto();
     double getOverlength();
     QString getColor();
 

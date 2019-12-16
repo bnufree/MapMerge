@@ -183,5 +183,17 @@
         <file>sdasid/bak/lawship_error.png</file>
         <file>sdasid/bak/lawship_normal.png</file>
         <file>sdasid/bak/XlzVo.png</file>
+        <file>aidtoNavigation/Basic shape.png</file>
+        <file>aidtoNavigation/East cardinal mark.png</file>
+        <file>aidtoNavigation/Isolated danger mark.png</file>
+        <file>aidtoNavigation/North cardinal mark.png</file>
+        <file>aidtoNavigation/port hand mark.png</file>
+        <file>aidtoNavigation/sate water mark.png</file>
+        <file>aidtoNavigation/South cardinal mark.png</file>
+        <file>aidtoNavigation/special mark.png</file>
+        <file>aidtoNavigation/Starboard hand mark.png</file>
+        <file>aidtoNavigation/West cardinal mark.png</file>
+        <file>navimark_green.png</file>
+        <file>navimark_red.png</file>
     </qresource>
 </RCC>

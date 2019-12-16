@@ -61,7 +61,6 @@ public:
     void    setPickUpAvailable(bool sts) {mIsPickUp = sts;}
     bool    isPickupAvailable() const {return mIsPickUp;}
 
-
     //关注列表操作
     int             getMaxConcernNum() const {return mMaxConcernNum;}
     virtual void    removeConcern(const QString& id) {mConcernList.removeOne(id);}

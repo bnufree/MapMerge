@@ -82,6 +82,7 @@ enum eTool{
     STATISTCLINEDEL,                //删除航道
     DRAWCAMERANETGRID,              //相机网格图
     PICKUPPTZ,                      //PTZ获取
+    SELECTPLAYZONE,                 //选择回放区域
 };
 }
 #endif // ZCHXECDISMOUSEDEFINES_H

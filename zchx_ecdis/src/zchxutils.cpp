@@ -579,8 +579,15 @@ int Utils::getVesselType(const int uTypeID)
 //       VesselType = 5;
 //    }
 
-
-    if(((20<TypeId)&&(TypeId<25)) || ((40<TypeId)&&(TypeId<45)) ||
+    if (TypeId == 0)
+    {
+        VesselType = 7;//无效
+    }
+    else if (TypeId == 55)
+    {
+        VesselType = 6;//执法船
+    }
+    else if(((20<TypeId)&&(TypeId<25)) || ((40<TypeId)&&(TypeId<45)) ||
         ((70<TypeId)&&(TypeId<75)) || ((90<TypeId)&&(TypeId<95)))//危险
     {
         VesselType = 5;
@@ -608,6 +615,80 @@ int Utils::getVesselType(const int uTypeID)
 int Utils::rounds(double x)
 {
     return (x > 0.0 ? int(x + 0.5) : int(x - 0.5));
+}
+
+QString Utils::getAtonTypeName(int atonType)
+{
+    switch (atonType) {
+    case ZCHX::Data::ATON_TYPE_DEFAULT:
+        return "未指明";
+    case ZCHX::Data::ATON_TYPE_REFERENCE_POINT:
+        return "参考点";
+    case ZCHX::Data::ATON_TYPE_RACON:
+        return "雷达信标";
+    case ZCHX::Data::ATON_TYPE_FIXED_STRUCTURE_OFF_SHORE:
+        return "离岸建筑";
+    case ZCHX::Data::ATON_TYPE_SPARE_RESERVED_FOR_FUTURE_USE:
+        return "备用";
+    case ZCHX::Data::ATON_TYPE_LIGHT_WITHOUT_SECTORS:
+        return "信号灯，不带分区";
+    case ZCHX::Data::ATON_TYPE_LIGHT_WITH_SECTORS:
+        return "信号灯，带分区";
+    case ZCHX::Data::ATON_TYPE_LEADING_LIGHT_FRONT:
+        return "导航灯，前";
+    case ZCHX::Data::ATON_TYPE_LEADING_LIGHT_REAR:
+        return "导航灯，后";
+    case ZCHX::Data::ATON_TYPE_BEACON_CARDINAL_N:
+        return "信标，主北";
+    case ZCHX::Data::ATON_TYPE_BEACON_CARDINAL_E:
+        return "信标，主东";
+    case ZCHX::Data::ATON_TYPE_BEACON_CARDINAL_S:
+        return "信标，主南";
+    case ZCHX::Data::ATON_TYPE_BEACON_CARDINAL_W:
+        return "信标，主西";
+    case ZCHX::Data::ATON_TYPE_BEACON_PORT_HAND:
+        return "信标，左舷";
+    case ZCHX::Data::ATON_TYPE_BEACON_STARBOARD_HAND:
+        return "信标，右舷";
+    case ZCHX::Data::ATON_TYPE_BEACON_PREFERRED_CHANNEL_PORT_HAND:
+        return "信标，推荐航道左舷";
+    case ZCHX::Data::ATON_TYPE_BEACON_PREFERRED_CHANNEL_STARBOARD_HAND:
+        return "信标，推荐航道右舷";
+    case ZCHX::Data::ATON_TYPE_BEACON_ISOLATED_DANGER:
+        return "信标，孤立障碍物";
+    case ZCHX::Data::ATON_TYPE_BEACON_SAFE_WATER:
+        return "信标，安全水域";
+    case ZCHX::Data::ATON_TYPE_BEACON_SPECIAL_MARK:
+        return "信标，特殊标志";
+    case ZCHX::Data::ATON_TYPE_CARDINAL_MARK_N:
+        return "方向北";
+    case ZCHX::Data::ATON_TYPE_CARDINAL_MARK_E:
+        return "方向东";
+    case ZCHX::Data::ATON_TYPE_CARDINAL_MARK_S:
+        return "方向南";
+    case ZCHX::Data::ATON_TYPE_CARDINAL_MARK_W:
+        return "方向西";
+    case ZCHX::Data::ATON_TYPE_PORT_HAND_MARK:
+        return "左舷";
+    case ZCHX::Data::ATON_TYPE_STARBOARD_HAND_MARK:
+        return "右舷";
+    case ZCHX::Data::ATON_TYPE_PREFERRED_CHANNEL_PORT_HAND:
+        return "推荐航道左舷";
+    case ZCHX::Data::ATON_TYPE_PREFERRED_CHANNEL_STARBOARD_HAND:
+        return "推荐航道右舷";
+    case ZCHX::Data::ATON_TYPE_ISOLATED_DANGER:
+        return "孤立障碍物";
+    case ZCHX::Data::ATON_TYPE_SAFE_WATER:
+        return "安全水域";
+    case ZCHX::Data::ATON_TYPE_SPECIAL_MARK:
+        return "特殊标志";
+    case ZCHX::Data::ATON_TYPE_LIGHT_VESSEL_LANBY_RIGS:
+        return "灯船/LANBY/无线电";
+    default:
+        break;
+    }
+
+    return "";
 }
 
 double Utils::getDistanceByPixel(qt::zchxMapFrameWork *f, double lat1, double lon1, double dist, double brng, QPointF pos)

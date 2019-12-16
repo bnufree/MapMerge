@@ -10,7 +10,7 @@ class zchxRadarRectMgr : public zchxTemplateDataMgr<RadarRectGlowElement, ZCHX::
 public:
     explicit zchxRadarRectMgr(zchxMapWidget* w, QObject *parent = 0);
     void    setIsDisplay(bool sts);
-    void    SetRadarDisplayInfo(int targetSizeIndex, int traceLenIndex, int continueTimeIndex); //设置雷达显示方式
+    void    SetRadarDisplayInfo(bool showRadarLabel, int targetSizeIndex, int traceLenIndex, int continueTimeIndex); //设置雷达显示方式
     void    setRadarRect(int radarSiteId, QList<ZCHX::Data::ITF_RadarRect> rectList);
 
 signals:
@@ -23,6 +23,7 @@ private:
 //    bool isRadarDisplayByContinueTime(const ZCHX::Data::ITF_RadarRect & data);
 
     QMap<int, QList<ZCHX::Data::ITF_RadarRect> > mRectMap;
+    bool m_showRadarLabel;
     int m_targetSizeIndex;
     int m_traceLenIndex;
     int m_continueTimeIndex;

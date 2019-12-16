@@ -7240,8 +7240,9 @@ render_canvas_parms* s52plib::CreatePatternBufferSpec( ObjRazRules *rzRules, Rul
 
         delete pbm;
     }
-
+#if 0
     Image.save(QString::number(rules->razRule->RCID) + ".png", "PNG");
+#endif
     
     //  Convert the wxImage to a populated render_canvas_parms struct
     

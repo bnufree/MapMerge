@@ -95,6 +95,18 @@ signals:
 public slots:
 };
 
+class zchxDrawPlayZoneTool: public zchxDrawZoneTool
+{
+    Q_OBJECT
+public:
+    explicit zchxDrawPlayZoneTool(zchxMapWidget* w, QObject *parent = 0):
+        zchxDrawZoneTool(w, qt::eTool::SELECTPLAYZONE, 3, parent) {}
+    void endDraw();
+
+signals:
+public slots:
+};
+
 }
 
 #endif // ZCHXDRAWRADARFEATUREZONETOOL_H

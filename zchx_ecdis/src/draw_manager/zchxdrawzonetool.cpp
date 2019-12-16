@@ -200,6 +200,7 @@ void zchxDrawCardMouthTool::endDraw()
             zone.fillColor = dlg.getColor();
             zone.overlength = dlg.getOverlength();
             zone.enterStatus = dlg.getEnterStatus();
+            zone.isPhotograph = dlg.getIsPhoto();
         }
 
         if(!zone.name.isEmpty())
@@ -244,6 +245,21 @@ void zchxDrawStatistcLineTool::endDraw()
         {
             emit mWidget->signalCreateStatistcLineZone(zone);
         }
+    }
+
+    zchxDrawZoneTool::endDraw();
+}
+
+void zchxDrawPlayZoneTool::endDraw()
+{
+    if(checkPnts() && isReady()){
+        std::vector<std::pair<double, double>> path;
+        for(QPointF pnt : mPoints) {
+            ZCHX::Data::LatLon ll = mWidget->framework()->Pixel2LatLon(pnt);
+            path.push_back(std::pair<double, double>(ll.lat, ll.lon));
+        }
+
+        emit mWidget->signalSelectPlayZone(path);
     }
 
     zchxDrawZoneTool::endDraw();

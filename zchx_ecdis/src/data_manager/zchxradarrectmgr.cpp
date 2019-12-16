@@ -5,6 +5,7 @@
 namespace qt {
 zchxRadarRectMgr::zchxRadarRectMgr(zchxMapWidget *w, QObject *parent):
     zchxTemplateDataMgr<RadarRectGlowElement, ZCHX::Data::ITF_RadarRect>(w, ZCHX::DATA_MGR_RADAR_RECT, ZCHX::LAYER_RADARRECT, parent)
+  , m_showRadarLabel(false)
   , m_targetSizeIndex(0)
   , m_traceLenIndex(0)
   , m_continueTimeIndex(0)
@@ -25,8 +26,9 @@ void zchxRadarRectMgr::setIsDisplay(bool sts)
     }
 }
 
-void zchxRadarRectMgr::SetRadarDisplayInfo(int targetSizeIndex, int traceLenIndex, int continueTimeIndex)
+void zchxRadarRectMgr::SetRadarDisplayInfo(bool showRadarLabel, int targetSizeIndex, int traceLenIndex, int continueTimeIndex)
 {
+    m_showRadarLabel = showRadarLabel;
     m_targetSizeIndex = targetSizeIndex;
     m_traceLenIndex = traceLenIndex;
     m_continueTimeIndex = continueTimeIndex;

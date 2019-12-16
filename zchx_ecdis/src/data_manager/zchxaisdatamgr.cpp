@@ -1,188 +1,11 @@
 ﻿#include "zchxaisdatamgr.h"
 #include "zchxmapframe.h"
-#include <QThreadPool>
 
 namespace qt {
-zchxAisDraw::zchxAisDraw(zchxAisDataMgr* mgr, const QSize& size,  const QList<std::shared_ptr<AisElement> > &list)
-    : QThread(0)
-    , mWidth(size.width())
-    , mHeight(size.height())
-    , mList(list)
-    , mMgr(mgr)
-{
-
-}
-
-void zchxAisDraw::run()
-{
-    QTime t;
-    t.start();
-    QPixmap pix(mWidth, mHeight);
-    pix.fill(Qt::transparent);
-    QPainter painter;
-    painter.begin(&pix);
-    painter.setRenderHint(QPainter::Antialiasing, true);
-//    painter.setBackground(Qt::transparent);
-//    painter.setBackgroundMode(Qt::TransparentMode);
-//    painter.fillRect(QRect(0, 0, width, height), Qt::transparent);
-
-    int curScale = mMgr->mapWidget()->zoom() < 7 ? 5 : 10;
-    int sideLen = 10;
-
-    QList<QPolygon> list;
-    QList<std::shared_ptr<AisElement>>::iterator it = mList.begin();
-    for(; it != mList.end(); ++it)
-    {
-        std::shared_ptr<AisElement> item = *it;
-        //更新状态
-        ZCHX::Data::ITF_AIS aisdata = item->data();
-        if(mMgr->isConcern(aisdata.id)){
-            item->setIsConcern(true);
-        } else {
-            item->setIsConcern(false);
-        }
-        if(mMgr->isRealtimeTailTrack(aisdata.id)){
-            item->setIsRealtimeTailTrack(true);
-        } else {
-            item->setIsRealtimeTailTrack(false);
-        }
-        if(mMgr->isHistoryTrack(aisdata.id)){
-            item->setIsHistoryTrack(true);
-        } else {
-            item->setIsHistoryTrack(false);
-        }
-        if(item.get() == mMgr->mapWidget()->getCurrentSelectedElement()) {
-            item->setIsActive(true);
-        } else {
-            item->setIsActive(false);
-        }
-        if(mMgr->isExtrapolation(aisdata.id)){
-            item->setIsExtrapolate(true);
-            item->setExtrapolateTime(mMgr->getExtrapolationTime(aisdata.id));
-        } else {
-            item->setIsExtrapolate(false);
-        }
-        if(aisdata.is_construction_ship)
-        {
-            item->setForceImage(true);
-            item->setDrawTargetInfo(false);
-        }
-
-        if(item->isEmpty()) continue;
-        QPointF pos = item->getCurrentPos();
-        if(!mMgr->mapWidget()->rect().contains(pos.toPoint())) continue;
-        item->updateGeometry(pos, curScale);
-        item->setHistoryTrackStyle(mMgr->m_sHistoryTrackStyle, mMgr->m_iHistoryTrackWidth);
-
-        //一般船舶显示
-        if(item->data().cargoType != 55)
-        {
-            item->setLayer(ZCHX::LAYER_AIS_CURRENT);
-            item->drawFlashRegion(&painter, pos, item->data().warn_status, item->data().warnStatusColor);
-            if(item->getType() == RADARPLAN)
-            {
-                if(item->getIsActive())
-                {
-                    PainterPair chk1(&painter);
-                    painter.setPen(Qt::red);
-                    painter.drawRect(pos.x()-curScale-2,pos.y()-curScale-2,curScale+6,curScale+6);
-                }
-                PainterPair chk2(&painter);
-                painter.setBrush(Qt::yellow);
-                QRectF rect(pos.x()-curScale,pos.y()-curScale,curScale,curScale);
-                painter.drawRect(rect);
-            }
-            //船
-            else if(item->getType() == RADARSHIP || item->getType() == 3)//3为融合数据
-            {
-                item->drawElement(&painter);
-                item->drawActive(&painter);
-                item->drawTargetInformation(list, mMgr->mShipTagDisplayMode, &painter);
-
-                QString targetId = item->data().objCollide.id;
-                if (mMgr->m_aisMap.contains(targetId))
-                {
-                    item->drawCollide(mMgr->m_aisMap.value(targetId)->data(), &painter);
-                }
-                item->drawFocus(&painter);
-
-                //绘制交汇
-                if(item->data().RadarMeetVec.size() > 0)
-                {
-                    if(mMgr->mapWidget()->getIsOpenMeet())
-                    {
-                        PainterPair chk2(&painter);
-                        QPen pen(Qt::red,2,Qt::DashLine);
-                        painter.setPen(pen);
-                        uint time_hour = 0;
-                        uint time_minute = 0;
-                        uint time_second = 0;
-                        for(int j = 0; j < item->data().RadarMeetVec.size(); j++)
-                        {
-                            ZCHX::Data::RadarMeet meetItem = item->data().RadarMeetVec.at(j);
-                            ZCHX::Data::Point2D meetPos = item->framework()->LatLon2Pixel(meetItem.lat, meetItem.lon);
-                            time_hour = meetItem.UTC / 3600;
-                            time_minute = meetItem.UTC / 60 - time_hour * 60;
-                            time_second = meetItem.UTC % 60;
-                            QString str = QObject::tr("Time ")+QString::number(time_hour)+QObject::tr("H ") + QString::number(time_minute)+ QObject::tr("M ")+ \
-                                    QString::number(time_second)+QObject::tr("S; Distance: ")+QString::number(meetItem.disrance,'f',3)+"m";
-
-                            painter.drawLine(pos.x(),pos.y(),meetPos.x,meetPos.y);
-                            painter.drawText(pos.x()-10,pos.y()-sideLen/2, str);
-                        }
-                    }
-                }
-            }
-        }
-        //执法船显示
-        if(item->data().cargoType == 55)
-        {
-            item->setLayer(ZCHX::LAYER_AIS_LAW);
-            item->drawFlashRegion(&painter, pos, item->data().warn_status, item->data().warnStatusColor);
-            item->drawElement(&painter);
-            item->drawTargetInformation(list, mMgr->mShipTagDisplayMode,&painter);
-            item->drawActive(&painter);
-            item->drawFocus(&painter);
-        }
-        //绘制船舶轨迹点  横琴项目
-        if(MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS_TRACK))
-        {
-            std::vector<QPointF> pts = item->getTrack();
-            PainterPair chk2(&painter);
-            painter.setPen(QPen(Qt::black,3,Qt::DashLine));
-            painter.drawPolyline(&pts[0],pts.size());
-        }
-        //显示海缆的触地点
-        if(MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS_CABLE_TOUCHDOWN))
-        {
-            std::vector<QPointF> pts = item->getTouchdown();
-            if(pts.size() > 0)
-            {
-                PainterPair chk2(&painter);
-                painter.setPen(QPen(Qt::green,3,Qt::DashLine));
-                painter.drawPolyline(&pts[0],pts.size());
-            }
-        }
-    }
-
-    painter.end();
-    if(mMgr)
-    {
-        QMetaObject::invokeMethod(mMgr,
-                                  "setPixmap",
-                                  Qt::DirectConnection,
-                                  Q_ARG(QPixmap, pix)
-                                  );
-    }
-
-    qDebug()<<"draw real imge:"<<t.elapsed();
-
-}
-
-
 zchxAisDataMgr::zchxAisDataMgr(zchxMapWidget* w, QObject *parent) : zchxEcdisDataMgr(w, ZCHX::DATA_MGR_AIS, parent)
   , mSelHistoryPointIndex(-1)
   , mSelHistoryTrackID("")
+  , mCurrentAis(NULL)
 {
     mMaxConcernNum = Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_CONCERN_NUM, 10).toInt();
     mReplaceConcernWhenOver = Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_REPLACE_CONCERN, true).toBool();
@@ -215,21 +38,14 @@ void zchxAisDataMgr::setPrepushTrackStyle(const QString &color, const int lineWi
 
 void zchxAisDataMgr::show(QPainter* painter)
 {
-    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS)) return;
-    if(m_aisMap.size() == 0) return;
-    QTime t;
-    t.start();
-#if 1
-    //启动线程绘制ais数据图像
-    zchxAisDraw *thread = new zchxAisDraw(this, QSize(painter->device()->width(), painter->device()->height()), m_aisMap.values());
-    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-    thread->start();
-    QPixmap cur = getPixmap();
-    if(!cur.isNull())
+    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS)
+            /*&& !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_HISTORY_AIS)*/)
     {
-        painter->drawPixmap(0, 0, cur);
+        return;
     }
-#else
+
+    if(m_aisMap.size() == 0) return;
+
     PainterPair chk(painter);
     int curScale = mDisplayWidget->zoom() < 7 ? 5 : 10;
     int sideLen = 10;
@@ -369,13 +185,17 @@ void zchxAisDataMgr::show(QPainter* painter)
             }
         }
     }
-#endif
-    qDebug()<<"draw ais with size:"<<m_aisMap.size()<<t.elapsed()<<" ms";
 
 }
 
 void zchxAisDataMgr::clearHistoryTrackSel()
 {
+    if (mCurrentAis != NULL)
+    {
+        mCurrentAis->setBigDisplayHistoryTrackIndex(-1);
+    }
+
+    mCurrentAis = NULL;
     mSelHistoryPointIndex = -1;
     mSelHistoryTrackID = "";
 }
@@ -405,9 +225,13 @@ bool zchxAisDataMgr::updateActiveItem(const QPoint &pt)
             {
                 ZCHX::Data::ITF_AIS ais = item->getHistoryTrackList().at(i);
                 std::shared_ptr<AisElement> ele(new AisElement(ais, mDisplayWidget));
-                if(ele->contains(pt)){
+//                if(ele->contains(pt))
+                if(ele->contains(10, pt.x(), pt.y()))
+                {
+                    mCurrentAis = item;
                     mSelHistoryPointIndex = i;
                     mSelHistoryTrackID = item->data().id;
+                    item->setBigDisplayHistoryTrackIndex(i);
                     qDebug()<<"id:"<<item->data().id<<" history contains:"<<true;
                     break;
                 }
@@ -818,16 +642,26 @@ void zchxAisDataMgr::updateCamera(const QList<ZCHX::Data::ITF_CameraDev> &list)
     }
 }
 
-void zchxAisDataMgr::setPixmap(const QPixmap &map)
+bool zchxAisDataMgr::onHisTraceWheelEvent(QWheelEvent *e)
 {
-    QMutexLocker locker(&mPixMutex);
-    mCurPixmap = map;
-}
+    if (mCurrentAis != NULL && mSelHistoryPointIndex >= 0)
+    {
+        int size = mCurrentAis->getHistoryTrackList().size();
 
-QPixmap zchxAisDataMgr::getPixmap()
-{
-    QMutexLocker locker(&mPixMutex);
-    return mCurPixmap;
+        if(e->delta() > 0 && size > (mSelHistoryPointIndex + 1))
+        {
+            mSelHistoryPointIndex++;
+        }
+        else if(e->delta() < 0 && mSelHistoryPointIndex > 0)
+        {
+            mSelHistoryPointIndex--;
+        }
+        mCurrentAis->setBigDisplayHistoryTrackIndex(mSelHistoryPointIndex);
+
+        return true;
+    }
+
+    return false;
 }
 
 

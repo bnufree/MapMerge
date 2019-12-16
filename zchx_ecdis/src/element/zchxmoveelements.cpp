@@ -344,27 +344,11 @@ void ChannelElement::drawElement(QPainter *painter)
 void MooringElement::drawElement(QPainter *painter)
 {
     if(!this->isDrawAvailable(painter)) return;
-    std::vector<std::pair<double,double>> tmp_path = path();
+
     QString name = QString::fromStdString(this->name());
     QString color = data().fillColor;
-    QPolygonF polygon;
-    for(int i = 0; i < tmp_path.size(); ++i)
-    {
-        std::pair<double, double> ll = tmp_path[i];
-        QPointF pos = this->framework()->LatLon2Pixel(ll.first, ll.second).toPointF();
-        polygon.append(pos);
-        if(getIsActive())
-        {
-            PainterPair chk(painter);
-            painter->setPen(QPen(Qt::red,1,Qt::SolidLine));
-            painter->setBrush(Qt::white);
-            painter->drawEllipse(pos,5,5);
-        }
-    }
-
-    polygon.append(polygon.first());
-    PainterPair chk(painter);
     MapStyle colorType = this->framework()->getMapStyle();
+    PainterPair chk(painter);
     if(colorType == MapStyleEcdisNight || colorType == MapStyleEcdisDayDUSK)
     {
         painter->setPen(QPen(Qt::white, 4, Qt::SolidLine));
@@ -375,7 +359,39 @@ void MooringElement::drawElement(QPainter *painter)
     }
     painter->setBrush(QBrush(QColor(color), Qt::SolidPattern));
     painter->setOpacity(0.3);
-    painter->drawPolygon(polygon);
-    painter->drawText(polygon.boundingRect().center(),name);
+
+    // 1：多边形 2：圆
+    if (data().shape == 1)
+    {
+        std::vector<std::pair<double,double>> tmp_path = path();
+        QPolygonF polygon;
+        for(int i = 0; i < tmp_path.size(); ++i)
+        {
+            std::pair<double, double> ll = tmp_path[i];
+            QPointF pos = this->framework()->LatLon2Pixel(ll.first, ll.second).toPointF();
+            polygon.append(pos);
+            if(getIsActive())
+            {
+                PainterPair chk(painter);
+                painter->setPen(QPen(Qt::red,1,Qt::SolidLine));
+                painter->setBrush(Qt::white);
+                painter->drawEllipse(pos,5,5);
+            }
+        }
+
+        polygon.append(polygon.first());
+        painter->drawPolygon(polygon);
+        painter->drawText(polygon.boundingRect().center(),name);
+    }
+    else if (data().shape == 2)
+    {
+        QPointF center = framework()->LatLon2Pixel(data().circleLat, data().circleLon).toPointF();
+        ZCHX::Data::LatLon templl = ZCHX::Utils::distbear_to_latlon(data().circleLat, data().circleLon, data().circleRadius, 0);
+        QPointF tempPos = framework()->LatLon2Pixel(templl.lat, templl.lon).toPointF();
+        double radius = abs(tempPos.y() - center.y());
+
+        painter->drawEllipse(center, radius, radius);
+        painter->drawText(center.x() - 22, center.y(), name);
+    }
 }
 

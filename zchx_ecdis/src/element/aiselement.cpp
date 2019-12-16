@@ -512,60 +512,57 @@ drawTargetInformation(QList<QPolygon>& list, int mode, QPainter *painter)
     {
         return;
     }
-#if 1
-    //默认只显示3000船名
-    if(list.length() < 3000)
+    //开始绘制船名
+    PainterPair chk(painter);
+    QFont font;
+    font.setFamily("Microsoft YaHei");
+    font.setPointSize(10);
+    font.setBold(true);
+    painter->setFont(font);
+    //从当前点的位置绘制一条长为20的拖尾线段，检查当前位置的周围是否已经存在标记，如果存在，就不画，否则就画
+    int line_length = 20;
+    QFontMetrics metrics(font);
+    int font_width = metrics.width(data().shipName);
+    int font_height = metrics.height();
+    QSize label_size(font_width + 10, font_height + 4);
+    QRect label_rect(QPoint(0, 0), label_size);
+    //计算标签放置的位置，优先级 右上 > 左上 > 左下 > 右下
+    for(int i=0; i<4; i++)
     {
-        //开始绘制船名
-        PainterPair chk(painter);
-        QFont font;
-        font.setFamily("Microsoft YaHei");
-        font.setPointSize(10);
-        font.setBold(true);
-        painter->setFont(font);
-        //从当前点的位置绘制一条长为20的拖尾线段，检查当前位置的周围是否已经存在标记，如果存在，就不画，否则就画
-        int line_length = 20;
-        QFontMetrics metrics(font);
-        int font_width = metrics.width(data().shipName);
-        int font_height = metrics.height();
-        QSize label_size(font_width + 10, font_height + 4);
-        QRect label_rect(QPoint(0, 0), label_size);
-        //计算标签放置的位置，优先级 右上 > 左上 > 左下 > 右下
-        for(int i=0; i<4; i++)
-        {
-            int coeff = 1;
-            if( i==1 || i==2) coeff = -1;
-            double angle = GLOB_PI * 0.25 + GLOB_PI * 0.5 * i;
-            QPoint mid_point;
-            mid_point.setX(pos.x() + line_length * cos(angle));
-            mid_point.setY(pos.y() - line_length * sin(angle));
-            label_rect.moveCenter(QPoint(mid_point.x() + label_size.width() * 0.5 *coeff, mid_point.y()));
-            //检查当前位置是否已经存在标签
-            bool found = false;
-            foreach (QPolygon poly, list) {
-                QPolygon res = poly.intersected(QPolygon(label_rect, true));
-                if(res.size() > 0)
-                {
-                    found = true;
-                    break;
-                }
-            }
-            if(!found)
+        int coeff = 1;
+        if( i==1 || i==2) coeff = -1;
+        double angle = GLOB_PI * 0.25 + GLOB_PI * 0.5 * i;
+        QPoint mid_point;
+        mid_point.setX(pos.x() + line_length * cos(angle));
+        mid_point.setY(pos.y() - line_length * sin(angle));
+        label_rect.moveCenter(QPoint(mid_point.x() + label_size.width() * 0.5 *coeff, mid_point.y()));
+        //检查当前位置是否已经存在标签
+        bool found = false;
+        foreach (QPolygon poly, list) {
+            QPolygon res = poly.intersected(QPolygon(label_rect, true));
+            if(res.size() > 0)
             {
-                //开始画标签
-                painter->setPen(QPen(QColor(26,58,91)));
-                painter->setBrush(QColor(26,58,91));
-                painter->drawLine(pos, mid_point);
-                painter->drawRect(label_rect);
-                painter->setPen(Qt::white);
-                painter->drawText(label_rect, data().shipName, QTextOption(Qt::AlignCenter));
-                list.append(QPolygon(label_rect, true));
-                //            qDebug()<<"mid point:"<<mid_point<<pos<<angle<<label_rect;
+                found = true;
                 break;
             }
         }
+        if(!found && mode & qt::SHIP_ITEM_LABEL)
+        {
+            //开始画标签
+            painter->setPen(QPen(QColor(26,58,91)));
+//            painter->setBrush(QColor(26,58,91));
+            painter->setBrush(Qt::transparent);
+            painter->drawLine(pos, mid_point);
+//            painter->drawRect(label_rect);
+//            painter->setPen(Qt::white);
+            painter->setPen(Qt::black);
+            painter->drawText(label_rect, data().shipName, QTextOption(Qt::AlignCenter));
+            list.append(QPolygon(label_rect, true));
+//            qDebug()<<"mid point:"<<mid_point<<pos<<angle<<label_rect;
+            break;
+        }
     }
-#endif
+
     // 预警状态
     QString warnName = ZCHX::Utils::getWarnName(m_data.warn_status);
     if (!warnName.isEmpty() && m_data.warn_status != ZCHX::Data::WARN_CHANNEL_COLLISION)
@@ -845,23 +842,33 @@ void AisElement::showToolTip(const QPoint& pos)
 void AisElement::getShipColor(qint32 cargoType, QColor & shipColor)
 {
     int vesselType = ZCHX::Utils::getVesselType(cargoType);
+
     if (vesselType == 1)
     {
         shipColor = QColor(255, 255, 255);
     }
     else if (vesselType == 2)
     {
-        shipColor = QColor(0, 0, 255);
+        shipColor = QColor(0, 84, 254);
     }
     else if (vesselType == 3)
     {
-        shipColor = QColor(128, 64, 0);
+        shipColor = QColor(171, 100, 35);
     }
     else if (vesselType == 4)
     {
+        shipColor = QColor(255, 255, 255);
     }
     else if (vesselType == 5)
     {
         shipColor = QColor(255, 0, 0);
+    }
+    else if (vesselType == 6)
+    {
+        shipColor = QColor(15, 187, 34);
+    }
+    else if (vesselType == 7)
+    {
+        shipColor = QColor(171, 171, 171);
     }
 }

@@ -222,6 +222,8 @@ void zchxCardMouthDataMgr::importData(const std::vector<std::pair<double, double
         zone.isWarn = dlg.getWarning();
         zone.fillColor = dlg.getColor();
         zone.overlength = dlg.getOverlength();
+        zone.enterStatus = dlg.getEnterStatus();
+        zone.isPhotograph = dlg.getIsPhoto();
     }
 
     if(!zone.name.isEmpty())

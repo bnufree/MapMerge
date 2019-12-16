@@ -32,6 +32,18 @@ bool CardMouthInfoDialog::getWarning()
     }
 }
 
+bool CardMouthInfoDialog::getIsPhoto()
+{
+    if (ui->isPhotographBox->currentIndex() == 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 int CardMouthInfoDialog::getType()
 {
     return ui->typeComboBox->currentIndex() + 1;

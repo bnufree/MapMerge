@@ -4,6 +4,9 @@
 #include "aiselement.hpp"
 #include "rodelement.h"
 #include "cameraelement.h"
+#include "aissiteelement.h"
+#include "aidtonavigationelement.h"
+#include "aidtonavigationtraceelement.h"
 #include "radarsiteelement.h"
 #include "radarelement.h"
 #include "ipcelement.h"
@@ -17,6 +20,7 @@
 #include "radarvideoelement.h"
 #include "zchxmoveelements.h"
 #include "zchxfixelements.h"
+#include "navimarkelement.h"
 #include <QtCore>
 
 namespace qt

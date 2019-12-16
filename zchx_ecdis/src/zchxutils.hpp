@@ -66,7 +66,9 @@ namespace ZCHX {
       DATA_MGR_RADAR_VIDEO =        0x00000001,
       DATA_MGR_AIS =                0x00000002,
       DATA_MGR_RADAR =              0x00000004,
-      DATA_MGR_RADAR_SITE =         0x00000005,
+      DATA_MGR_AIS_SITE =           0x00000005,
+      DATA_MGR_RADAR_SITE =         0x00000006,
+      DATA_MGR_AIDTO_NAVIGATION =   0x00000007,
       DATA_MGR_CAMERA =             0x00000008,
       DATA_MGR_CAMERA_VIEW =        0x00000010,
       DATA_MGR_ROD =                0x00000020,
@@ -92,6 +94,7 @@ namespace ZCHX {
       DATA_MGR_AIS_STATION =        0x02000000,
       DATA_MGR_STATISTCLINE =       0x04000000,
       DATA_MGR_USER_DEFINE =        0x80000000,
+      DATA_MGR_NAVIMARK =           0x90000000,
 
   };
 
@@ -267,6 +270,7 @@ enum ELETYPE{
     ELE_TRIANGLE, //三角形元素
     ELE_LINE,     //直线元素
     ELE_RECT,      //矩形元素
+    ELE_AIS_SITE,
     ELE_AIS,            //船舶
     ELE_AIS_COLLIDE,    //船舶碰撞
     ELE_NAVIGATION,
@@ -324,6 +328,8 @@ enum ELETYPE{
     ELE_VESSEL_TRACK,
     ELE_VESSEL_TRACK_LINE,
     ELE_WEATHER_WAVE,
+    ELE_AIDTO_NAVIGATION,
+    ELE_NAVIMARK,
 
 };
 
@@ -610,6 +616,43 @@ enum WARN_STATUS{
     WARN_ERROR_DROP_ANCHOR, // 违规抛锚预警
 };
 
+// 助航类型
+enum ATON_TYPE
+{
+    ATON_TYPE_DEFAULT = 0,                             // 未指明(默认)
+    ATON_TYPE_REFERENCE_POINT,                         // 参考点
+    ATON_TYPE_RACON,                                   // 雷达信标
+    ATON_TYPE_FIXED_STRUCTURE_OFF_SHORE,               // 离岸建筑
+    ATON_TYPE_SPARE_RESERVED_FOR_FUTURE_USE,           // 备用(未来可用)
+    ATON_TYPE_LIGHT_WITHOUT_SECTORS,                   // 信号灯，不带分区
+    ATON_TYPE_LIGHT_WITH_SECTORS,                      // 信号灯，带分区
+    ATON_TYPE_LEADING_LIGHT_FRONT,                     // 导航灯，前
+    ATON_TYPE_LEADING_LIGHT_REAR,                      // 导航灯，后
+    ATON_TYPE_BEACON_CARDINAL_N,                       // 信标，主北
+    ATON_TYPE_BEACON_CARDINAL_E,                       // 信标，主东
+    ATON_TYPE_BEACON_CARDINAL_S,                       // 信标，主南
+    ATON_TYPE_BEACON_CARDINAL_W,                       // 信标，主西
+    ATON_TYPE_BEACON_PORT_HAND,                        // 信标，左舷
+    ATON_TYPE_BEACON_STARBOARD_HAND,                   // 信标，右舷
+    ATON_TYPE_BEACON_PREFERRED_CHANNEL_PORT_HAND,      // 信标，推荐航道左舷
+    ATON_TYPE_BEACON_PREFERRED_CHANNEL_STARBOARD_HAND, // 信标，推荐航道右舷
+    ATON_TYPE_BEACON_ISOLATED_DANGER,                  // 信标，孤立障碍物
+    ATON_TYPE_BEACON_SAFE_WATER,                       // 信标，安全水域
+    ATON_TYPE_BEACON_SPECIAL_MARK,                     // 信标，特殊标志
+    ATON_TYPE_CARDINAL_MARK_N,                         // 方向标志 北
+    ATON_TYPE_CARDINAL_MARK_E,                         // 方向标志 东
+    ATON_TYPE_CARDINAL_MARK_S,                         // 方向标志 南
+    ATON_TYPE_CARDINAL_MARK_W,                         // 方向标志 西
+    ATON_TYPE_PORT_HAND_MARK,                          // 左舷标志
+    ATON_TYPE_STARBOARD_HAND_MARK,                     // 右舷标志
+    ATON_TYPE_PREFERRED_CHANNEL_PORT_HAND,             // 推荐航道左舷标志
+    ATON_TYPE_PREFERRED_CHANNEL_STARBOARD_HAND,        // 推荐航道右舷标志
+    ATON_TYPE_ISOLATED_DANGER,                         // 孤立障碍物
+    ATON_TYPE_SAFE_WATER,                              // 安全水域
+    ATON_TYPE_SPECIAL_MARK,                            // 特殊标志
+    ATON_TYPE_LIGHT_VESSEL_LANBY_RIGS                  // 灯船/LANBY/无线电
+};
+
 //radar基站
 typedef struct tagITF_RadarSite
 {
@@ -720,6 +763,79 @@ struct ExtrapolateParam{
 
 typedef QList<ExtrapolateParam> ExtrapolateList;
 
+//ais基站
+typedef struct tagITF_AisSite
+{
+    double getLat() const {return lat;}
+    double getLon() const {return lon;}
+    QString getName() const {return QString::number(id);}
+
+    int     id;               // 唯一识别码
+    int     repeatIndicator;  // 转发指示符重发次数
+    int     mmsi;             // mmsi
+    int     year;             // UTC年份
+    int     month;            // UTC月份
+    int     day;              // UTC日期
+    int     hour;             // UTC小时
+    int     minute;           // UTC分钟
+    int     second;           // UTC秒
+    int     positionAccuracy; // 船位精准度
+    int     fixType;          // 电子定位装置类型
+    double  lon;              // 经度
+    double  lat;              // 纬度
+    long long utc;            // 时间标记
+
+}ITF_AisSite;
+
+//ais助航报告
+typedef struct tagITF_AidtoNavigation
+{
+    double getLat() const {return lat;}
+    double getLon() const {return lon;}
+    QString getName() const {return QString::number(id);}
+
+    int     id;               // 唯一识别码
+    int     repeatIndicator;  // 转发指示符重发次数
+    int     mmsi;             // mmsi
+    int     atonType;         // 助航类型 详细请看 助航类型（atonType）
+    QString name;             // 助航名称
+    int     positionAccuracy; // 船位精准度
+    double  lon;              // 经度
+    double  lat;              // 纬度
+    int     fixType;          // 电子定位装置类型
+    int     toBow;            // dim to a
+    int     toStern;          // dim to b
+    int     toPort;           // dim to c
+    int     toStarboard;      // dim to d
+    long long utc;            // 时间标记
+
+}ITF_AidtoNavigation;
+
+//ais助航轨迹
+typedef struct tagITF_AidtoNavigationTrace
+{
+    double getLat() const {return 0;}
+    double getLon() const {return 0;}
+    QString getName() const {return name;}
+
+    QString name;             // 助航名称
+    std::vector<std::pair<double, double> > path; // 经纬度集合
+
+}ITF_AidtoNavigationTrace;
+
+//虚拟航标
+typedef struct tagITF_NaviMark
+{
+    double getLat() const {return lat;}
+    double getLon() const {return lon;}
+    QString getName() const {return QString::number(id);}
+
+    int     id;               // 唯一识别码
+    int     colorType;        // 颜色类型:绿：1，红：2
+    double  lon;              // 经度
+    double  lat;              // 纬度
+
+}ITF_NaviMark;
 
 class ZCHX_ECDIS_EXPORT ITF_AIS
 {
@@ -1455,8 +1571,10 @@ typedef struct tagITF_Mooring
     int      shape;         // 形状 1：多边形 2：圆
     QString  borderColor;   // 边线颜色
     QString  fillColor;     // 填充颜色
-    QString  warnColor;     // 告警颜色
-    double   radius;        // 半径形状为圆必须存在单位：米（M）
+    QString  warnColor;     // 告警颜色    
+    double   circleRadius;  // 半径形状为圆必须存在单位：米（M）
+    double   circleLon;     // 圆心经度
+    double   circleLat;     // 圆心纬度
     int      anchorType;    // 锚泊类型 1：小型锚区90米以下、2：中型锚区90-150米、3：重型锚区150 -200米，4：专业锚区200-300米、5：特殊锚区超过300米
     double   displaceDis;   // 位移距离单位：米（M）
     int      displaceCycle; // 位移周期单位：秒（S）
@@ -1493,6 +1611,7 @@ typedef struct tagITF_CardMouth
     QString        remark;          // 描述
     int            countTrack;      // 是否开启轨迹统计 1:开启 2:不开启
     int            enterStatus;     // 进入的状态 1：左进 2：右进
+    bool           isPhotograph;    // 是否过线拍true:是，false：否
 
     std::vector<std::pair<double, double> > path; // 经纬度集合
 
@@ -1857,6 +1976,14 @@ public:
 //    QList<int> indexList;         //该方位角线上点集合(总共1364个点)
 };
 
+class ZCHX_ECDIS_EXPORT ITF_SingleVideoBlock
+{
+public:
+    double latitude;			    	// 纬度
+    double longitude;			  	    // 经度
+};
+typedef QList<ITF_SingleVideoBlock> ITF_SingleVideoBlockList;
+
 class ZCHX_ECDIS_EXPORT ITF_RadarHistoryRect
 {
 public:
@@ -1868,27 +1995,40 @@ public:
     double centerlatitude;			    	// 回波宽中心点纬度
     double centerlongitude;			  	    // 回波宽中心点经度
     float timeOfDay;						// 当日时间
+    ITF_SingleVideoBlockList blocks;        // 回波块点集
+    double startlatitude;			  	    	// 回波块内最长线段起点纬度
+    double startlongitude;			  	    // 回波块内最长线段起点经度
+    double endlatitude;			  	    	// 回波块内最长线段终点纬度
+    double endlongitude;			  	    	// 回波块内最长线段终点经度
+    double angle;			  	    			// 回波块内最长线段角度
+    int diameter;                               // 雷达目标大小
+    bool  isRealData;
+    int   referWidth;                             //屏幕对应的方快的大小.这个就和目标的实际大小没有关系.保证目标的历史轨迹的方块越来越小
+    int   referHeight;
+    bool  isRealSize;                           //1:实际的最大长度来确定大小 0:参考实时目标来推断矩形框的大小
+
+    ITF_RadarHistoryRect () {referWidth = 0; referHeight = 0; isRealSize = true;}
 
     QString getName() const {return QString::number(rectNumber);}
 
 };
 typedef QList<ITF_RadarHistoryRect> ITF_RadarHistoryRectList;
 
+
+
 class ZCHX_ECDIS_EXPORT ITF_RadarRect
 {
 public:
-    int rectNumber;		          // 单个矩形回波块编号
-    double topLeftlatitude;	      // 回波宽左上点纬度
-    double topLeftlongitude;      // 回波宽左上点经度
-    double bottomRightlatitude;   // 回波宽右下点纬度
-    double bottomRightlongitude;  // 回波宽右下点经度
-    double centerlatitude;	      // 回波宽中心点纬度
-    double centerlongitude;	      // 回波宽中心点经度
-    float timeOfDay;              // 当日时间
-    int diameter;                 // 雷达目标大小
-    QList<ITF_RadarHistoryRect> rects; // 当前回波块的历史轨迹数据集
+   int radarSiteId;
+    int rectNumber;
+    ITF_RadarHistoryRect        current;
+    ITF_RadarHistoryRectList    rects; // 当前回波块的历史轨迹数据集
+    QColor                      blockColor;     //目标回波图形的填充颜色
+    QColor                      blockEdgeColor; //目标回波
+    QColor                      HisBlockColor;   //历史轨迹数据矩形的填充颜色
+    QColor                      historyBackgroundColor;         //背景台阶图形的颜色
 
-    QString getName() const {return QString::number(rectNumber);}
+    QString getName() const {return QString::number(radarSiteId) + "_"+ QString::number(rectNumber);}
 
 };
 typedef QList<ITF_RadarRect> ITF_RadarRectList;
@@ -1907,7 +2047,7 @@ public:
     QString                     name;           //雷达站的名字,便于区分是那个雷达
 
     //回波
-    QPixmap                     videoPixmap;
+    QByteArray*                 videoPixmap;
     double                      lat;//回波中心经度
     double                      lon;//回波中心纬度
     double                      distance;  //半径距离
@@ -1915,7 +2055,7 @@ public:
 
     RadarVideoGLowType          type;//1回波显示，2余辉显示
     //余辉
-    QPixmap                     afterglowPixmap[12];
+    QByteArray*                 afterglowPixmap[12];
     int                         afterglowType;//1,3,6,12
     qint64                      afterglowIndex;//余辉图片索引
 
@@ -2234,6 +2374,8 @@ public:
     static int getVesselType(const int uTypeID);
 
     static int rounds(double);
+
+    static QString getAtonTypeName(int atonType);
 };
 
 //layer
@@ -2244,6 +2386,7 @@ const char LAYER_UAV[]                = "lay_uav";
 const char LAYER_DEFENCE[]            = "lay_defence";
 const char LAYER_LOCALMARK[]          = "lay_local_mark";
 const char LAYER_PATROL_RADAR_SITE[]  = "lay_patrol_radar_site";
+const char LAYER_AIS_SITE[]           = "lay_ais_site";
 const char LAYER_RADAR_SITE[]         = "lay_radar_site";
 const char LAYER_PATROL_SITE[]        = "lay_patrol_site";
 const char LAYER_AIS[]                = "lay_ais";
@@ -2297,20 +2440,20 @@ const char LAYER_DEFINEZONE[]         = "lay_defineZone";           //自定义�
 const char LAYER_CARDMOUTH[]          = "lay_cardMouth";            //卡口
 const char LAYER_STATISTCLINE[]       = "lay_statistcLine";         //自定义线
 const char LAYER_ALARMASCEND[]        = "lay_alarmAscend";          //预警追溯轨迹线
-const char LAYER_CAMERANETGRID[]             = "camera_netGrid";    //相机网格
-const char LAYER_ELLIPSE[]             = "lay_ellipse";             //圆形
-const char LAYER_LINE[]             = "lay_line";                   //线
-const char LAYER_TRIANGLE[]             = "lay_triangle";           //三角形
-const char LAYER_RECT[]             = "lay_rect";                   //矩形
-const char LAYER_AIS_STATION[]          ="lay_ais_station";         //ais基站
-const char LAYER_AIS_FUSION[]          ="lay_ais_fusion";         //ais融合
-const char LAYER_TEN_GRID[]             = "lay_ten_gird";
-const char LAYER_THIRTY_GRID[]          = "lay_thirty_gird";
-const char LAYER_CAMERA_REGION[]        = "lay_manualcheck";
-const char LAYER_VESSEL_TARGET[]        = "lay_vesselTarget";
-const char LAYER_VESSEL_TRACK[]         = "lay_vesselTrack";
-const char LAYER_WEATHER[]              = "lay_real_time_weather";
-
+const char LAYER_CAMERANETGRID[]      = "camera_netGrid";    //相机网格
+const char LAYER_ELLIPSE[]            = "lay_ellipse";             //圆形
+const char LAYER_LINE[]               = "lay_line";                   //线
+const char LAYER_TRIANGLE[]           = "lay_triangle";           //三角形
+const char LAYER_RECT[]               = "lay_rect";                   //矩形
+const char LAYER_AIS_STATION[]        ="lay_ais_station";         //ais基站
+const char LAYER_AIS_FUSION[]         ="lay_ais_fusion";         //ais融合
+const char LAYER_TEN_GRID[]           = "lay_ten_gird";
+const char LAYER_THIRTY_GRID[]        = "lay_thirty_gird";
+const char LAYER_CAMERA_REGION[]      = "lay_manualcheck";
+const char LAYER_VESSEL_TARGET[]      = "lay_vesselTarget";
+const char LAYER_VESSEL_TRACK[]       = "lay_vesselTrack";
+const char LAYER_WEATHER[]            = "lay_real_time_weather";
+const char LAYER_NAVIMARK[]           = "lay_navimark";
 
 //layer translate
 const char TR_LAYER_TOWER_ROD[]           = QT_TRANSLATE_NOOP("TranslationManager", "Tower Rod");
@@ -2322,8 +2465,9 @@ const char TR_LAYER_UAV[]                 = QT_TRANSLATE_NOOP("TranslationManage
 const char TR_LAYER_DEFENCE[]             = QT_TRANSLATE_NOOP("TranslationManager", "Defence area");
 const char TR_LAYER_LOCALMARK[]           = QT_TRANSLATE_NOOP("TranslationManager", "Position mark");
 const char TR_LAYER_PATROL_RADAR_SITE[]   = QT_TRANSLATE_NOOP("TranslationManager", "Patrol and radar station");
-const char TR_LAYER_PATROL[]              = QT_TRANSLATE_NOOP("TranslationManager","Patrol");
-const char TR_LAYER_RADAR_STATION[]       = QT_TRANSLATE_NOOP("TranslationManager","Radar Station");
+const char TR_LAYER_PATROL[]              = QT_TRANSLATE_NOOP("TranslationManager", "Patrol");
+const char TR_LAYER_RADAR_STATION[]       = QT_TRANSLATE_NOOP("TranslationManager", "Radar Station");
+const char TR_LAYER_AIS_SITE[]            = QT_TRANSLATE_NOOP("TranslationManager", "AIS Site");
 const char TR_LAYER_AIS[]                 = QT_TRANSLATE_NOOP("TranslationManager", "AIS");
 const char TR_LAYER_AIS_CURRENT[]         = QT_TRANSLATE_NOOP("TranslationManager", "AIS current position");
 const char TR_LAYER_AIS_TRACK[]           = QT_TRANSLATE_NOOP("TranslationManager", "AIS history track");
@@ -2392,5 +2536,6 @@ const char TR_LAYER_BIGDIPPER[]          = QT_TRANSLATE_NOOP("TranslationManager
 const char TR_LAYER_BIGDIPPER_TARGET[]   = QT_TRANSLATE_NOOP("TranslationManager", "layer big dipper target");    //北斗当前位置
 const char TR_LAYER_BIGDIPPER_TRACK[]    = QT_TRANSLATE_NOOP("TranslationManager", "layer big dipper track");     //北斗历史轨迹
 const char TR_LAYER_AIS_LAW[]            = QT_TRANSLATE_NOOP("TranslationManager", "layer law enforcement vessel"); //执法船
+const char TR_LAYER_NAVIMARK[]           = QT_TRANSLATE_NOOP("TranslationManager", "Navimark");
 
 }

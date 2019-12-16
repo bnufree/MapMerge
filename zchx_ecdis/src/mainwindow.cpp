@@ -39,6 +39,11 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::itfSetParamSettingVisible(bool isVis)
+{
+    if(mMapWidget) mMapWidget->setParamsSettingVisible(isVis);
+}
+
 void MainWindow::resizeEvent(QResizeEvent *e)
 {
     QMainWindow::resizeEvent(e);
@@ -128,6 +133,9 @@ void MainWindow::initSignalConnect()
 
     connect(mMapWidget, SIGNAL(signalCreateStatistcLineZone(ZCHX::Data::ITF_StatistcLine)),this,SIGNAL(itfCreateStatistcLineZone(ZCHX::Data::ITF_StatistcLine)));
     connect(mMapWidget, SIGNAL(signalIsSelected4StatistcLineZone(ZCHX::Data::ITF_StatistcLine)),this,SIGNAL(itfSignalIsSelected4StatistcLineZone(ZCHX::Data::ITF_StatistcLine)));
+
+    connect(mMapWidget, SIGNAL(signalSelectPlayZone(std::vector<std::pair<double, double>>)),
+            this,SIGNAL(itfSelectPlayZone(std::vector<std::pair<double, double>>)));
 
     connect(mMapWidget, SIGNAL(signalAddFleet(const ZCHX::Data::ITF_AIS&)), this, SIGNAL(itfAddFleet(const ZCHX::Data::ITF_AIS&)));
     connect(mMapWidget, SIGNAL(signalRemoveFleet(const ZCHX::Data::ITF_AIS&)), this, SIGNAL(itfRemoveFleet(const ZCHX::Data::ITF_AIS&)));
@@ -231,7 +239,7 @@ void MainWindow::itfSetHistoryAisData(const QList<ZCHX::Data::ITF_AIS> &data)
 void MainWindow::itfSetClearHistoryData(bool states)
 {
     ZCHX_DATA_FACTORY->getAisDataMgr()->setClearHistoryData(states);
-    //if(mMapWidget) mMapWidget->getRadarDataMgr()->setClearHistoryData(states);
+    ZCHX_DATA_FACTORY->getRadarDataMgr()->setClearHistoryData(states);
 }
 
 void MainWindow::itfSetConsAisData(const ZCHX::Data::ITF_AIS &data)
@@ -250,7 +258,7 @@ void MainWindow::itfSetRadarPointData(int radarSiteId, const QList<ZCHX::Data::I
 
 void MainWindow::itfSetHistoryRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint> &data)
 {
-    //ZCHX_DATA_FACTORY->getRadarDataMgr()->setHistoryRadarPointData(list);
+    ZCHX_DATA_FACTORY->getRadarDataMgr()->setHistoryRadarPointData(data);
 }
 
 void MainWindow::itfSetRadarAreaData(const QList<ZCHX::Data::ITF_RadarArea> &data)
@@ -289,6 +297,16 @@ void MainWindow::itfSetAisCameraDevData(const QList<ZCHX::Data::ITF_CameraDev> &
 void MainWindow::itfSetPastrolStation(const QList<ZCHX::Data::ITF_PastrolStation> &data)
 {
     ZCHX_DATA_FACTORY->getPastrolStationMgr()->setData(data);
+}
+
+void MainWindow::itfSetAisSite(const QList<ZCHX::Data::ITF_AisSite> &data)
+{
+    ZCHX_DATA_FACTORY->getAisSiteMgr()->setAisSiteDevData(data);
+}
+
+void MainWindow::itfSetAidtoNavigation(const QList<ZCHX::Data::ITF_AidtoNavigation> &data)
+{
+    ZCHX_DATA_FACTORY->getAidtoNavigationMgr()->setAidtoNavigationDevData(data);
 }
 
 void MainWindow::itfSetRadarSite(const QList<ZCHX::Data::ITF_RadarSite> &data)
@@ -409,6 +427,11 @@ void MainWindow::itfSetFleet(const QList<ZCHX::Data::ITF_Fleet> &data)
         fleetMap.insert(data[i].aisId, data[i]);
     }
     if(mMapWidget) mMapWidget->setFleet(fleetMap);
+}
+
+void MainWindow::itfSetNaviMark(const QList<ZCHX::Data::ITF_NaviMark> &data)
+{
+    ZCHX_DATA_FACTORY->getNaviMarkDataMgr()->setNaviMarkDevData(data);
 }
 
 void MainWindow::itfSetShipAlarmAscendMap(const QMap<QString, ZCHX::Data::ITF_ShipAlarmAscend> &shipAlarmAscendMap)
@@ -620,19 +643,19 @@ void MainWindow::itfSetCameraObservationZoneData(const QList<ZCHX::Data::ITF_Cam
     ZCHX_DATA_FACTORY->getCameraViewMgr()->setData(data);
 }
 
-void MainWindow::itfSetRadarVideoData(double dCentreLon, double dCentreLat, double dDistance, int uType, int uLoopNum)
+void MainWindow::itfSetRadarVideoData(int radarSiteId, double dCentreLon, double dCentreLat, double dDistance, int uType, int uLoopNum)
 {
-    ZCHX_DATA_FACTORY->getRadarVideoMgr()->setRadarVideoData(dCentreLon,dCentreLat,dDistance,uType,uLoopNum);
+    ZCHX_DATA_FACTORY->getRadarVideoMgr()->setRadarVideoData(radarSiteId, dCentreLon,dCentreLat,dDistance,uType,uLoopNum);
 }
 
-void MainWindow::itfSetRadarVideoPixmap(int uIndex, const QPixmap &objPixmap, const QPixmap &prePixmap)
+void MainWindow::itfSetRadarVideoPixmap(int radarSiteId, int uIndex, const QByteArray &objPixmap, const QByteArray &prePixmap)
 {
-    ZCHX_DATA_FACTORY->getRadarVideoMgr()->setRadarVideoPixmap(uIndex,objPixmap,prePixmap);
+    ZCHX_DATA_FACTORY->getRadarVideoMgr()->setRadarVideoPixmap(radarSiteId, uIndex,objPixmap,prePixmap);
 }
 
-void MainWindow::itfSetCurrentRadarVideoPixmap(const QPixmap &objPixmap)
+void MainWindow::itfSetCurrentRadarVideoPixmap(int radarSiteId, const QByteArray &objPixmap)
 {
-    ZCHX_DATA_FACTORY->getRadarVideoMgr()->setCurrentRadarVideoPixmap(objPixmap);
+    ZCHX_DATA_FACTORY->getRadarVideoMgr()->setCurrentRadarVideoPixmap(radarSiteId, objPixmap);
 }
 
 void MainWindow::itfSetRadarRect(int radarSiteId, QList<ZCHX::Data::ITF_RadarRect> rectList)
@@ -848,15 +871,15 @@ void MainWindow::itfSetEnableShipTag(int tag)
     ZCHX_DATA_FACTORY->getAisDataMgr()->SetEnableShipTag(tag);
 }
 
-void MainWindow::itfSetRadarDisplayInfo(int targetSizeIndex, int traceLenIndex, int continueTimeIndex)
+void MainWindow::itfSetRadarDisplayInfo(bool showRadarLabel, int targetSizeIndex, int traceLenIndex, int continueTimeIndex)
 {
     if(mMapWidget)
     {
-        mMapWidget->setRadarDisplayInfo(targetSizeIndex, traceLenIndex, continueTimeIndex);
+        mMapWidget->setRadarDisplayInfo(showRadarLabel, targetSizeIndex, traceLenIndex, continueTimeIndex);
     }
 
-    ZCHX_DATA_FACTORY->getRadarDataMgr()->SetRadarDisplayInfo(targetSizeIndex, traceLenIndex, continueTimeIndex);
-    ZCHX_DATA_FACTORY->getRadarRectMgr()->SetRadarDisplayInfo(targetSizeIndex, traceLenIndex, continueTimeIndex);
+    ZCHX_DATA_FACTORY->getRadarDataMgr()->SetRadarDisplayInfo(showRadarLabel, targetSizeIndex, traceLenIndex, continueTimeIndex);
+    ZCHX_DATA_FACTORY->getRadarRectMgr()->SetRadarDisplayInfo(showRadarLabel, targetSizeIndex, traceLenIndex, continueTimeIndex);
 }
 
 void MainWindow::itfSetEnableTooBarVisable(bool visible)
@@ -1272,6 +1295,11 @@ void MainWindow::OnStatistcLineZONEAddCtrlPoint()
     mMapWidget->setETool2addCtrlStatistcLine();
 }
 
+void MainWindow::OnSelectPlayZone()
+{
+    mMapWidget->setETool2SelectPlayZone();
+}
+
 void MainWindow::OnIslandLineAdd()
 {
     mMapWidget->setETool2Draw4IslandLine();
@@ -1685,6 +1713,11 @@ void MainWindow::itfToolBarStatistcLineZONEDelCtrlPoint()
 void MainWindow::itfToolBarStatistcLineZONEAddCtrlPoint()
 {
     OnStatistcLineZONEAddCtrlPoint();
+}
+
+void MainWindow::itfToolBarSelectPlayZone()
+{
+    OnSelectPlayZone();
 }
 
 void MainWindow::itfToolBarIslandLineAdd()

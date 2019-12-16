@@ -36,12 +36,14 @@ zchxMapWidget::zchxMapWidget(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) : QGLWid
     mRouteDataMgr(new zchxRouteDataMgr(this)),
     mShipPlanDataMgr(new zchxShipPlanDataMgr(this)),
     mToolPtr(0),
+    m_showRadarLabel(false),
     m_targetSizeIndex(0),
     m_traceLenIndex(0),
     m_continueTimeIndex(0),
     mType(type),
     mIsDBUpdateNow(false),
-    mDBProgressWidget(0)
+    mDBProgressWidget(0),
+    mPopParamSettingWidget(false)
 {
     this->setMouseTracking(true);
     mZoomLbl = new QLabel(this);
@@ -429,6 +431,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
             case MOORINGMANAGER:
             case CARDMOUTHMANAGER:
             case STATISTCLINEMANAGER:
+            case SELECTPLAYZONE:
             {
                 if(mToolPtr) mToolPtr->appendPoint(e->pos());
                 break;
@@ -801,9 +804,10 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                     //                menu.addAction(tr("关注点"),this,SLOT(setLocationMark()));
                     //                menu.addAction(tr("固定参考点"),this,SLOT(setFixedReferencePoint()));
                     menu.addAction(tr("热点"),this,SLOT(invokeHotSpot()));
-#ifdef MyTest
-                    menu.addAction(tr("参数设定"), this, SIGNAL(signalSetParam()));
-#endif
+                    if(mPopParamSettingWidget)
+                    {
+                        menu.addAction(tr("参数设定"), this, SIGNAL(signalSetParam()));
+                    }
 //                    menu.addAction(tr("设定地图数据源"), this, SLOT(resetMapSource()));
 //                    menu.addAction(tr("地图数据转换"), this, SLOT(changeS572Senc()));
                 }
@@ -1024,6 +1028,11 @@ void zchxMapWidget::autoChangeCurrentStyle()
 
 }
 
+void zchxMapWidget::setParamsSettingVisible(bool sts)
+{
+    mPopParamSettingWidget = sts;
+}
+
 void zchxMapWidget::setCurZoom(int zoom)
 {
     if(mFrameWork) mFrameWork->setZoom(zoom);
@@ -1062,6 +1071,13 @@ void zchxMapWidget::wheelEvent(QWheelEvent *e)
 //    qDebug()<<__FUNCTION__<<__LINE__<<e->delta()<<e->angleDelta().x()<<e->angleDelta().y()<<e->phase();
     if(QDateTime::currentMSecsSinceEpoch() - mLastWheelTime >= 1* 1000)
     {
+        // 历史轨迹是否滑动
+        bool aisIndexBigZero = ZCHX_DATA_FACTORY->getAisDataMgr()->onHisTraceWheelEvent(e);
+        if (aisIndexBigZero)
+        {
+            return;
+        }
+
         if(e->delta() > 0)
         {
             //放大
@@ -1388,6 +1404,9 @@ void zchxMapWidget::releaseDrawStatus()
     setCurrentSelectedItem(0);
     emit signalMapIsRoaming();
     releaseDrawTool();
+
+    // 清除历史轨迹选中状态
+    ZCHX_DATA_FACTORY->getAisDataMgr()->clearHistoryTrackSel();
 }
 
 void zchxMapWidget::selectAnRegion()
@@ -1501,6 +1520,9 @@ void zchxMapWidget::initDrawTool()
         case STATISTCLINEMANAGER:
             mToolPtr = std::shared_ptr<zchxDrawStatistcLineTool>(new zchxDrawStatistcLineTool(this));
             break;
+        case SELECTPLAYZONE:
+            mToolPtr = std::shared_ptr<zchxDrawPlayZoneTool>(new zchxDrawPlayZoneTool(this));
+            break;
         case ZONEDRAW:
             mToolPtr = std::shared_ptr<zchxDrawWarningZoneTool>(new zchxDrawWarningZoneTool(this));
             break;
@@ -1554,8 +1576,9 @@ void zchxMapWidget::setETool2DrawRadarZONE()
     setCursor(Qt::CrossCursor);
 }
 
-void zchxMapWidget::setRadarDisplayInfo(int targetSizeIndex, int traceLenIndex, int continueTimeIndex)
+void zchxMapWidget::setRadarDisplayInfo(bool showRadarLabel, int targetSizeIndex, int traceLenIndex, int continueTimeIndex)
 {
+    m_showRadarLabel = showRadarLabel;
     m_targetSizeIndex = targetSizeIndex;
     m_traceLenIndex = traceLenIndex;
     m_continueTimeIndex = continueTimeIndex;
@@ -1910,6 +1933,16 @@ void zchxMapWidget::setETool2delCtrlPoint4IslandLine()
     isActiveETool = true;
     setCursor(Qt::ForbiddenCursor);
     //    update();
+}
+
+void zchxMapWidget::setETool2SelectPlayZone()
+{
+    //在编辑模式下使用
+    if(ZCHX::Data::ECDIS_PLUGIN_USE_EDIT_MODEL != mCurPluginUserModel) return;
+    m_eTool = SELECTPLAYZONE;
+    isActiveETool = true;
+    setCursor(Qt::CrossCursor);
+    initDrawTool();
 }
 
 void zchxMapWidget::setETool2DrawShipPlanLine()

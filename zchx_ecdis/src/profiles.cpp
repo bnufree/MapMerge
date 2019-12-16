@@ -59,6 +59,8 @@ void Profiles::initDefaultValues()
     setDefault(MAP_INDEX, MAP_BACK_GROUND, "rgb(203,199,131)");
     setDefault(MAP_INDEX, MAP_START_WITH_LAST_POS, true);
     setDefault(MAP_INDEX, MAP_ROTATE_ANGLE, 0);
+setDefault(MAP_INDEX, MAX_RECT_PIXEL_LENGTH, 75);
+    setDefault(MAP_INDEX, MAP_USE_RECT_COG, true);
     //Ais显示配置
     setDefault(AIS_DISPLAY_SETTING, AIS_FILL_COLOR, QColor(Qt::green).name());
     setDefault(AIS_DISPLAY_SETTING, AIS_TEXT_COLOR, QColor(Qt::black).name());

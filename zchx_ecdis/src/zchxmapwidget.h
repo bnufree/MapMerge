@@ -42,6 +42,7 @@ public:
     explicit zchxMapWidget(ZCHX::ZCHX_MAP_TYPE type = ZCHX::ZCHX_MAP_TILE, QWidget *parent = 0);
     ~zchxMapWidget();
     int getMapType() const {return mType;}
+    void  setParamsSettingVisible(bool sts);
     //地图显示
     void setCurZoom(int zoom);
     int  zoom() const;
@@ -289,7 +290,7 @@ public Q_SLOTS:
     void setETool2DrawRouteOrCross();//拾取路由或者交越点
     //雷达特征区域
     void setETool2DrawRadarZONE();
-    void setRadarDisplayInfo(int targetSizeIndex, int traceLenIndex, int continueTimeIndex); //设置雷达显示方式
+    void setRadarDisplayInfo(bool showRadarLabel, int targetSizeIndex, int traceLenIndex, int continueTimeIndex); //设置雷达显示方式
 
 //    //以下两项操作属于海图编辑
     void setETool2SelectCommonZONE();
@@ -354,6 +355,9 @@ public Q_SLOTS:
     void setETool2moveCtrlPoint4IslandLine();   //微调环岛线控制点
     void setETool2addCtrlPoint4IslandLine();    //添加环岛线控制点
     void setETool2delCtrlPoint4IslandLine();    //删除环岛线控制点
+
+    //选择回放区域
+    void setETool2SelectPlayZone();
 
     //位置标注 Add by yej
     void setETool2DrawLocalMark();
@@ -804,6 +808,9 @@ signals: //发送外部信号
     void signalCreateStatistcLineZone(ZCHX::Data::ITF_StatistcLine);
     void signalUpdateStatistcLineZoneState(const int type, const int State);
 
+    //选择回放区域
+    void signalSelectPlayZone(const std::vector<std::pair<double, double>> & path);
+
     //船队
     void signalAddFleet(const ZCHX::Data::ITF_AIS& data);
     void signalRemoveFleet(const ZCHX::Data::ITF_AIS& data);
@@ -977,6 +984,7 @@ private:
     bool                            mDisplayImageNum;
 
     // 雷达显示控制参数
+    bool m_showRadarLabel;
     int m_targetSizeIndex;
     int m_traceLenIndex;
     int m_continueTimeIndex;
@@ -984,6 +992,8 @@ private:
     zchxEcdisProgressWidget*                mDBProgressWidget;
     bool                            mIsDBUpdateNow;
     QList<QWidget*>                 mPopWidgetList;
+    //是否可以进行参数设定
+    bool                            mPopParamSettingWidget;
 };
 }
 #endif // ZCHXMAPWIDGET_H

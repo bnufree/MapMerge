@@ -7,6 +7,9 @@ zchxVectorMapSettingWidget::zchxVectorMapSettingWidget(QWidget *parent) :
     mMainWindow(qobject_cast<qt::MainWindow*> (parent))
 {
     ui->setupUi(this);
+    ui->showLightsChk->setVisible(false);
+    ui->showNavObjectChk->setVisible(false);
+    ui->distanceUnitCbx->setVisible(false);
     ui->colorSchemeCBX->addItem(tr("白天"), ZCHX::ZCHX_COLOR_SCHEME_DAY);
     ui->colorSchemeCBX->addItem(tr("傍晚"), ZCHX::ZCHX_COLOR_SCHEME_DUSK);
     ui->colorSchemeCBX->addItem(tr("夜晚"), ZCHX::ZCHX_COLOR_SCHEME_NIGHT);

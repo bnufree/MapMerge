@@ -221,6 +221,7 @@ RadarPointElement::RadarPointElement(const RadarPointElement &pt)
     , m_status(pt.m_status)
     , mDrawAsAis(pt.mDrawAsAis)
     , mRadarShapeAsRect(pt.mRadarShapeAsRect)
+    , m_showRadarLabel(false)
 {
 
 }
@@ -310,6 +311,7 @@ void RadarPointElement::initFromSettings()
     mBorderColor.setNamedColor(Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_BORDER_COLOR, QColor(Qt::black).name()).toString());
     mRadarShapeAsRect = Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_SHAPE_RECT, true).toBool();
     mDrawAsAis = Profiles::instance()->value(RADAR_DISPLAY_SETTING, RADAR_FORCED_AIS, false).toBool();
+    m_showRadarLabel = false;
 
     Element::initFromSettings();
     //qDebug()<<"radar ini seetings."<<mDrawAsAis<<mRadarShape<<mFillingColor.name()<<mTextColor.name()<<mConcernColor.name()<<mBorderColor.name();
@@ -462,11 +464,14 @@ void RadarPointElement::drawText(QPainter *painter, QPointF pos, int sideLen)
     if(!mView->framework()) return;
     double angleFromNorth = mView->framework()->getRotateAngle(); //计算当前正北方向的方向角
     PainterPair chk(painter);
-    painter->setPen(mTextColor);
-    QString radarName = QObject::tr("T%1").arg(QString::number(getData().trackNumber).right(4));
-    QFont font("新宋体", 10, QFont::Normal, false);
-    painter->setFont(font);
-    painter->drawText(pos.x()+2+sideLen / 2,pos.y() + sideLen / 2,radarName);
+    if (m_showRadarLabel)
+    {
+        painter->setPen(mTextColor);
+        QString radarName = QObject::tr("T%1").arg(QString::number(getData().trackNumber).right(4));
+        QFont font("新宋体", 10, QFont::Normal, false);
+        painter->setFont(font);
+        painter->drawText(pos.x()+2+sideLen / 2,pos.y() + sideLen / 2,radarName);
+    }
     painter->setPen(mBorderColor);
     painter->translate(pos.x(),pos.y());
     painter->rotate((int)(getData().cog + angleFromNorth) % 360);
@@ -508,5 +513,10 @@ void RadarPointElement::showToolTip(const QPoint &pos)
     pos_text += QObject::tr("方位角: %1\n").arg(FLOAT_STRING(info.cog, 0));
     pos_text += QObject::tr("速度: %1").arg(FLOAT_STRING(info.sog/3.6*1.852, 2));
     QToolTip::showText(pos, pos_text);
+}
+
+void RadarPointElement::setShowRadarLabel(bool showRadarLabel)
+{
+    m_showRadarLabel = showRadarLabel;
 }
 }

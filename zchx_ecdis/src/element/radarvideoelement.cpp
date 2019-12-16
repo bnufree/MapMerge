@@ -19,9 +19,10 @@ const ZCHX::Data::ITF_RadarVideoGLow &RadarVideoGlowElement::data() const
 
 void RadarVideoGlowElement::setData(const ZCHX::Data::ITF_RadarVideoGLow &dev)
 {
+    QMutexLocker locker(&m_mutex);
     m_data = dev;
-    setIsUpdate(true);
 
+    setIsUpdate(true);
 }
 
 void RadarVideoGlowElement::drawOutline(QPainter *painter, const QPointF& center, double in, double out)
@@ -35,6 +36,8 @@ void RadarVideoGlowElement::drawOutline(QPainter *painter, const QPointF& center
 void RadarVideoGlowElement::drawElement(QPainter *painter)
 {
     if(!painter || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADARVIDEO) || !mView->framework() || !m_data.showvideo) return;
+
+    QMutexLocker locker(&m_mutex);
 
     LatLon ll0 = ZCHX::Utils::distbear_to_latlon(data().lat, m_data.lon, m_data.distance, 0);
     LatLon ll90 = ZCHX::Utils::distbear_to_latlon(data().lat, m_data.lon, m_data.distance, 90);
@@ -78,25 +81,39 @@ void RadarVideoGlowElement::drawElement(QPainter *painter)
         painter->translate(translateX, translateY);
         painter->rotate((int)(angleFromNorth) % 360);
         painter->translate(-translateX,-translateY);
-        painter->drawPixmap(centerPos.x() - dWidth / 2, centerPos.y() - dHeight / 2, dWidth, dHeight, data().videoPixmap);
-    } else if(data().type == ZCHX::Data::ITF_RadarVideoGLow::RadarGlow)
+
+        if (data().videoPixmap != NULL)
+        {
+            QPixmap objPixmap;
+            objPixmap.loadFromData(*data().videoPixmap);
+
+            painter->drawPixmap(centerPos.x() - dWidth / 2, centerPos.y() - dHeight / 2, dWidth, dHeight, objPixmap);
+        }
+    }
+    else if(data().type == ZCHX::Data::ITF_RadarVideoGLow::RadarGlow)
     {
-        QRectF objRect(dMinDrawX,dMinDrawY,dWidth,dHeight);
-        QRectF objSourceRect(0, 0, ZCHX::Data::RadarVideoPixmapWidth, ZCHX::Data::RadarVideoPixmapHeight);
-        //绘制余辉图片
-        for(int i = 0;i<m_data.afterglowType;i++)
-        {
-            if(m_data.afterglowPixmap[i].isNull() || i == m_data.afterglowIndex)
-            {
-                continue;
-            }
-            painter->drawPixmap(objRect,m_data.afterglowPixmap[i],objSourceRect);
-        }
-        //绘制当前的
-        if(!m_data.afterglowPixmap[m_data.afterglowIndex].isNull())
-        {
-            painter->drawPixmap(objRect,m_data.afterglowPixmap[m_data.afterglowIndex],objSourceRect);
-        }
+//        QRectF objRect(dMinDrawX,dMinDrawY,dWidth,dHeight);
+//        QRectF objSourceRect(0, 0, ZCHX::Data::RadarVideoPixmapWidth, ZCHX::Data::RadarVideoPixmapHeight);
+//        //绘制余辉图片
+//        for(int i = 0;i<m_data.afterglowType;i++)
+//        {
+//            if(m_data.afterglowPixmap[i] == NULL || i == m_data.afterglowIndex)
+//            {
+//                continue;
+//            }
+//            QPixmap objPixmap;
+//            objPixmap.loadFromData(m_data.afterglowPixmap[i]);
+
+//            painter->drawPixmap(objRect, objPixmap, objSourceRect);
+//        }
+//        //绘制当前的
+//        if(!m_data.afterglowPixmap[m_data.afterglowIndex].isEmpty())
+//        {
+//            QPixmap objPixmap;
+//            objPixmap.loadFromData(m_data.afterglowPixmap[m_data.afterglowIndex]);
+
+//            painter->drawPixmap(objRect, objPixmap, objSourceRect);
+//        }
     }
 }
 }

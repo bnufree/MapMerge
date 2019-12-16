@@ -1,6 +1,7 @@
 #include "zchxMapLayer.h"
 #include "zchxmaplayer_p.h"
 #include "zchxmapframe.h"
+#include "../zchxmapwidget.h"
 #include <QGeoCoordinate>
 
 namespace qt {

@@ -1,5 +1,6 @@
 #include "aidtonavigationelement.h"
 #include "zchxmapframe.h"
+#include "zchxmapwidget.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include <QPainter>
 
@@ -26,7 +27,7 @@ void AidtoNavigationElement::drawElement(QPainter *painter)
     if(!isDrawAvailable(painter)) return;
     if(mParent) return; //当前目标悬挂在其他图元上不显示
     //开始显示
-    int curScale = framework()->GetDrawScale();
+    int curScale = framework()->getDrawScale();
     QPointF pos = framework()->LatLon2Pixel(data().getLat(), data().getLon()).toPointF();
     QString iconName = ":/aidtoNavigation/Basic shape.png";
     switch (data().atonType)

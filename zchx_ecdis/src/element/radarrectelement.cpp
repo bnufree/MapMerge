@@ -4,6 +4,7 @@
 #include <QPainter>
 #include "zchxutils.hpp"
 #include "profiles.h"
+#include "zchxmapwidget.h"
 #include "zchxMapDataUtils.h"
 
 #define OFFSET_X 0.00014

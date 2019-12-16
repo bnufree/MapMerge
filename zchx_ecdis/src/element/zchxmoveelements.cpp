@@ -1,6 +1,7 @@
 #include "zchxmoveelements.h"
 #include "zchxMapDataUtils.h"
 #include "zchxmapframe.h"
+#include "zchxmapwidget.h"
 
 using namespace qt;
 void WarningZoneElement::drawElement(QPainter *painter)

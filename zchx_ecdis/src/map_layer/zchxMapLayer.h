@@ -3,7 +3,6 @@
 #include <QObject>
 #include <memory>
 #include "../zchxutils.hpp"
-#include "../zchxmapwidget.h"
 #include "../zchx_ecdis_global.h"
 
 class QGeoCoordinate;
@@ -12,6 +11,7 @@ class QPainter;
 namespace qt {
 class MapLayerPrivate;
 class Element;
+class zchxMapWidget;
 
 class ZCHX_ECDIS_EXPORT MapLayer : public QObject
 {

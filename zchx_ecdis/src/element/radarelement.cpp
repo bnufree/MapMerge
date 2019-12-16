@@ -1,5 +1,6 @@
 #include "radarelement.h"
 #include "zchxmapframe.h"
+#include "zchxmapwidget.h"
 #include "profiles.h"
 #include "zchxmapwidget.h"
 

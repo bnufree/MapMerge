@@ -17,11 +17,6 @@ struct MapRangeData{
     ZCHX::Data::Mercator    mTopRight;          //右上
 };
 
-enum    TILE_ORIGIN_POS{
-    TILE_ORIGIN_TOPLEFT = 0,        //左上
-    TILE_ORIGIN_BOTTEMLEFT,         //左下
-};
-
 
 //每次加载瓦片地图的参数设定,主要是视窗的墨卡托范围,视窗屏幕坐标大小
 struct MapLoadSetting{

@@ -1,6 +1,7 @@
 #include "structureelement.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include "zchxmapframe.h"
+#include "zchxmapwidget.h"
 
 namespace qt {
 StructureElement::StructureElement(const ZCHX::Data::ITF_Structure &ele, zchxMapWidget* f)

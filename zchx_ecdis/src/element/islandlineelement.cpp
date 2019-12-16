@@ -1,6 +1,7 @@
 #include "islandlineelement.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include "zchxmapframe.h"
+#include "zchxmapwidget.h"
 
 namespace qt {
 IslandLineElement::IslandLineElement(const ZCHX::Data::ITF_IslandLine &ele, zchxMapWidget* f)

@@ -240,7 +240,14 @@ SOURCES += mainwindow.cpp \
     dialog/zchxmapsourcedialog.cpp \
     zchxvectormapsettingwidget.cpp \
     zchxEcdisProgressWidget.cpp \
-    zchxecdispopupwidget.cpp
+    zchxecdispopupwidget.cpp \
+    data_manager/zchxaidtonavigationdatamgr.cpp \
+    data_manager/zchxaissitedatamgr.cpp \
+    element/aidtonavigationelement.cpp \
+    element/aidtonavigationtraceelement.cpp \
+    element/aissiteelement.cpp \
+    data_manager/zchxnavimarkdatamgr.cpp \
+    element/navimarkelement.cpp
 
 HEADERS  += mainwindow.h \
     zchxtileimagethread.h \
@@ -369,7 +376,14 @@ HEADERS  += mainwindow.h \
     dialog/zchxmapsourcedialog.h \
     zchxvectormapsettingwidget.h \
     zchxEcdisProgressWidget.h \
-    zchxecdispopupwidget.h
+    zchxecdispopupwidget.h \
+    data_manager/zchxaidtonavigationdatamgr.h \
+    data_manager/zchxaissitedatamgr.h \
+    element/aidtonavigationelement.h \
+    element/aidtonavigationtraceelement.h \
+    element/aissiteelement.h \
+    data_manager/zchxnavimarkdatamgr.h \
+    element/navimarkelement.h
 
 FORMS    += mainwindow.ui \
     coastdatainfodialog.ui \
@@ -396,53 +410,34 @@ DISTFILES += \
     configuration/maplayers.xml
 RESOURCES += $$PWD/opengl/opengl.qrc
 
-DESTDIRRoot = $$TargetRoot/app/3rdParty/zchx_ecdis/3.0.0
-#DESTDIRRoot = H:/workspace/2018_WBS_V2/5.code/trunk/kakou_framework_new_ecdis/Tools/3rdParty/zchx_ecdis/3.0.0
+MyDLL{
+    DESTDIRRoot = $$DESTDIR
 
-qminstall.files = $$BINARIES_PATH/translations/zchx_ecdis_zh_CN.qm
-qminstall.path = $$DESTDIRRoot/translations/
-INSTALLS += qminstall
+    LibFilesInclude.path = $$DESTDIRRoot/include/qt
+    LibFilesInclude.files = $$PWD/mainwindow.h \
+                            $$PWD/zchx_ecdis_global.h \
+                            $$PWD/zchxutils.hpp
+    INSTALLS += LibFilesInclude
 
-rccinstall.files = $$BINARIES_PATH/resources/zchx_ecdis.rcc
-rccinstall.path = $$DESTDIRRoot/resources/
-INSTALLS += rccinstall
+    LibFilesInclude4.path = $$DESTDIRRoot/include/qt/map_layer
+    LibFilesInclude4.files = $$PWD/map_layer/zchxMapLayer.h
+    INSTALLS += LibFilesInclude4
 
-LibFilesInclude.path = $$DESTDIRRoot/include/qt
-LibFilesInclude.files = $$PWD/*.h $$PWD/*.hpp
-INSTALLS += LibFilesInclude
+    LibFilesInclude5.path = $$DESTDIRRoot/include/qt/element
+    LibFilesInclude5.files = $$PWD/element/IDrawElement.hpp \
+                             $$PWD/element/fixelement.h \
+                             $$PWD/element/moveelement.h
 
-LibFilesInclude1.path = $$DESTDIRRoot/include/qt/camera_mgr
-LibFilesInclude1.files = $$PWD/camera_mgr/*.h $$PWD/camera_mgr/*.hpp
-INSTALLS += LibFilesInclude1
+    INSTALLS += LibFilesInclude5
 
-LibFilesInclude2.path = $$DESTDIRRoot/include/qt/data_manager
-LibFilesInclude2.files = $$PWD/data_manager/*.h $$PWD/data_manager/*.hpp
-INSTALLS += LibFilesInclude2
+    LibFilesLib.path = $$DESTDIRRoot/lib/
+    LibFilesLib.files += $$DESTDIR/lib$${TARGET}.dll.a
+    INSTALLS += LibFilesLib
 
-LibFilesInclude3.path = $$DESTDIRRoot/include/qt/element
-LibFilesInclude3.files = $$PWD/element/*.h $$PWD/element/*.hpp
-INSTALLS += LibFilesInclude3
-
-LibFilesInclude4.path = $$DESTDIRRoot/include/qt/map_layer
-LibFilesInclude4.files = $$PWD/map_layer/*.h $$PWD/map_layer/*.hpp
-INSTALLS += LibFilesInclude4
-
-LibFilesInclude5.path = $$DESTDIRRoot/include/qt/draw_manager
-LibFilesInclude5.files = $$PWD/draw_manager/*.h $$PWD/draw_manager/*.hpp
-INSTALLS += LibFilesInclude5
-
-
-LibFilesLib.path = $$DESTDIRRoot/lib/
-LibFilesLib.files += $$DESTDIR/lib$${TARGET}.dll.a
-INSTALLS += LibFilesLib
-
-dlltarget.path = $$DESTDIRRoot/bin/$$CONFIG_NAME
-dlltarget.files =  $$DESTDIR/$${TARGET}.dll
-INSTALLS += dlltarget
-
-layertarget.path = $$DESTDIRRoot/bin/mapdata
-layertarget.files = $$PWD/configuration/*.*
-INSTALLS += layertarget
+    dlltarget.path = $$DESTDIRRoot/bin/$$CONFIG_NAME
+    dlltarget.files =  $$DESTDIR/$${TARGET}.dll
+    INSTALLS += dlltarget
+}
 
 #QMAKE_CXXFLAGS_RELEASE *= $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
 #QMAKE_LFLAGS_RELEASE *= $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO

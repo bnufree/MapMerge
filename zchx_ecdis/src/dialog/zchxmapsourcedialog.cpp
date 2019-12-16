@@ -12,8 +12,8 @@ zchxMapSourceDialog::zchxMapSourceDialog(QWidget *parent) :
     ui(new Ui::zchxMapSourceDialog)
 {
     ui->setupUi(this);
-    ui->pos->addItem(tr("左上"), TILE_ORIGIN_TOPLEFT);
-    ui->pos->addItem(tr("左下"), TILE_ORIGIN_BOTTEMLEFT);
+    ui->pos->addItem(tr("左上"), ZCHX::TILE_ORIGIN_TOPLEFT);
+    ui->pos->addItem(tr("左下"), ZCHX::TILE_ORIGIN_BOTTEMLEFT);
     this->setAttribute(Qt::WA_DeleteOnClose);
 }
 

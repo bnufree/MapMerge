@@ -4,7 +4,8 @@
 #include <QMainWindow>
 #include <QResizeEvent>
 #include "zchx_ecdis_global.h"
-#include "zchxmapwidget.h"
+#include "zchxutils.hpp"
+#include "map_layer/zchxMapLayer.h"
 
 class zchxDockWidget;
 
@@ -12,6 +13,8 @@ namespace Ui {
 class MainWindow;
 }
 namespace qt {
+
+class zchxMapWidget;
 
 class ZCHX_ECDIS_EXPORT MainWindow : public QMainWindow
 {
@@ -133,7 +136,6 @@ public:
     void itfToolBarRotateClockwise(double delta);                //旋转地图,当前地图的基础上进行顺时针旋转.单位度
     void itfToolBarRotateAntiClockwise(double delta);                //旋转地图,当前地图的基础上进行逆时针旋转.单位度
     void itfToolBarRotateReset();                                    //旋转地图.恢复到不旋转的正北状态
-    void itfToolBarSetMapUrl(const QString& url);                    //设定地图的数据源目录.可以为在线地址或者本地文件目录
 
 
     //有关海图编辑的工具条接口
@@ -212,7 +214,7 @@ public:
     //自定义显示样式
     void itfSetHistoryTrackStyle(const QString &color, const int lineWidth); //历史轨迹
     void itfSetPrepushTrackStyle(const QString &color, const int lineWidth); //预推轨迹
-    void itfSetMapUnit(const MapUnit& uint);                //设置单位 1为海里 2为千米  3为米
+    void itfSetMapUnit(const ZCHX::DistanceUnit& uint);                //设置单位 1为海里 2为千米  3为米
 
     //定义海图编辑获取数据接口
     //通过uuid取得海图上当前编辑后的数据
@@ -294,7 +296,7 @@ public:
          * \brief 设置地图单位
          * \param unit Metric: 米; Foot: 英尺; NauticalMile: 海里; KiloMetric 公里
          */
-    void setMapUnit(const MapUnit &unit);
+    void setMapUnit(const ZCHX::DistanceUnit &unit);
 
     /*!
           \brief 设置是否显示状态栏，主要用于显示鼠标当前经纬度
@@ -343,7 +345,7 @@ public:
     //设定当前的项目ID
     void setCurrentProjectID(int id);
 
-    void setEcdisMapSource(const QString& source, TILE_ORIGIN_POS pos);
+    void setEcdisMapSource(const QString& source, ZCHX::TILE_ORIGIN_POS pos);
     void setCtrlFrameVisible(bool sts);
     void setZoomLabelVisible(bool sts);
     void setImgNumberVisible(bool sts);
@@ -692,9 +694,6 @@ public slots: //定义Recive数据接口
     void itfRemoveRadarTailTrackList(const QStringList& list);
     void itfAppendAisTailTrackList(const QStringList& list);
     void itfRemoveAisTailTrackList(const QStringList& list);
-    //数据显示管理
-    void itfAppendItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr);
-    void itfRemoveItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr);
     //PTZ获取
     void itfPickUpPTZ();
 protected Q_SLOTS:

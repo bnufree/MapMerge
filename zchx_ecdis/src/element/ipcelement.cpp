@@ -1,5 +1,6 @@
 #include "ipcelement.h"
 #include "zchxmapframe.h"
+#include "zchxmapwidget.h"
 
 namespace qt
 {

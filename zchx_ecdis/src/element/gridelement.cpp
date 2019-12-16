@@ -1,6 +1,7 @@
 #include "gridelement.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include "zchxmapframe.h"
+#include "zchxmapwidget.h"
 
 using namespace qt;
 

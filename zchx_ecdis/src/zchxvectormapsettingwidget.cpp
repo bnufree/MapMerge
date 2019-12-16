@@ -1,5 +1,6 @@
 #include "zchxvectormapsettingwidget.h"
 #include "ui_zchxvectormapsettingwidget.h"
+#include <QFileDialog>
 
 zchxVectorMapSettingWidget::zchxVectorMapSettingWidget(QWidget *parent) :
     QWidget(parent),

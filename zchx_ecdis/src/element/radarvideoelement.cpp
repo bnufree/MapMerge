@@ -1,5 +1,6 @@
 #include "radarvideoelement.h"
 #include "zchxmapframe.h"
+#include "zchxmapwidget.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include <QPainter>
 

@@ -227,12 +227,12 @@ public:
         * \brief 设置地图单位
         * \param unit Metric: 米; Foot: 英尺; NauticalMile: 海里
         */
-    void setMapUnit(const MapUnit &unit) {mUnit = unit;}
+    void setMapUnit(const ZCHX::DistanceUnit &unit) {mUnit = unit;}
 
     /*!
         * \brief 获取地图单位
         */
-    MapUnit getMapUnit() const {return mUnit;}
+    ZCHX::DistanceUnit getMapUnit() const {return mUnit;}
     /*!
         * \brief 转换到指定单位的长度
         * \param length 长度(米)
@@ -977,7 +977,7 @@ private:
     std::list<std::shared_ptr<ZCHX::Data::GPSPoint>> m_gpsTracks;
     QMutex                                           m_gpsTracksMutex;
     //地图单位
-    MapUnit                         mUnit;
+    ZCHX::DistanceUnit                         mUnit;
     //当前打开的项目ID
     int                             mCurrentProjectID;
     QLabel                          *mZoomLbl;

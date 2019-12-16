@@ -1,6 +1,7 @@
 #include "shipalarmascendelement.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include "zchxmapframe.h"
+#include "zchxmapwidget.h"
 
 namespace qt {
 

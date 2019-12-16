@@ -200,7 +200,6 @@ void MainWindow::initSignalConnect()
 
 void MainWindow::slotSetParam()
 {
-#ifdef MyTest
     this->setDockNestingEnabled(true);
     if(!mSettingDockWidget)
     {
@@ -213,7 +212,6 @@ void MainWindow::slotSetParam()
         this->addDockWidget(Qt::RightDockWidgetArea, mSettingDockWidget);
     }
     mSettingDockWidget->show();
-#endif
 }
 
 void MainWindow::itfSetAisData(const QList<ZCHX::Data::ITF_AIS> &data)
@@ -1037,7 +1035,7 @@ uint MainWindow::itfzchxUtilToolCurZoom()
 }
 
 
-void MainWindow::setMapUnit(const MapUnit &unit)
+void MainWindow::setMapUnit(const ZCHX::DistanceUnit &unit)
 {
     if(mMapWidget) mMapWidget->setMapUnit(unit);
 }
@@ -1375,7 +1373,7 @@ void MainWindow::itfSetPrepushTrackStyle(const QString &color, const int lineWid
     ZCHX_DATA_FACTORY->getAisDataMgr()->setPrepushTrackStyle(color, lineWidth);
 }
 
-void MainWindow::itfSetMapUnit(const MapUnit& uint)
+void MainWindow::itfSetMapUnit(const ZCHX::DistanceUnit& uint)
 {
     if(mMapWidget) mMapWidget->setMapUnit(uint);
 }
@@ -1991,21 +1989,11 @@ void MainWindow::itfSetCameraNetGridList(const QList<ZCHX::Data::ITF_NetGrid> & 
     ZCHX_DATA_FACTORY->getNetGridMgr()->setData(list);
 }
 
-void MainWindow::itfAppendItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr)
-{
-    ZCHX_DATA_FACTORY->appendDataMgr(mgr);
-}
-
-void MainWindow::itfRemoveItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr)
-{
-    ZCHX_DATA_FACTORY->removeDataMgr(mgr);
-}
-
 void MainWindow::itfPickUpPTZ()
 {
     if(mMapWidget) mMapWidget->setETool2PickUpPTZ();
 }
-void MainWindow::setEcdisMapSource(const QString& source, TILE_ORIGIN_POS pos)
+void MainWindow::setEcdisMapSource(const QString& source, ZCHX::TILE_ORIGIN_POS pos)
 {
     if(mMapWidget) mMapWidget->setSource(source, pos);
 }
@@ -2051,7 +2039,3 @@ void MainWindow::itfToolBarRotateReset()
     if(mMapWidget) mMapWidget->zchxUtilToolSetAngle4north(0);
 }
 
-void MainWindow::itfToolBarSetMapUrl(const QString& url)
-{
-    if(mMapWidget) mMapWidget->setMapUrl(url);
-}

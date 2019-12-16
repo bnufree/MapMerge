@@ -1,6 +1,7 @@
 #include "patrolstationelement.h"
 #include "map_layer/zchxmaplayermgr.h"
 #include "zchxmapframe.h"
+#include "zchxmapwidget.h"
 
 namespace qt {
 PastrolStationElement::PastrolStationElement(const ZCHX::Data::ITF_PastrolStation &data, zchxMapWidget* f)

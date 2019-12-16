@@ -111,6 +111,11 @@ namespace ZCHX {
       ZCHX_MAP_VECTOR,                //矢量地图
   };
 
+  enum  TILE_ORIGIN_POS{
+      TILE_ORIGIN_TOPLEFT = 0,        //左上
+      TILE_ORIGIN_BOTTEMLEFT,         //左下
+  };
+
   enum ZCHX_COLOR_SCHEME
   {
       ZCHX_COLOR_SCHEME_RGB = -1,

@@ -72,7 +72,7 @@ void zchxMapLoadThread::run()
         int top_tile_num = floor(((total_bounds.max_y - view_bounds.max_y) / resolution) / MAP_IMG_SIZE);
         int bottom_tile_num = floor(((view_bounds.min_y - total_bounds.min_y) / resolution) / MAP_IMG_SIZE);
         //2)计算瓦片数据的编号x,y, 确保图片完全覆盖了整个视窗区域或者超出视窗区域一部分
-        if(task.mTilePos == TILE_ORIGIN_TOPLEFT)
+        if(task.mTilePos == ZCHX::TILE_ORIGIN_TOPLEFT)
         {
             tile_start_x = left_tile_num;
             tile_end_x = total_tile_X - right_tile_num - 1;
@@ -105,7 +105,7 @@ void zchxMapLoadThread::run()
         int y_num = tile_end_y - tile_start_y + 1;
         int y_pos_0 = tile_start_y;
         int y_pos_coeff = 1;
-        if(task.mTilePos == TILE_ORIGIN_BOTTEMLEFT)
+        if(task.mTilePos == ZCHX::TILE_ORIGIN_BOTTEMLEFT)
         {
             y_pos_0 = tile_end_y;
             y_pos_coeff = -1;

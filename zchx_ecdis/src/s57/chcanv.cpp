@@ -76,6 +76,9 @@
 #include <QVBoxLayout>
 #include <QProgressDialog>
 #include "glChartCanvas.h"
+#include <QtConcurrent>
+#include <QThreadPool>
+#include <thread>
 
 
 extern float  g_ChartScaleFactorExp;
@@ -216,7 +219,13 @@ extern s57RegistrarMgr          *m_pRegistrarMan;
 QDialog                *g_pcurtain;
 ChartFrameWork          *gChartFrameWork = 0;
 
+extern void     LoadS57();
 
+void            S572Senc(ChartTableEntry* e)
+{
+    if(!e) return;
+    e->createSencFile();
+}
 
 // Define a constructor for my canvas
 ChartFrameWork::ChartFrameWork(const QString& chartDir,  glChartCanvas *frame )
@@ -367,9 +376,39 @@ void ChartFrameWork::slotUpdateChartDatabase(ArrayOfCDI &DirArray, bool b_force,
     qDebug("Starting chart database Update...");
     QString gshhg_chart_loc = gWorldMapLocation;
     gWorldMapLocation.clear();
+    emit signalSendProcessBarText(tr("开始读取文件信息.线程数(%1)").arg(QThread::idealThreadCount()));
+
     ChartData->Update( DirArray, b_force, 0 );
     ChartData->SaveBinary(filename);
     int size = ChartData->GetChartTableEntries();
+    //开始多线程生成SEC文件
+    {
+        LoadS57();
+#if 0
+        QThreadPool pool;
+        pool.setExpiryTimeout(-1);
+        pool.setMaxThreadCount((std::thread::hardware_concurrency() - 1) * 2);
+        qDebug()<<"max thread count:"<<pool.maxThreadCount();
+        for(int i=0; i<size; i++)
+        {
+            ChartTableEntry* cte = ChartData->GetpChartTableEntry(i);
+            QtConcurrent::run(&pool, cte, &ChartTableEntry::createSencFile);
+        }
+        pool.waitForDone();
+#else
+        ChartTable table = ChartData->GetChartTable();
+        emit signalSendProcessBarText(tr("正在转换地图数据.线程数(%1)").arg(QThread::idealThreadCount()));
+
+        // Create a QFutureWatcher and connect signals and slots.
+        QFutureWatcher<void> futureWatcher;
+        QObject::connect(&futureWatcher, SIGNAL(progressRangeChanged(int,int)), this, SIGNAL(signalSendProcessRange(int,int)));
+        QObject::connect(&futureWatcher, SIGNAL(progressValueChanged(int)), this, SIGNAL(signalSendProcessVal(int)));
+
+        // Start the computation.
+        futureWatcher.setFuture(QtConcurrent::map(table, S572Senc));
+        futureWatcher.waitForFinished();
+#endif
+    }
     qDebug()<<"Finished chart database Update. size:"<<size;
     if( gWorldMapLocation.isEmpty() ) { //Last resort. User might have deleted all GSHHG data, but we still might have the default dataset distributed with OpenCPN or from the package repository...
        gWorldMapLocation = gDefaultWorldMapLocation;

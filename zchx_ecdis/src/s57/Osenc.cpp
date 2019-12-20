@@ -159,9 +159,12 @@ Osenc_outstreamFile::Osenc_outstreamFile()
 
 Osenc_outstreamFile::~Osenc_outstreamFile()
 {
-    qDebug()<<"delete file now!!!!";
-    if(m_outstream) qDebug()<<"stream file:"<<m_outstream->getFileName();
-    delete m_outstream;
+//    qDebug()<<"delete file now!!!!";
+    if(m_outstream)
+    {
+//        qDebug()<<"stream file:"<<m_outstream->getFileName();
+        delete m_outstream;
+    }
 }
 
 bool Osenc_outstreamFile::Open(const QString &file)
@@ -1300,7 +1303,7 @@ int Osenc::ValidateAndCountUpdates( const QFileInfo& file000, const QString Copy
                         qDebug(msg.toUtf8().data());
                     } else
                     {
-                        qDebug()<<"   Copy temporary working ENC file  success."<<ufile.absoluteFilePath() ;
+//                        qDebug()<<"   Copy temporary working ENC file  success."<<ufile.absoluteFilePath() ;
                     }
                 }
 
@@ -1493,7 +1496,8 @@ int Osenc::createSenc200(const QString& FullPath000, const QString& SENCFileName
     
     
     //          Make a temp file to create the SENC in
-    QString tmp_file = QString::number(QDateTime::currentMSecsSinceEpoch());
+    QString tmp_file = QString("%1/%2.temp").arg(file000.absoluteDir().absolutePath())
+                                            .arg(QDateTime::currentMSecsSinceEpoch());
     QSharedPointer<Osenc_outstream> stream(new Osenc_outstreamFile());
     
     if( !stream->Open( tmp_file) ) {

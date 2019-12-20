@@ -75,6 +75,9 @@ signals:
       void signalUpdateChartArrayFinished();
       void signalResize(int width, int height);
       void signalBadChartDirFoundNow();
+      void signalSendProcessBarText(const QString& text);
+      void signalSendProcessRange(int min, int max);
+      void signalSendProcessVal(int val);
 
 
 public slots:

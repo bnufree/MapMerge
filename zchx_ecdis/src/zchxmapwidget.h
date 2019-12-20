@@ -626,6 +626,9 @@ private slots:
     void   slotDBUpdateFinished();
     void   slotBadChartDirFoundNow();
     void   slotResetSourceFromDlg();
+    void   slotSendProcessBarText(const QString& text);
+    void   slotSendProcessRange(int min, int max);
+    void   slotSendProcessVal(int val);
 
 protected:
     //void drawLayers(QPainter *painter);

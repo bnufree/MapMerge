@@ -249,6 +249,15 @@ glChartCanvas::glChartCanvas(double lat, double lon,  double scale, int width, i
             this, SLOT(slotUpdateChartFinished()));
     connect(mFrameWork, SIGNAL(signalBadChartDirFoundNow()),
             this, SIGNAL(signalBadChartDirFoundNow()));
+    connect(mFrameWork, SIGNAL(signalSendProcessBarText(QString)),
+            this, SIGNAL(signalSendProcessBarText(QString)));
+
+    connect(mFrameWork, SIGNAL(signalSendProcessRange(int,int)),
+            this, SIGNAL(signalSendProcessRange(int,int)));
+
+    connect(mFrameWork, SIGNAL(signalSendProcessVal(int)),
+            this, SIGNAL(signalSendProcessVal(int)));
+
 }
 
 glChartCanvas::~glChartCanvas()

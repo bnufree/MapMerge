@@ -182,6 +182,7 @@ struct ChartTableEntry
     ChartTableEntry(ChartBase &theChart);
     ~ChartTableEntry();
 
+    void createSencFile();
     bool IsEqualTo(const ChartTableEntry *cte) const;
     bool IsEarlierThan(const ChartTableEntry *cte) const;
     bool Read(const ChartDatabase *pDb, FileReadWrite& is);

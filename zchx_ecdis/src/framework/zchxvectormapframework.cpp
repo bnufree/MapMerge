@@ -26,6 +26,9 @@ void zchxVectorMapFrameWork::initGL(double lat, double lon,  int zoom, int width
     mGLCtrl = new glChartCanvas(lat, lon, zchxMapDataUtils::calResolutionOfPPM(zoom), width, height, chartDir);
     connect(mGLCtrl, SIGNAL(signalDBUpdateFinished()), this, SIGNAL(signalDBUpdateFinished()));
     connect(mGLCtrl, SIGNAL(signalBadChartDirFoundNow()), this, SIGNAL(signalBadChartDirFoundNow()));
+    connect(mGLCtrl, SIGNAL(signalSendProcessBarText(QString)), this, SIGNAL(signalSendProcessBarText(QString)));
+    connect(mGLCtrl, SIGNAL(signalSendProcessRange(int,int)), this, SIGNAL(signalSendProcessRange(int,int)));
+    connect(mGLCtrl, SIGNAL(signalSendProcessVal(int)), this, SIGNAL(signalSendProcessVal(int)));
 }
 
 

@@ -77,6 +77,10 @@ zchxMapWidget::zchxMapWidget(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) : QGLWid
     }
     connect(mFrameWork, SIGNAL(signalDBUpdateFinished()), this, SLOT(slotDBUpdateFinished()));
     connect(mFrameWork, SIGNAL(signalBadChartDirFoundNow()), this, SLOT(slotBadChartDirFoundNow()));
+    connect(mFrameWork, SIGNAL(signalSendProcessBarText(QString)), this, SLOT(slotSendProcessBarText(QString)));
+    connect(mFrameWork, SIGNAL(signalSendProcessRange(int,int)), this, SLOT(slotSendProcessRange(int,int)));
+    connect(mFrameWork, SIGNAL(signalSendProcessVal(int)), this, SLOT(slotSendProcessVal(int)));
+
     //地图状态初始化
     releaseDrawStatus();
     //
@@ -2137,6 +2141,22 @@ void zchxMapWidget::slotBadChartDirFoundNow()
     widget->show();
     mPopWidgetList.append(widget);
 }
+
+void zchxMapWidget::slotSendProcessBarText(const QString& text)
+{
+    if(mDBProgressWidget) mDBProgressWidget->setTitle(text);
+}
+
+void zchxMapWidget::slotSendProcessRange(int min, int max)
+{
+    if(mDBProgressWidget) mDBProgressWidget->setRange(min, max);
+}
+
+void zchxMapWidget::slotSendProcessVal(int val)
+{
+    if(mDBProgressWidget) mDBProgressWidget->setValue(val);
+}
+
 
 void zchxMapWidget::slotResetSourceFromDlg()
 {

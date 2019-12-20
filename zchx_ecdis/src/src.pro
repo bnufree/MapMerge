@@ -74,7 +74,7 @@ INCLUDEPATH += $${PWD}/framework
 DEFINES += ocpnUSE_GL TIXML_USE_STL __WXQT__ ocpnUSE_SVG
 
 
-QT       += core gui network positioning core_private opengl svg xml
+QT       += core gui network positioning core_private opengl svg xml concurrent
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

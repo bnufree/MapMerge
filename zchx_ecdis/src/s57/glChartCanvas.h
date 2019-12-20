@@ -197,6 +197,9 @@ public:
 signals:
     void signalDBUpdateFinished();
     void signalBadChartDirFoundNow();
+    void signalSendProcessBarText(const QString& text);
+    void signalSendProcessRange(int min, int max);
+    void signalSendProcessVal(int val);
 public slots:
     void slotStartLoadEcdis();
     void slotUpdateChartFinished();

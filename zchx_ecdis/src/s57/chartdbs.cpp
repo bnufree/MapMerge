@@ -29,6 +29,7 @@
 #include "mbtiles.h"
 #include "mygeom.h"                     // For DouglasPeucker();
 #include "FlexHash.h"
+#include "s57chart.h"
 
 #include "OCPNPlatform.h"
 #include <QProgressDialog>
@@ -398,6 +399,23 @@ bool ChartTableEntry::IsEqualTo(const ChartTableEntry *cte) const {
     QDateTime mine = QDateTime::fromTime_t(edition_date);
     QDateTime theirs = QDateTime::fromTime_t(cte->edition_date);
     return ( mine == theirs );
+}
+
+void ChartTableEntry::createSencFile()
+{
+    QString fullPath = QString::fromUtf8(GetpFullPath());
+    s57chart *s57 = new s57chart;
+    s57->SetNativeScale(GetScale());
+
+    Extent ext;
+    ext.NLAT = GetLatMax();
+    ext.SLAT = GetLatMin();
+    ext.WLON = GetLonMin();
+    ext.ELON = GetLonMax();
+    s57->SetFullExtent(ext);
+    QString dest = s57->buildSENCName(fullPath);
+    if(QFile::exists(dest)) QFile::remove(dest);
+    s57->BuildSENCFile(fullPath, dest, false);
 }
 
 ///////////////////////////////////////////////////////////////////////

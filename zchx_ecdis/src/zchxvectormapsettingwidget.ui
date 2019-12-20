@@ -6,15 +6,27 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>345</width>
-    <height>608</height>
+    <width>379</width>
+    <height>632</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+   <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>379</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>379</width>
+    <height>16777215</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>参数设定</string>
@@ -22,332 +34,385 @@
   <property name="styleSheet">
    <string notr="true"/>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="7" column="1">
-    <widget class="QLineEdit" name="shallowDepthTxt"/>
-   </item>
-   <item row="7" column="0">
-    <widget class="QLabel" name="label_7">
-     <property name="text">
-      <string>浅水区</string>
+  <layout class="QVBoxLayout" name="verticalLayout_3">
+   <item>
+    <widget class="QGroupBox" name="position_frame">
+     <property name="title">
+      <string>地图居中定位</string>
      </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="2" column="4">
+       <widget class="QPushButton" name="mapLoadBtn">
+        <property name="text">
+         <string>加载</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2" colspan="2">
+       <widget class="QLineEdit" name="centerLat">
+        <property name="placeholderText">
+         <string>输入纬度值</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="2">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>中心点</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QLineEdit" name="centerLon">
+        <property name="placeholderText">
+         <string>输入经度值</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>层级</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2" colspan="2">
+       <widget class="QSpinBox" name="zoomSpinBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="5" column="0" colspan="3">
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+   <item>
+    <widget class="QGroupBox" name="depth_frame">
+     <property name="title">
+      <string>水深数据处理--等深线区域描绘</string>
      </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>安全区</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="safeDepthTxt"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>浅水区</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="shallowDepthTxt"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>深水区</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="DeepDepthTxt"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="depthSettingApplyBtn">
+        <property name="text">
+         <string>应用水深设定</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="24" column="0" colspan="3">
-    <widget class="Line" name="line_3">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+   <item>
+    <widget class="QGroupBox" name="pan_frame">
+     <property name="title">
+      <string>平移处理</string>
      </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>平移步长(x,y)指定</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="pan_x">
+          <property name="minimum">
+           <number>-99</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="pan_y">
+          <property name="minimum">
+           <number>-99</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="panBtn">
+          <property name="text">
+           <string>步长平移</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <widget class="QPushButton" name="PanLeftBtn">
+          <property name="text">
+           <string>左</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QPushButton" name="PanRight">
+          <property name="text">
+           <string>右</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="PanUp">
+          <property name="text">
+           <string>上</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QPushButton" name="PanDown">
+          <property name="text">
+           <string>下</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QPushButton" name="PanUpLeft">
+          <property name="text">
+           <string>左上</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="PanDownLeft">
+          <property name="text">
+           <string>左下</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QPushButton" name="PanUpRight">
+          <property name="text">
+           <string>右上</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QPushButton" name="PanDownRight">
+          <property name="text">
+           <string>右下</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="8" column="0">
-    <widget class="QLabel" name="label_9">
-     <property name="text">
-      <string>深水区</string>
+   <item>
+    <widget class="QGroupBox" name="zoom_frame">
+     <property name="title">
+      <string>缩放处理</string>
      </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QPushButton" name="zoomOutBtn">
+        <property name="text">
+         <string>缩小</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="zoomInBtn">
+        <property name="text">
+         <string>放大</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="3" column="1">
-    <widget class="QLineEdit" name="centerLon">
-     <property name="placeholderText">
-      <string>输入经度值</string>
+   <item>
+    <widget class="QGroupBox" name="rotate_frame">
+     <property name="title">
+      <string>旋转处理</string>
      </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>旋转角度</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="rotate_degree">
+          <property name="minimum">
+           <number>-360</number>
+          </property>
+          <property name="maximum">
+           <number>360</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="rotateBtn">
+          <property name="text">
+           <string>角度旋转</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="QPushButton" name="clockwiseRoate">
+          <property name="text">
+           <string>顺时针</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="antiClockwiseRoate">
+          <property name="text">
+           <string>逆时针</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="resetZeroRotate">
+          <property name="text">
+           <string>重置归零</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="23" column="0">
-    <widget class="QLabel" name="label_6">
-     <property name="text">
-      <string>长度单位</string>
+   <item>
+    <widget class="QGroupBox" name="mapUrl_frame">
+     <property name="title">
+      <string>地图目录指定</string>
      </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_6">
+      <item>
+       <widget class="QLineEdit" name="vectorDir"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="vectorDirBrowseBtn">
+        <property name="text">
+         <string>浏览</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="QLineEdit" name="centerLat">
-     <property name="placeholderText">
-      <string>输入纬度值</string>
-     </property>
+   <item>
+    <widget class="QGroupBox" name="color_sccheme_frame">
+     <layout class="QHBoxLayout" name="horizontalLayout_7">
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>颜色模式</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="colorSchemeCBX"/>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="20" column="0">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>地图目录</string>
-     </property>
+   <item>
+    <widget class="QGroupBox" name="display_category_frame">
+     <layout class="QHBoxLayout" name="horizontalLayout_8">
+      <item>
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>显示模式</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="displayCategoryCBX"/>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>层级</string>
-     </property>
+   <item>
+    <widget class="QGroupBox" name="distance_unit_frame">
+     <layout class="QHBoxLayout" name="horizontalLayout_9">
+      <item>
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>长度单位</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="distanceUnitCbx"/>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="25" column="0" colspan="2">
+   <item>
     <widget class="QCheckBox" name="showDepthTextCHK">
      <property name="text">
       <string>显示水深</string>
      </property>
     </widget>
    </item>
-   <item row="22" column="1">
-    <widget class="QComboBox" name="displayCategoryCBX"/>
-   </item>
-   <item row="10" column="1">
-    <widget class="QSpinBox" name="pan_x">
-     <property name="minimum">
-      <number>-99</number>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="1">
-    <widget class="QLineEdit" name="DeepDepthTxt"/>
-   </item>
-   <item row="4" column="1">
-    <widget class="QSpinBox" name="zoomSpinBox"/>
-   </item>
-   <item row="2" column="0" rowspan="2">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>中心点</string>
-     </property>
-    </widget>
-   </item>
-   <item row="27" column="0" colspan="2">
-    <widget class="QCheckBox" name="showLightsChk">
-     <property name="text">
-      <string>显示Lights</string>
-     </property>
-    </widget>
-   </item>
-   <item row="28" column="0" colspan="2">
-    <widget class="QCheckBox" name="showNavObjectChk">
-     <property name="text">
-      <string>显示NavObjects</string>
-     </property>
-    </widget>
-   </item>
-   <item row="21" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>颜色模式</string>
-     </property>
-    </widget>
-   </item>
-   <item row="22" column="0">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>显示模式</string>
-     </property>
-    </widget>
-   </item>
-   <item row="23" column="1">
-    <widget class="QComboBox" name="distanceUnitCbx"/>
-   </item>
-   <item row="6" column="1">
-    <widget class="QLineEdit" name="safeDepthTxt"/>
-   </item>
-   <item row="26" column="0" colspan="2">
+   <item>
     <widget class="QCheckBox" name="showTextCHK">
      <property name="text">
       <string>显示文本</string>
      </property>
     </widget>
    </item>
-   <item row="9" column="0" colspan="3">
-    <widget class="Line" name="line_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="21" column="1">
-    <widget class="QComboBox" name="colorSchemeCBX"/>
-   </item>
-   <item row="20" column="1">
-    <widget class="QLineEdit" name="vectorDir"/>
-   </item>
-   <item row="6" column="0">
-    <widget class="QLabel" name="label_8">
+   <item>
+    <widget class="QCheckBox" name="showLightsChk">
      <property name="text">
-      <string>安全区</string>
+      <string>显示Lights</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="0" rowspan="2">
-    <widget class="QLabel" name="label_10">
+   <item>
+    <widget class="QCheckBox" name="showNavObjectChk">
      <property name="text">
-      <string>平移步长(x,y))</string>
-     </property>
-    </widget>
-   </item>
-   <item row="14" column="0" colspan="3">
-    <widget class="Line" name="line_4">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="12" column="1">
-    <widget class="QPushButton" name="PanRight">
-     <property name="text">
-      <string>右</string>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="2" rowspan="2" colspan="2">
-    <widget class="QPushButton" name="panBtn">
-     <property name="text">
-      <string>步长平移</string>
-     </property>
-    </widget>
-   </item>
-   <item row="11" column="1">
-    <widget class="QSpinBox" name="pan_y">
-     <property name="minimum">
-      <number>-99</number>
-     </property>
-    </widget>
-   </item>
-   <item row="12" column="0">
-    <widget class="QPushButton" name="PanLeftBtn">
-     <property name="text">
-      <string>左</string>
-     </property>
-    </widget>
-   </item>
-   <item row="12" column="3">
-    <widget class="QPushButton" name="PanDown">
-     <property name="text">
-      <string>下</string>
-     </property>
-    </widget>
-   </item>
-   <item row="12" column="2">
-    <widget class="QPushButton" name="PanUp">
-     <property name="text">
-      <string>上</string>
-     </property>
-    </widget>
-   </item>
-   <item row="13" column="0">
-    <widget class="QPushButton" name="PanUpLeft">
-     <property name="text">
-      <string>左上</string>
-     </property>
-    </widget>
-   </item>
-   <item row="13" column="1">
-    <widget class="QPushButton" name="PanDownLeft">
-     <property name="text">
-      <string>左下</string>
-     </property>
-    </widget>
-   </item>
-   <item row="13" column="3">
-    <widget class="QPushButton" name="PanDownRight">
-     <property name="text">
-      <string>右下</string>
-     </property>
-    </widget>
-   </item>
-   <item row="13" column="2">
-    <widget class="QPushButton" name="PanUpRight">
-     <property name="text">
-      <string>右上</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="2" colspan="2">
-    <widget class="QPushButton" name="mapLoadBtn">
-     <property name="text">
-      <string>加载</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="2" colspan="2">
-    <widget class="QPushButton" name="depthSettingApplyBtn">
-     <property name="text">
-      <string>应用水深设定</string>
-     </property>
-    </widget>
-   </item>
-   <item row="15" column="0" colspan="4">
-    <widget class="QPushButton" name="zoomInBtn">
-     <property name="text">
-      <string>放大</string>
-     </property>
-    </widget>
-   </item>
-   <item row="20" column="2" colspan="2">
-    <widget class="QPushButton" name="vectorDirBrowseBtn">
-     <property name="text">
-      <string>浏览</string>
-     </property>
-    </widget>
-   </item>
-   <item row="16" column="0" colspan="4">
-    <widget class="QPushButton" name="zoomOutBtn">
-     <property name="text">
-      <string>缩小</string>
-     </property>
-    </widget>
-   </item>
-   <item row="18" column="1">
-    <widget class="QSpinBox" name="rotate_degree">
-     <property name="minimum">
-      <number>-360</number>
-     </property>
-     <property name="maximum">
-      <number>360</number>
-     </property>
-    </widget>
-   </item>
-   <item row="18" column="0">
-    <widget class="QLabel" name="label_11">
-     <property name="text">
-      <string>旋转角度</string>
-     </property>
-    </widget>
-   </item>
-   <item row="17" column="0" colspan="4">
-    <widget class="Line" name="line_5">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="18" column="2">
-    <widget class="QPushButton" name="rotateBtn">
-     <property name="text">
-      <string>角度旋转</string>
-     </property>
-    </widget>
-   </item>
-   <item row="19" column="0">
-    <widget class="QPushButton" name="clockwiseRoate">
-     <property name="text">
-      <string>顺时针</string>
-     </property>
-    </widget>
-   </item>
-   <item row="19" column="1">
-    <widget class="QPushButton" name="antiClockwiseRoate">
-     <property name="text">
-      <string>逆时针</string>
-     </property>
-    </widget>
-   </item>
-   <item row="19" column="2">
-    <widget class="QPushButton" name="resetZeroRotate">
-     <property name="text">
-      <string>重置归零</string>
+      <string>显示NavObjects</string>
      </property>
     </widget>
    </item>

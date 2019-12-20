@@ -731,7 +731,7 @@ bool ChartDB::CheckPositionWithinChart(int index, float lat, float lon)
     const ChartTableEntry *pt = &GetChartTableEntry(index);
 
     //    First check on rough Bounding box
-    bool bInside = true;
+    bool bInside = false;
 
     if((lat <= pt->GetLatMax()) &&
             (lat >= pt->GetLatMin()) &&

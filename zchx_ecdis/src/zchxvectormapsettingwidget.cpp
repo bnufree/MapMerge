@@ -1,6 +1,34 @@
 #include "zchxvectormapsettingwidget.h"
 #include "ui_zchxvectormapsettingwidget.h"
 #include <QFileDialog>
+#include "profiles.h"
+#include "zchxMapDataUtils.h"
+#include <QWidget>
+
+zchxDockWidget::zchxDockWidget(const QString &title, QWidget *parent):
+    QDockWidget(title, parent)
+{
+    setAutoFillBackground(true);
+    if(parent)
+    {
+        QColor color = parent->palette().background().color();
+        this->setStyleSheet(QString("*{color:white; background-color:%1;}\
+                                        QPushButton{border:1px solid black;} \
+                                        QLineEdit:focus{background-color:white; color:black;} \
+                                        QLineEdit:!focus{background-color:gray;}").arg(color.name()));
+    }
+    connect(this, SIGNAL(dockLocationChanged(Qt::DockWidgetArea)), this, SLOT(slotDockLocationChanged(Qt::DockWidgetArea)));
+
+}
+
+void  zchxDockWidget::slotDockLocationChanged(Qt::DockWidgetArea area)
+{
+    if(!isFloating())
+    {
+        setAutoFillBackground(true);
+    }
+
+}
 
 zchxVectorMapSettingWidget::zchxVectorMapSettingWidget(QWidget *parent) :
     QWidget(parent),
@@ -8,9 +36,9 @@ zchxVectorMapSettingWidget::zchxVectorMapSettingWidget(QWidget *parent) :
     mMainWindow(qobject_cast<qt::MainWindow*> (parent))
 {
     ui->setupUi(this);
-    ui->showLightsChk->setVisible(false);
+    ui->showLightsChk->setVisible(true);
     ui->showNavObjectChk->setVisible(false);
-    ui->distanceUnitCbx->setVisible(false);
+    ui->distance_unit_frame->setVisible(false);
     ui->colorSchemeCBX->addItem(tr("白天"), ZCHX::ZCHX_COLOR_SCHEME_DAY);
     ui->colorSchemeCBX->addItem(tr("傍晚"), ZCHX::ZCHX_COLOR_SCHEME_DUSK);
     ui->colorSchemeCBX->addItem(tr("夜晚"), ZCHX::ZCHX_COLOR_SCHEME_NIGHT);

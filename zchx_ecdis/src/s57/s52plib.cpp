@@ -337,8 +337,8 @@ s52plib::s52plib( const QString& PLib, bool b_forceLegacy )
 
     //      Sensible defaults
     m_nSymbolStyle = PAPER_CHART;
-    m_nBoundaryStyle = PLAIN_BOUNDARIES;
-    m_nDisplayCategory = ZCHX::ZCHX_DISPLAY_ALL;
+    m_nBoundaryStyle = SYMBOLIZED_BOUNDARIES;
+    m_nDisplayCategory = ZCHX::ZCHX_DISPLAY_STANDARD;
     m_nDepthUnitDisplay = 1; // metres
     
     UpdateMarinerParams();
@@ -7899,10 +7899,10 @@ void s52plib::PLIB_LoadS57Config()
     SetDisplayCategory((ZCHX::ZCHX_DISPLAY_CATEGORY) read_int );
     
     read_int = pconfig->getCustomValue("Settings/GlobalState", "nSymbolStyle", (enum _LUPname) PAPER_CHART).toInt();
-    m_nSymbolStyle = (LUPname) read_int;
+    m_nSymbolStyle = /*(LUPname) read_int*/PAPER_CHART;
     
     read_int = pconfig->getCustomValue("Settings/GlobalState", "nBoundaryStyle", PLAIN_BOUNDARIES ).toInt();
-    m_nBoundaryStyle = (LUPname) read_int;
+    m_nBoundaryStyle = /*(LUPname) read_int*/SYMBOLIZED_BOUNDARIES;
     
     read_int = pconfig->getCustomValue("Settings/GlobalState", "bShowSoundg", 1 ).toInt();
     m_bShowSoundg = !( read_int == 0 );

@@ -216,6 +216,7 @@ public:
 
 private:
       int AdjustQuiltRefChart();
+      void deleteMapData();
       ViewPort    mViewPoint;
       QString    m_scaleText;
       int         m_scaleValue;

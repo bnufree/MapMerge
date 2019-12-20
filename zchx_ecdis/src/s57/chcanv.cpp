@@ -313,17 +313,7 @@ void ChartFrameWork::slotInitEcidsAsDelayed()
 
     if( !isChartDirOK)
     {
-        //没有指定地图数据目录
-        //1)删除地图数据文件
-        if(QFile::exists(g_chartListFileName )) QFile::remove(g_chartListFileName );
-        //2)删除SENC文件目录的文件
-        QDir senc(QString("%1/SENC").arg(zchxFuncUtil::getDataDir()));
-        if(senc.exists())
-        {
-            senc.removeRecursively();
-        }
-        //3)创建SENC目录
-        senc.mkpath(senc.absolutePath());
+        deleteMapData();
         //4)提示信息
         emit signalBadChartDirFoundNow();
         return ;
@@ -349,9 +339,25 @@ void ChartFrameWork::slotInitEcidsAsDelayed()
     ReloadVP();
 }
 
+void ChartFrameWork::deleteMapData()
+{
+    //没有指定地图数据目录
+    //1)删除地图数据文件
+    if(QFile::exists(g_chartListFileName )) QFile::remove(g_chartListFileName );
+    //2)删除SENC文件目录的文件
+    QDir senc(QString("%1/SENC").arg(zchxFuncUtil::getDataDir()));
+    if(senc.exists())
+    {
+        senc.removeRecursively();
+    }
+    //3)创建SENC目录
+    senc.mkpath(senc.absolutePath());
+}
 
 void ChartFrameWork::slotUpdateChartDatabase(ArrayOfCDI &DirArray, bool b_force, const QString &filename)
 {
+    g_chartListFileName = filename;
+    deleteMapData();
     // ..For each canvas...
     InvalidateQuilt();
     SetQuiltRefChart( -1 );

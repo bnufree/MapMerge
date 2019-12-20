@@ -247,7 +247,7 @@ private:
     OCPNRegion m_rendered_region; // used only in dc mode
 
     PatchList m_PatchList;
-    QBitmap *m_pBM;
+    wxBitmap *m_pBM;
 
     bool m_bcomposed;
     PatchListNode cnode;

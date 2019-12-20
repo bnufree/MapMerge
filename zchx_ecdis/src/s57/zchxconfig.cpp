@@ -497,8 +497,8 @@ void zchxConfig::LoadS57Config()
     ps52plib->SetShowLdisText(Read("bShowLightDescription", PARAM_BOOL, 0, 0).toBool());
     ps52plib->SetExtendLightSectors(Read("bExtendLightSectors", PARAM_BOOL, 0, 0).toBool());
     ps52plib->SetDisplayCategory((ZCHX::ZCHX_DISPLAY_CATEGORY) Read("nDisplayCategory", PARAM_INT, 0, ZCHX::ZCHX_DISPLAY_STANDARD).toInt() );
-    ps52plib->m_nSymbolStyle = (LUPname) Read("nSymbolStyle", PARAM_INT,  0, (enum _LUPname) PAPER_CHART).toInt();
-    ps52plib->m_nBoundaryStyle = (LUPname) Read("nBoundaryStyle", PARAM_INT, 0, PLAIN_BOUNDARIES).toInt();
+    ps52plib->m_nSymbolStyle = /*(LUPname) Read("nSymbolStyle", PARAM_INT,  0, (enum _LUPname) PAPER_CHART).toInt()*/PAPER_CHART;
+    ps52plib->m_nBoundaryStyle = /*(LUPname) Read("nBoundaryStyle", PARAM_INT, 0, PLAIN_BOUNDARIES).toInt()*/SYMBOLIZED_BOUNDARIES;
     ps52plib->m_bShowSoundg = Read("bShowSoundg", PARAM_BOOL, 0, 1).toBool();
     ps52plib->m_bShowMeta =  Read("bShowMeta", PARAM_BOOL, 0, 0).toBool();
     ps52plib->m_bUseSCAMIN = Read("bUseSCAMIN", PARAM_BOOL, 0, 1).toBool();

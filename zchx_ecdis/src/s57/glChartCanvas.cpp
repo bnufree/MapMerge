@@ -2069,8 +2069,13 @@ void glChartCanvas::RenderQuiltViewGL( ViewPort &vp, const OCPNRegion &rect_regi
     LLRegion region = vp.GetLLRegion(rect_region);
 
     LLRegion rendered_region;
+    if(ps52plib)
+    {
+        qDebug()<<"attibute:"<<ps52plib->m_nSymbolStyle<<ps52plib->m_nBoundaryStyle;
+    }
+    qDebug()<<"";
     while( chart ) {
-//        qDebug()<<"draw chart:"<<chart->GetFullPath()<<chart->GetNativeScale()<<ChartData->FinddbIndex(chart->GetFullPath());
+        qDebug()<<"draw chart:"<<chart->GetFullPath()<<chart->GetNativeScale()<<ChartData->FinddbIndex(chart->GetFullPath());
             
         //  This test does not need to be done for raster charts, since
         //  we can assume that texture binding is acceptably fast regardless of the render region,
@@ -2565,7 +2570,7 @@ void glChartCanvas::RenderAllChartOutlines(ocpnDC &dc, ViewPort &vp)
 
 int n_render;
 void glChartCanvas::Render()
-{
+{    
     if( !m_bsetup || !mFrameWork->m_pQuilt->IsComposed() ) return;
 
     m_last_render_time = QDateTime::currentDateTime().toTime_t();
@@ -2679,7 +2684,7 @@ void glChartCanvas::Render()
                 || VPoint.projectType() == PROJECTION_EQUIRECTANGULAR )
                 && m_cache_vp.pixHeight() == VPoint.pixHeight() )
             {
-                qDebug()<<"!!!!!!!!!!!!!!";
+//                qDebug()<<"!!!!!!!!!!!!!!";
                 zchxPointF c_old = VPoint.GetDoublePixFromLL( VPoint.lat(), VPoint.lon() );
                 zchxPointF c_new = m_cache_vp.GetDoublePixFromLL( VPoint.lat(), VPoint.lon() );
 
@@ -2703,12 +2708,12 @@ void glChartCanvas::Render()
                 accelerated_pan = b_whole_pixel && abs(dx) < m_cache_tex_x && abs(dy) < m_cache_tex_y
                                   && sx == m_cache_tex_x && sy == m_cache_tex_y;
 
-                qDebug()<<b_whole_pixel<<dx<<m_cache_tex_x<<dy<<m_cache_tex_y<<sx<<sy<<accelerated_pan;
+//                qDebug()<<b_whole_pixel<<dx<<m_cache_tex_x<<dy<<m_cache_tex_y<<sx<<sy<<accelerated_pan;
             }
 
             // do we allow accelerated panning?  can we perform it here?
             if(accelerated_pan && !g_GLOptions.m_bUseCanvasPanning) {
-                qDebug()<<"???????????????????";
+//                qDebug()<<"???????????????????";
                 if((dx != 0) || (dy != 0)){   // Anything to do?
                     m_cache_page = !m_cache_page; /* page flip */
 
@@ -3716,6 +3721,7 @@ void glChartCanvas::SetShowENCLights( bool show )
     PROFILE_INS->setValue(ENC_DISPLAY_SETTING, ENC_SHOW_LIGHT, show);
     m_encShowLights = show;
     m_s52StateHash = 0;         // Force a S52 PLIB re-configure
+    mFrameWork->ReloadVP();
 }
 
 void glChartCanvas::SetShowENCAnchor( bool show )

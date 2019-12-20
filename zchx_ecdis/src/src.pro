@@ -88,7 +88,7 @@ TARGET = $$qtLibraryName($$TARGET)
 #}
 
 TargetRoot=$$dirname(PWD)
-CONFIG += MyDLL
+CONFIG -= MyDLL
 
 MyDLL{
     TEMPLATE = lib
@@ -411,7 +411,7 @@ DISTFILES += \
 RESOURCES += $$PWD/opengl/opengl.qrc
 
 MyDLL{
-    DESTDIRRoot = $$DESTDIR
+    DESTDIRRoot = $$DESTDIR/output
 
     LibFilesInclude.path = $$DESTDIRRoot/include/qt
     LibFilesInclude.files = $$PWD/mainwindow.h \
@@ -434,7 +434,7 @@ MyDLL{
     LibFilesLib.files += $$DESTDIR/lib$${TARGET}.dll.a
     INSTALLS += LibFilesLib
 
-    dlltarget.path = $$DESTDIRRoot/bin/$$CONFIG_NAME
+    dlltarget.path = $$DESTDIRRoot/bin/$${CONFIG_NAME}
     dlltarget.files =  $$DESTDIR/$${TARGET}.dll
     INSTALLS += dlltarget
 }

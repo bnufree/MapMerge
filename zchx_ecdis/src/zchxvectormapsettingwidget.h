@@ -7,10 +7,14 @@
 
 class zchxDockWidget:public QDockWidget
 {
+    Q_OBJECT
+
 public :
-    explicit zchxDockWidget(const QString& title, QWidget* parent = NULL) : QDockWidget(title, parent) {}
+    explicit zchxDockWidget(const QString& title, QWidget* parent = NULL);
 protected:
     void closeEvent(QCloseEvent* event) {hide();}
+public slots:
+    void slotDockLocationChanged(Qt::DockWidgetArea area);
 };
 
 namespace Ui {

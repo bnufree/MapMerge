@@ -546,7 +546,7 @@ drawTargetInformation(QList<QPolygon>& list, int mode, QPainter *painter)
                 break;
             }
         }
-        if(!found && mode & qt::SHIP_ITEM_LABEL)
+        if(!found && mode & ZCHX::SHIP_ITEM_LABEL)
         {
             //开始画标签
             painter->setPen(QPen(QColor(26,58,91)));

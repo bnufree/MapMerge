@@ -23,6 +23,7 @@ MainWindow::MainWindow(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) :
     QString style = QString("background-color:%1;").arg(Profiles::instance()->value(MAP_INDEX, MAP_BACK_GROUND).toString());
     qDebug()<<"style:"<<style;
     ui->ecdis_frame->setStyleSheet(style);
+    ui->pos_frame->setVisible(false);
     QPixmapCache::setCacheLimit(1);    
 
     mMapWidget = new zchxMapWidget(type, ui->ecdis_frame);
@@ -207,7 +208,6 @@ void MainWindow::slotSetParam()
         mSettingDockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
         mSettingDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
         zchxVectorMapSettingWidget* setting = new zchxVectorMapSettingWidget(this);
-        setting->setMaximumWidth(300);
         mSettingDockWidget->setWidget(setting);
         this->addDockWidget(Qt::RightDockWidgetArea, mSettingDockWidget);
     }

@@ -13,14 +13,11 @@ zchxVectorMapFrameWork::zchxVectorMapFrameWork(QObject *parent) : zchxMapFrameWo
 zchxVectorMapFrameWork::zchxVectorMapFrameWork(double center_lat, double center_lon, int zoom, int width, int height, const QString& source, int min_zoom, int max_zoom, QObject *parent)
     : zchxMapFrameWork(ZCHX::ZCHX_MAP_VECTOR, parent)
 {
-//    setMinZoom(min_zoom);
-//    setMaxZoom(max_zoom);
-//    setSource(source, pos);
-//    setCenter(center_lon, center_lat);
-//    setZoom(zoom);
-//    setViewSize(width, height);
-
-
+    mMinZoom = min_zoom;
+    mMaxZoom = max_zoom;
+    mSourceUrl = source;
+    mCenter.lat = center_lat;
+    mCenter.lon = center_lon;
     initGL(center_lat, center_lon, zoom, width, height, source);
 }
 

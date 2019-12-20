@@ -15,7 +15,7 @@ zchxAisDataMgr::zchxAisDataMgr(zchxMapWidget* w, QObject *parent) : zchxEcdisDat
     mReplaceHistoryTrackWhenOver = Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_REPLACE_HISTORY_TRACK, true).toBool();
     mMaxExtrapolationNum = Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_EXTRAPOLATE_NUM, 10).toInt();
     mReplaceExtrapolationWhenOver = Profiles::instance()->value(AIS_DISPLAY_SETTING, AIS_REPLACE_EXTRAPOLATE, true).toBool();
-    mShipTagDisplayMode = SHIP_ITEM_DEFAULT;
+    mShipTagDisplayMode = ZCHX::SHIP_ITEM_DEFAULT;
     m_iHistoryTrackWidth = 1;
 }
 

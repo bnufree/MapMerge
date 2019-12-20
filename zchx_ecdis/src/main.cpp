@@ -89,6 +89,7 @@ int main(int argc, char *argv[])
 
     qInstallMessageHandler(logMessageOutputQt5);
     qt::MainWindow w(ZCHX::ZCHX_MAP_VECTOR);
+    w.itfSetParamSettingVisible(true);
     w.showMaximized();
     return a.exec();
 }

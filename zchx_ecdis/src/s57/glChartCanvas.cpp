@@ -205,6 +205,7 @@ glChartCanvas::glChartCanvas(double lat, double lon,  double scale, int width, i
     , mSafeDepth(8)
     , mDeepdepth(10)
     , mDepthUnit(ZCHX::Depth_Meters)
+    , mIsDrawScaleBar(false)
 {
     mChartDir = chartDir;
 
@@ -3850,6 +3851,7 @@ void glChartCanvas::GridDraw( ocpnDC& dc )
 
 void glChartCanvas::ScaleBarDraw( ocpnDC& dc )
 {
+    if(!mIsDrawScaleBar) return;
     if(0 ){
         double blat, blon, tlat, tlon;
         zchxPoint r;

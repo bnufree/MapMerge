@@ -150,6 +150,7 @@ public:
     int   getDepthUnit() const {return mDepthUnit;}
     void  setDistanceUnit(int unit);
     int   getDistanceUnit() const {return mDistanceUnit;}
+    void  setDrawScaleBar(bool sts) {mIsDrawScaleBar = sts;}
 
     time_t m_last_render_time;
 
@@ -336,6 +337,7 @@ protected:
     double                      mCenterLon;
     int                         mScale;
     QString                     mChartDir;
+    bool                        mIsDrawScaleBar;
 };
 
 extern void BuildCompressedCache();

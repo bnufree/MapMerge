@@ -225,6 +225,7 @@ void zchxMapWidget::paintEvent(QPaintEvent* e)
         }
     }
     mFrameWork->update();
+    if(isDBUpdateNow()) return;
     //显示图元
     foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
         mgr->show(&painter);

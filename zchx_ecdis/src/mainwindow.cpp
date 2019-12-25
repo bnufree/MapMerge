@@ -22,6 +22,7 @@ MainWindow::MainWindow(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) :
     ui->setupUi(this);
     QString style = QString("background-color:%1;").arg(Profiles::instance()->value(MAP_INDEX, MAP_BACK_GROUND).toString());
     qDebug()<<"style:"<<style;
+    this->setStyleSheet(style);
     ui->ecdis_frame->setStyleSheet(style);
     ui->pos_frame->setVisible(false);
     QPixmapCache::setCacheLimit(1);    

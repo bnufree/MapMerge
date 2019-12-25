@@ -88,7 +88,7 @@ TARGET = $$qtLibraryName($$TARGET)
 #}
 
 TargetRoot=$$dirname(PWD)
-CONFIG += MyDLL
+CONFIG -= MyDLL
 
 MyDLL{
     TEMPLATE = lib

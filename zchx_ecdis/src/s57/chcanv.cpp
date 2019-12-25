@@ -277,6 +277,10 @@ ChartFrameWork::ChartFrameWork(const QString& chartDir,  glChartCanvas *frame )
             this, SLOT(slotUpdateChartDatabase(ArrayOfCDI&,bool,QString)));
     connect(this, SIGNAL(signalInitEcdisAsDelayed()),
             this, SLOT(slotInitEcidsAsDelayed()));
+    connect(this, SIGNAL(signalPan(double,double)),
+            this, SLOT(slotPan(double,double)));
+    connect(this, SIGNAL(signalZoom(double,bool)),
+            this, SLOT(slotZoom(double,bool)));
     this->moveToThread(&mWorkThread);
     mWorkThread.start();
 
@@ -1413,9 +1417,9 @@ void ChartFrameWork::GetCanvasPixPoint( double x, double y, double &lat, double 
     GetVP().GetLLFromPix( zchxPointF( x, y ), &lat, &lon );
 }
 
-bool ChartFrameWork::Pan( double dx, double dy )
+void ChartFrameWork::slotPan( double dx, double dy )
 {
-    if( !ChartData ) return false;
+    if( !ChartData ) return ;
 
     double lat = GetVP().lat(), lon = GetVP().lon();
     double dlat, dlon;
@@ -1426,13 +1430,13 @@ bool ChartFrameWork::Pan( double dx, double dy )
         GetCanvasPixPoint( p.x + trunc(dx), p.y + trunc(dy), dlat, dlon );
 
         if(iters++ > 5)
-            return false;
+            return ;
         if(!std::isnan(dlat))
             break;
 
         dx *= .5, dy *= .5;
         if(fabs(dx) < 1 && fabs(dy) < 1)
-            return false;
+            return ;
     }
 
     // avoid overshooting the poles
@@ -1473,11 +1477,11 @@ bool ChartFrameWork::Pan( double dx, double dy )
 //    qDebug()<<"[dx,dy]="<<dx<<", "<<dy<<" ll1:"<<QString::number(lat, 'f', 6)<<QString::number(lon, 'f', 6)
 //           <<QString::number(dlat, 'f', 6)<<QString::number(dlon, 'f', 6)<<" total patch:"<<m_pQuilt->GetnCharts();
     mGLCC->Refresh( false );
-    return true;
+    return ;
 }
 
 
-void ChartFrameWork::Zoom( double factor,  bool can_zoom_to_cursor )
+void ChartFrameWork::slotZoom( double factor,  bool can_zoom_to_cursor )
 {
     // possible on startup
     if( !ChartData )
@@ -1573,7 +1577,7 @@ void ChartFrameWork::Zoom( double factor,  bool can_zoom_to_cursor )
 
             zchxPoint r;
             GetCanvasPointPix( zlat, zlon, r );
-            Pan( r.x - mGLCC->getCurPosX(), r.y - mGLCC->getCurPosY() );  // this will give the Refresh()
+            slotPan( r.x - mGLCC->getCurPosX(), r.y - mGLCC->getCurPosY() );  // this will give the Refresh()
 
             //ClearbFollow();      // update the follow flag
         }

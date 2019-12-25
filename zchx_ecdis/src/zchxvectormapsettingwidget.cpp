@@ -12,10 +12,10 @@ zchxDockWidget::zchxDockWidget(const QString &title, QWidget *parent):
     if(parent)
     {
         QColor color = parent->palette().background().color();
-        this->setStyleSheet(QString("*{color:white; background-color:%1;}\
+        qDebug()<<"color:"<<color.name();
+        this->setStyleSheet(QString("*{color:black; background-color:%1;}\
                                         QPushButton{border:1px solid black;} \
-                                        QLineEdit:focus{background-color:white; color:black;} \
-                                        QLineEdit:!focus{background-color:gray;}").arg(color.name()));
+                                        QLineEdit:focus{background-color:white; color:black;}").arg(color.name()));
     }
     connect(this, SIGNAL(dockLocationChanged(Qt::DockWidgetArea)), this, SLOT(slotDockLocationChanged(Qt::DockWidgetArea)));
 

@@ -68,6 +68,8 @@ public slots:
       void slotInitEcidsAsDelayed();
       void slotResize(int width, int height);
       void slotUpdateChartDatabase(ArrayOfCDI &DirArray, bool b_force, const QString &filename );
+      void slotPan(double dx, double dy);
+      void slotZoom(double factor,  bool can_zoom_to_cursor = true);
 
 signals:
       void signalInitEcdisAsDelayed();
@@ -78,6 +80,8 @@ signals:
       void signalSendProcessBarText(const QString& text);
       void signalSendProcessRange(int min, int max);
       void signalSendProcessVal(int val);
+      void signalPan(double dx, double dy);
+      void signalZoom(double factor,  bool can_zoom_to_cursor = true);
 
 
 public slots:
@@ -163,8 +167,7 @@ public slots:
 
 
 
-      bool Pan(double dx, double dy);
-      void Zoom(double factor,  bool can_zoom_to_cursor = true);
+
       bool isZoomNow() const {return m_bzooming;}
       void Rotate(double rad);
       void RotateDegree(double deg);

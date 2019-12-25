@@ -4065,9 +4065,9 @@ double glChartCanvas::GetPixPerMM()
     return mFrameWork->GetPixPerMM();
 }
 
-bool glChartCanvas::Pan( double dx, double dy )
+void glChartCanvas::Pan( double dx, double dy )
 {
-    return mFrameWork->Pan(dx, dy);
+    mFrameWork->slotPan(dx, dy);
 }
 
 double glChartCanvas::getViewScalePPM() const
@@ -4089,7 +4089,7 @@ void   glChartCanvas::setViewCenterAndZoom(double lat, double lon, double scale)
 void glChartCanvas::Zoom( double factor,  bool can_zoom_to_cursor )
 {
     if(mFrameWork->isZoomNow()) return;
-    mFrameWork->Zoom(factor, can_zoom_to_cursor);
+    mFrameWork->slotZoom(factor, can_zoom_to_cursor);
 }
 
 void glChartCanvas::Rotate(double rad)

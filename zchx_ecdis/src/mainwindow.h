@@ -12,6 +12,7 @@ class zchxDockWidget;
 namespace Ui {
 class MainWindow;
 }
+
 namespace qt {
 
 class zchxMapWidget;

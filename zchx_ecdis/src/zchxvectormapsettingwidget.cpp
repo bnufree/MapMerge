@@ -9,6 +9,7 @@ zchxDockWidget::zchxDockWidget(const QString &title, QWidget *parent):
     QDockWidget(title, parent)
 {
     setAutoFillBackground(true);
+    setAttribute(Qt::WA_DeleteOnClose);
     if(parent)
     {
         QColor color = parent->palette().background().color();
@@ -19,6 +20,11 @@ zchxDockWidget::zchxDockWidget(const QString &title, QWidget *parent):
     }
     connect(this, SIGNAL(dockLocationChanged(Qt::DockWidgetArea)), this, SLOT(slotDockLocationChanged(Qt::DockWidgetArea)));
 
+}
+
+zchxDockWidget::~zchxDockWidget()
+{
+    qDebug()<<"dock delete now";
 }
 
 void  zchxDockWidget::slotDockLocationChanged(Qt::DockWidgetArea area)
@@ -70,6 +76,21 @@ zchxVectorMapSettingWidget::zchxVectorMapSettingWidget(QWidget *parent) :
     connect(ui->showTextCHK, SIGNAL(clicked(bool)), this, SLOT(slotShowTextCHKChanged(bool)));
     connect(ui->showLightsChk, SIGNAL(clicked(bool)), this, SLOT(slotShowLightsCHKChanged(bool)));
     connect(ui->showNavObjectChk, SIGNAL(clicked(bool)), this, SLOT(slotShowNavObjectCHKChanged(bool)));
+}
+
+void zchxVectorMapSettingWidget::ReInit()
+{
+    ui->shallowDepthTxt->setText(QString::number(mMainWindow->itfToolBarGetShallowDepth()));
+    ui->safeDepthTxt->setText(QString::number(mMainWindow->itfToolBarGetSafeDepth()));
+    ui->DeepDepthTxt->setText(QString::number(mMainWindow->itfToolBarGetDeepDepth()));
+    ui->showDepthTextCHK->setChecked(mMainWindow->itfToolBarGetShowDepth());
+    ui->showTextCHK->setChecked(mMainWindow->itfToolBarGetShowText());
+    ui->colorSchemeCBX->setCurrentIndex(mMainWindow->itfToolBarGetColorScheme());
+    qDebug()<<"category:"<<mMainWindow->itfToolBarGetDispkayCategory();
+    ui->displayCategoryCBX->setCurrentIndex(mMainWindow->itfToolBarGetDispkayCategory());
+    ui->distanceUnitCbx->setCurrentIndex(mMainWindow->itfToolBarGetDistanceUnit());
+    ui->vectorDir->setText(mMainWindow->itfToolBarGetMapSource());
+    ui->showLightsChk->setChecked(mMainWindow->itfToolBarGetShowLight());
 }
 
 zchxVectorMapSettingWidget::~zchxVectorMapSettingWidget()

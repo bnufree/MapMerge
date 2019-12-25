@@ -11,8 +11,9 @@ class zchxDockWidget:public QDockWidget
 
 public :
     explicit zchxDockWidget(const QString& title, QWidget* parent = NULL);
+    ~zchxDockWidget();
 protected:
-    void closeEvent(QCloseEvent* event) {hide();}
+//    void closeEvent(QCloseEvent* event) {hide();}
 public slots:
     void slotDockLocationChanged(Qt::DockWidgetArea area);
 };
@@ -28,6 +29,7 @@ class zchxVectorMapSettingWidget : public QWidget
 public:
     explicit zchxVectorMapSettingWidget(QWidget *parent = 0);
     ~zchxVectorMapSettingWidget();
+    void ReInit();
 
 private slots:
     void on_mapLoadBtn_clicked();

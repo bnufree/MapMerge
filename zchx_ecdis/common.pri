@@ -3,5 +3,6 @@ include(Libs.pri)
 #TargetRoot = $${PWD}
 #BINARIES_PATH = $$TargetRoot/out/$$CONFIG_NAME
 DESTDIR = $$IDE_APP_PATH
+ZCHX_ECDIS_3RDPARTY = $${PWD}/3rdParty
 
 #LIB_INSTALL_PATH = $${OPENCPN_3RD_STATIC_LIB_PATH}/$${CONFIG_NAME}

@@ -6,51 +6,9 @@
 
 include(../common.pri)
 
-#defineReplace(qtLibraryName) {
-#   unset(LIBRARY_NAME)
-#   LIBRARY_NAME = $$1
-#   CONFIG(debug, debug|release) {
-#      !debug_and_release|build_pass {
-#          mac:RET = $$member(LIBRARY_NAME, 0)_debug
-#              else:win32:RET = $$member(LIBRARY_NAME, 0)d
-#      }
-#   }
-#   isEmpty(RET):RET = $$LIBRARY_NAME
-#   return($$RET)
-#}
-##根据不同的编译清空生成不同的输出路径
-#CONFIG(release, debug|release) {
-#  DEFINES *= RELEASE _RELEASE _DEBUG QT_MESSAGELOGCONTEXT
-#  CONFIG_NAME = Release
-#} else {
-#  DEFINES *= DEBUG _DEBUG
-#  CONFIG_NAME = Debug
-#  EXT_NAME = d
-#}
+include($$ZCHX_ECDIS_3RDPARTY/protobuf/protobuf.pri)
+include($$ZCHX_ECDIS_3RDPARTY/ZeroMQ/zmq.pri)
 
-#CONFIG += ordered
-#SUBDIRS = Libs
-
-
-#OPENCPN_3RD_PATH = $${PWD}/3rdparty
-#INCLUDEPATH += $${OPENCPN_3RD_PATH}/include
-#OPENCPN_3RD_STATIC_LIB_PATH = $${OPENCPN_3RD_PATH}/lib
-#INCLUDEPATH += $${OPENCPN_3RD_INCLUDE_PATH}
-
-#LIBS += -L$${OPENCPN_3RD_STATIC_LIB_PATH}/$${CONFIG_NAME}\ -lgdal$${EXT_NAME}
-#LIBS += -L$${OPENCPN_3RD_STATIC_LIB_PATH}/$${CONFIG_NAME}\ -lnmea0183$${EXT_NAME}
-#LIBS += -L$${OPENCPN_3RD_STATIC_LIB_PATH}/$${CONFIG_NAME}\ -ltinyxml$${EXT_NAME}
-#LIBS += -L$${OPENCPN_3RD_STATIC_LIB_PATH}/$${CONFIG_NAME}\ -lsound$${EXT_NAME}
-#LIBS += -L$${OPENCPN_3RD_STATIC_LIB_PATH}/$${CONFIG_NAME}\ -liso8211$${EXT_NAME}
-#LIBS += -L$${OPENCPN_3RD_STATIC_LIB_PATH}/$${CONFIG_NAME}\ -lSQLiteCPP$${EXT_NAME}
-#LIBS += -L$${OPENCPN_3RD_STATIC_LIB_PATH}/$${CONFIG_NAME}\ -lssl_sha1$${EXT_NAME}
-#LIBS += -L$${OPENCPN_3RD_STATIC_LIB_PATH}/$${CONFIG_NAME}\ -ltexcmp$${EXT_NAME}
-#LIBS += -L$${OPENCPN_3RD_STATIC_LIB_PATH}/$${CONFIG_NAME}\ -llz4$${EXT_NAME}
-#LIBS += -L$${OPENCPN_3RD_STATIC_LIB_PATH}/$${CONFIG_NAME}\ -ltess2$${EXT_NAME}
-#LIBS += -L$${OPENCPN_3RD_STATIC_LIB_PATH}/$${CONFIG_NAME}\ -lmipmap$${EXT_NAME}
-#LIBS += -L$${OPENCPN_3RD_STATIC_LIB_PATH}\ -llzma
-#LIBS += -L$${OPENCPN_3RD_STATIC_LIB_PATH}\ -lsqlite3
-#LIBS += -lpsapi
 
 LIBS += -L$${DESTDIR}\ -lgdal$${EXT_NAME}
 LIBS += -L$${DESTDIR}\ -lnmea0183$${EXT_NAME}
@@ -398,6 +356,19 @@ FORMS    += mainwindow.ui \
     dialog/statistcLineinfodialog.ui \
     dialog/zchxmapsourcedialog.ui \
     zchxvectormapsettingwidget.ui
+
+
+
+HEADERS += \
+    radar/ZCHXRadarVideo.pb.h \
+    radar/zchxradarutils.h \
+    radar/zchxradarvideodatachange.h \
+    radar/zmqradarvideothread.h
+
+SOURCES += \
+    radar/ZCHXRadarVideo.pb.cc \
+    radar/zchxradarvideodatachange.cpp \
+    radar/zmqradarvideothread.cpp
 
 !MyDLL{
     SOURCES += main.cpp

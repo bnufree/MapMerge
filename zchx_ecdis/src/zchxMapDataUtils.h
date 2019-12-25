@@ -238,4 +238,20 @@ Q_DECLARE_METATYPE(qt::TileImageList)
 #define             ENC_SAFE_DEPTH                                 "SafeWaterDepth"
 #define             ENC_DEEP_DEPTH                                 "DeepWaterDepth"
 
+//雷达接收配置
+#define             RADAR_TARGET_RECT_SETTING                   "RadarTargetRectSetting"
+#define             RADAR_TARGET_RECT_ENABLE                   "Available"
+#define             RADAR_TARGET_RECT_NUMBER                    "RadarSiteNum"
+#define             RADAR_TARGET_RECT_INDEX                     "Radar_rect_%1"
+#define             RADAR_TARGET_RECT_IP                        "IP"
+#define             RADAR_TARGET_RECT_PORT                        "PORT"
+#define             RADAR_TARGET_RECT_TOPIC                        "TOPIC"
+#define             RADAR_TARGET_RECT_TIME                        "TIME"
+#define             RADAR_TARGET_RECT_COLOR                         "rect_color"
+#define             RADAR_TARGET_RECT_EDGE_COLOR                    "edge_color"
+#define             RADAR_TARGET_RECT_HISTORY_COLOR                        "his_rect_color"
+#define             RADAR_TARGET_RECT_HISTORY_BACKGROUND_COLOR                        "his_background_color"
+
+
+
 #endif // ZCHXECDISUTILS_H

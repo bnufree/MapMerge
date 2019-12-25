@@ -10,6 +10,7 @@
 #include <QHBoxLayout>
 #include <QSpacerItem>
 #include "zchxvectormapsettingwidget.h"
+#include "radar/zchxradarvideodatachange.h"
 
 using namespace qt;
 //namespace qt {
@@ -33,6 +34,35 @@ MainWindow::MainWindow(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) :
     initSignalConnect();
     MapLayerMgr::instance()->setDrawWidget(mMapWidget);
     MapLayerMgr::instance()->loadEcdisLayers();
+    //开始接收雷达数据
+    if(Profiles::instance()->value(RADAR_TARGET_RECT_SETTING, RADAR_TARGET_RECT_ENABLE, false).toBool())
+    {
+        int num = Profiles::instance()->value(RADAR_TARGET_RECT_SETTING, RADAR_TARGET_RECT_NUMBER, 0).toInt();
+        QList<ZCHX_RADAR_RECEIVER::ZMQ_RadarRect_Param> param_list;
+        for(int i=1; i<=num; i++)
+        {
+            QString sec = QString(RADAR_TARGET_RECT_INDEX).arg(i);
+            ZCHX_RADAR_RECEIVER::ZMQ_RadarRect_Param param;
+            param.m_sIP = Profiles::instance()->value(sec, RADAR_TARGET_RECT_IP, "192.168.80.9").toString();
+            param.m_sPort = Profiles::instance()->value(sec, RADAR_TARGET_RECT_PORT, "5699").toString();
+            param.m_sTopic = Profiles::instance()->value(sec, RADAR_TARGET_RECT_TOPIC, "RadarRect").toString();
+            param.m_sCurColor = Profiles::instance()->value(sec, RADAR_TARGET_RECT_COLOR, "#ff0000").toString();
+            param.m_sEdgeColor = Profiles::instance()->value(sec, RADAR_TARGET_RECT_EDGE_COLOR, "#c0c0c0").toString();
+            param.m_sHistoryColor = Profiles::instance()->value(sec, RADAR_TARGET_RECT_HISTORY_COLOR, "#0000ff").toString();
+            param.m_sHistoryBackgroundColor = Profiles::instance()->value(sec, RADAR_TARGET_RECT_HISTORY_BACKGROUND_COLOR, "#00ffff").toString();
+
+            if(param_list.contains(param)) continue;
+            param_list.append(param);
+        }
+        if(param_list.size() > 0)
+        {
+
+            ZCHX_RADAR_RECEIVER::ZCHXRadarVideoDataChange* change = new ZCHX_RADAR_RECEIVER::ZCHXRadarVideoDataChange(param_list, this);
+            connect(change, SIGNAL(sendRadarVideo(int, QList<ZCHX::Data::ITF_RadarRect>)),
+                    this, SLOT(itfSetRadarRect(int,QList<ZCHX::Data::ITF_RadarRect>)));
+            change->start();
+        }
+    }
 
 }
 
@@ -211,6 +241,13 @@ void MainWindow::slotSetParam()
         zchxVectorMapSettingWidget* setting = new zchxVectorMapSettingWidget(this);
         mSettingDockWidget->setWidget(setting);
         this->addDockWidget(Qt::RightDockWidgetArea, mSettingDockWidget);
+    } else
+    {
+        zchxVectorMapSettingWidget* setting = qobject_cast<zchxVectorMapSettingWidget*> (mSettingDockWidget->widget());
+        if(setting)
+        {
+            setting->ReInit();
+        }
     }
     mSettingDockWidget->show();
 }

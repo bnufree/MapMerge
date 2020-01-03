@@ -44,6 +44,8 @@ private:
                                   int traceLenIndex );
     bool isRadarDisplayByContinueTime(const ZCHX::Data::ITF_RadarRect & data,
                                       int continueTimeIndex);
+    QPixmap  scaledAndAlphaPixmap(const QPixmap& source, int target_width, int target_height, int alpha);
+    QPixmap  drawPixmap();
 
     ZCHX::Data::ITF_RadarRect mRect;
     static  int             mMaxRectLength;

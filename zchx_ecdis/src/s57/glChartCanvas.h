@@ -140,12 +140,13 @@ public:
     bool GetShowGrid(){ return m_bDisplayGrid; }
     void SetShowGrid( bool show ){ m_bDisplayGrid = show; }
 
-    void  setShallowDepth(double val);
-    double getShallowDepth() const {return mShallowDepth;}
-    void  setSafeDepth(double val);
-    double getSafeDepth() const {return mSafeDepth;}
-    void  setDeepDepth(double val);
-    double getDeepDepth() const {return mDeepdepth;}
+    void  setWaterReferenceDepth(int shallow, int safe, int deep);
+    void  setShallowDepth(int val);
+    int getShallowDepth() const {return mShallowDepth;}
+    void  setSafeDepth(int val);
+    int getSafeDepth() const {return mSafeDepth;}
+    void  setDeepDepth(int val);
+    int getDeepDepth() const {return mDeepdepth;}
     void  setDepthUnit(int unit);
     int   getDepthUnit() const {return mDepthUnit;}
     void  setDistanceUnit(int unit);
@@ -306,9 +307,9 @@ protected:
     bool            m_encShowAnchor;
     bool            m_encShowDataQual;
     bool            m_bDisplayGrid;
-    double          mShallowDepth;
-    double          mSafeDepth;
-    double          mDeepdepth;
+    int               mShallowDepth;
+    int              mSafeDepth;
+    int              mDeepdepth;
     int             mDepthUnit;
     int             mDistanceUnit;
 

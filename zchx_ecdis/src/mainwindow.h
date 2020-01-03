@@ -52,6 +52,7 @@ public:
     double      itfToolBarGetSafeDepth() const;
     void        itfToolBarSetDeepDepth(double depth);
     double      itfToolBarGetDeepDepth() const;
+    void        itfToolBarSetWaterReferenceDepth(int shallow, int safe, int deep);
     //设置距离单位
     void        itfToolBarSetDistanceUnit(ZCHX::DistanceUnit unit);
     int         itfToolBarGetDistanceUnit() const;
@@ -500,6 +501,7 @@ public slots: //定义Recive数据接口
     void itfSetClearHistoryData(bool states);               //true-清理历史ais/radatr  false-清理历史轨迹
     void itfSetConsAisData(const ZCHX::Data::ITF_AIS &data); //设置施工船舶
     void itfSetRadarPointData(int radarSiteId, const QList<ZCHX::Data::ITF_RadarPoint>/*const std::vector<RadarPoint>*/ &data);//设置雷达点数据
+    void itfSetRadarVideoWholeData(int siteID, double lon, double lat, double dis, int type, int loop, int curIndex, const QByteArray& objPixmap, const QByteArray& prePixMap);
     void itfSetHistoryRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint> &data); //设置雷达历史数据
     void itfSetRadarAreaData(const QList<ZCHX::Data::ITF_RadarArea> &data); //设置雷达扫描区域数据
     void itfSetCameraRodData(const QList<ZCHX::Data::ITF_CameraRod> &data); //设置摄像杆接口数据

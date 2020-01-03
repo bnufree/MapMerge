@@ -6,10 +6,6 @@
 
 include(../common.pri)
 
-include($$ZCHX_ECDIS_3RDPARTY/protobuf/protobuf.pri)
-include($$ZCHX_ECDIS_3RDPARTY/ZeroMQ/zmq.pri)
-
-
 LIBS += -L$${DESTDIR}\ -lgdal$${EXT_NAME}
 LIBS += -L$${DESTDIR}\ -lnmea0183$${EXT_NAME}
 LIBS += -L$${DESTDIR}\ -ltinyxml$${EXT_NAME}
@@ -58,9 +54,9 @@ MyDLL{
 }
 #DESTDIR = $$BINARIES_PATH
 !contains(CONFIG, MyDLL){
-    DEFINES += MyTest
+    DEFINES += ZCHX_ECDIS_APP
 } else {
-    DEFINES -= MyTest
+    DEFINES -= ZCHX_ECDIS_APP
 }
 warning("dest:" + $$DESTDIR)
 
@@ -205,7 +201,7 @@ SOURCES += mainwindow.cpp \
     element/aidtonavigationtraceelement.cpp \
     element/aissiteelement.cpp \
     data_manager/zchxnavimarkdatamgr.cpp \
-    element/navimarkelement.cpp
+    element/navimarkelement.cpp \
 
 HEADERS  += mainwindow.h \
     zchxtileimagethread.h \
@@ -341,7 +337,8 @@ HEADERS  += mainwindow.h \
     element/aidtonavigationtraceelement.h \
     element/aissiteelement.h \
     data_manager/zchxnavimarkdatamgr.h \
-    element/navimarkelement.h
+    element/navimarkelement.h \
+
 
 FORMS    += mainwindow.ui \
     coastdatainfodialog.ui \
@@ -358,20 +355,25 @@ FORMS    += mainwindow.ui \
     zchxvectormapsettingwidget.ui
 
 
-
-HEADERS += \
-    radar/ZCHXRadarVideo.pb.h \
-    radar/zchxradarutils.h \
-    radar/zchxradarvideodatachange.h \
-    radar/zmqradarvideothread.h
-
-SOURCES += \
-    radar/ZCHXRadarVideo.pb.cc \
-    radar/zchxradarvideodatachange.cpp \
-    radar/zmqradarvideothread.cpp
-
 !MyDLL{
-    SOURCES += main.cpp
+    include($$ZCHX_ECDIS_3RDPARTY/protobuf/protobuf.pri)
+    include($$ZCHX_ECDIS_3RDPARTY/ZeroMQ/zmq.pri)
+
+    SOURCES += main.cpp \
+    radar/ZCHXRadarVideo.pb.cc \
+    radar/ZCHXRadar.pb.cc \
+    radar/zchxradarrectthread.cpp \
+    radar/zchxradarpointthread.cpp \
+    radar/zchxradardatachange.cpp \
+    radar/zchxradarechothread.cpp
+
+    HEADERS += radar/zchxradarutils.h \
+    radar/ZCHXRadarVideo.pb.h \
+    radar/ZCHXRadar.pb.h \
+    radar/zchxradarrectthread.h \
+    radar/zchxradarpointthread.h \
+    radar/zchxradardatachange.h \
+    radar/zchxradarechothread.h
 }
 
 RESOURCES += res/resources.qrc

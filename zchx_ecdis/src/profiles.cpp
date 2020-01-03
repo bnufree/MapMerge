@@ -102,22 +102,37 @@ setDefault(MAP_INDEX, MAX_RECT_PIXEL_LENGTH, 75);
     setDefault(ENC_DISPLAY_SETTING, ENC_SHALLOW_DEPTH, 3);
     setDefault(ENC_DISPLAY_SETTING, ENC_SAFE_DEPTH, 8);
     setDefault(ENC_DISPLAY_SETTING, ENC_DEEP_DEPTH, 10);
+#ifdef ZCHX_ECDIS_APP
     //雷达回波接收配置
-    setDefault(RADAR_TARGET_RECT_SETTING, RADAR_TARGET_RECT_ENABLE, false);
-    setDefault(RADAR_TARGET_RECT_SETTING, RADAR_TARGET_RECT_NUMBER, 1);
-    int num = value(RADAR_TARGET_RECT_SETTING, RADAR_TARGET_RECT_NUMBER, 0).toInt();
+    setDefault(RADAR_RECV_SETTING, RADAR_RECT_ENABLE, false);
+    setDefault(RADAR_RECV_SETTING, RADAR_POINT_ENABLE, false);
+    setDefault(RADAR_RECV_SETTING, RADAR_VIDEO_ENABLE, false);
+    setDefault(RADAR_RECV_SETTING, RADAR_NUMBER, 1);
+    int num = value(RADAR_RECV_SETTING, RADAR_NUMBER, 0).toInt();
     for(int i=1; i<=num; i++)
     {
-        QString sec = QString(RADAR_TARGET_RECT_INDEX).arg(i);
-        setDefault(sec, RADAR_TARGET_RECT_IP, "192.168.80.9");
-        setDefault(sec, RADAR_TARGET_RECT_PORT, "5699");
-        setDefault(sec, RADAR_TARGET_RECT_TOPIC, "RadarRect");
-        setDefault(sec, RADAR_TARGET_RECT_TIME, "1");
-        setDefault(sec, RADAR_TARGET_RECT_COLOR, "#ff0000");
-        setDefault(sec, RADAR_TARGET_RECT_EDGE_COLOR, "#c0c0c0");
-        setDefault(sec, RADAR_TARGET_RECT_HISTORY_COLOR, "#0000ff");
-        setDefault(sec, RADAR_TARGET_RECT_HISTORY_BACKGROUND_COLOR, "#00ffff");
+        QString sec = QString(RADAR_RECT_INDEX).arg(i);
+        setDefault(sec, RADAR_IP, "192.168.80.9");
+        setDefault(sec, RADAR_PORT, "5699");
+        setDefault(sec, RADAR_TOPIC, "RadarRect");
+        setDefault(sec, RADAR_TIME, "1");
+        setDefault(sec, RADAR_RECT_COLOR, "#ff0000");
+        setDefault(sec, RADAR_RECT_EDGE_COLOR, "#c0c0c0");
+        setDefault(sec, RADAR_RECT_HISTORY_COLOR, "#0000ff");
+        setDefault(sec, RADAR_RECT_HISTORY_BACKGROUND_COLOR, "#00ffff");
+
+        sec = QString(RADAR_POINT_INDEX).arg(i);
+        setDefault(sec, RADAR_IP, "192.168.80.9");
+        setDefault(sec, RADAR_PORT, "5151");
+        setDefault(sec, RADAR_TOPIC, "RadarTrack");
+
+        sec = QString(RADAR_VIDEO_INDEX).arg(i);
+        setDefault(sec, RADAR_IP, "192.168.80.9");
+        setDefault(sec, RADAR_PORT, "5689");
+        setDefault(sec, RADAR_TOPIC, "RadarVideo");
+        setDefault(sec, RADAR_TIME, "1");
     }
+#endif
 }
 
 /*-------------------------------------------

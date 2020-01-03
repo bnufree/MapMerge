@@ -43,7 +43,8 @@ zchxMapWidget::zchxMapWidget(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) : QGLWid
     mType(type),
     mIsDBUpdateNow(false),
     mDBProgressWidget(0),
-    mPopParamSettingWidget(false)
+    mPopParamSettingWidget(false),
+    mRectGlowSecs(60)
 {
     this->setMouseTracking(true);
     mZoomLbl = new QLabel(this);
@@ -814,7 +815,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                         menu.addAction(tr("参数设定"), this, SIGNAL(signalSetParam()));
                     }
 //                    menu.addAction(tr("设定地图数据源"), this, SLOT(resetMapSource()));
-//                    menu.addAction(tr("地图数据转换"), this, SLOT(changeS572Senc()));
+                    menu.addAction(tr("地图数据转换"), this, SLOT(changeS572Senc()));
                 }
 
             } else
@@ -2080,6 +2081,7 @@ void zchxMapWidget::resetMapSource()
 
 void zchxMapWidget::changeS572Senc()
 {
+#if 0
     if(mType == ZCHX::ZCHX_MAP_VECTOR)
     {
         zchxVectorMapFrameWork* frame = qobject_cast<zchxVectorMapFrameWork*>(mFrameWork);
@@ -2088,6 +2090,264 @@ void zchxMapWidget::changeS572Senc()
         if(url.isEmpty()) return;
         frame->changeS572SENC(url);
     }
+#else
+    QString fileName = QFileDialog::getOpenFileName();
+    if(!fileName.isEmpty())
+    {
+        QList<QList<int>> all;
+        zchxMapDataUtils::parseRectIMG(fileName, all);
+        if(all.size() == 0) return;
+        int img_height = all.size();
+        int img_width = all.first().size();
+        QPixmap pixmap(img_width, img_height);
+        pixmap.fill(Qt::transparent);
+        QPainter painter;
+        painter.begin(&pixmap);
+        painter.setPen(Qt::black);
+        painter.setBrush(Qt::red);
+        //3)遍历二维数组进行填充,统计每一行的开始点和结束点
+        QPolygon left, right;
+        int pre_start = -1, pre_end = -1;
+        for(int i=0; i<img_height; i++)
+        {
+            QList<int> bytes = all[i];
+            int cur_start = -1, cur_end = -1;
+            for(int j=0; j<img_width; j++)
+            {
+                if(bytes[j] == 1)
+                {
+                    if(cur_start == -1) cur_start = j;
+                    cur_end = j;
+                }
+            }
+            if(cur_start == -1 && pre_start >= 0) cur_start = pre_start;
+            if(cur_end == -1 && pre_end >= 0) cur_end = pre_end;
+
+            //检查这两个点是否是相距太近,如果是,合并
+            if(cur_start != -1 && fabs(cur_start - cur_end) < 5)
+            {
+                cur_start = cur_end;
+            }
+
+            if(cur_start == -1 && cur_end == -1) continue;
+            if(pre_start == -1 && pre_end == -1)
+            {
+                //第一个点进来了,这里不管什么情况直接将开始和结束点分别插入左右侧
+                left.append(QPoint(cur_start, i));
+                right.append(QPoint(cur_end, i));
+            } else
+            {
+                //计算最新的点相对于前一排的两个点的位置关系
+                int start_d1 = cur_start - pre_start;
+                int start_d2 = cur_start - pre_end;
+                int end_d1 = cur_end - pre_start;
+                int end_d2 = cur_end - pre_end;
+                bool start_flag = false;
+                bool end_flag = false;
+                if(start_d1 <= 0)
+                {
+                    //开始点再前一个开始点的左侧
+                    left.append(QPoint(cur_start, i));
+                    start_flag = true;
+                }
+                if(end_d2 >= 0)
+                {
+                    //结束点再前一个结束点的右侧
+                    right.append(QPoint(cur_end, i));
+                    end_flag = true;
+                }
+                if((!start_flag) && start_d1 > 0)
+                {
+                    //开始点再前一个开始点的右侧
+                    if(fabs(start_d1) < fabs(start_d2))
+                    {
+                        left.append(QPoint(cur_start, i));
+                        start_flag = true;
+                    }
+                }
+
+                if((!end_flag) && end_d2 < 0)
+                {
+                    //结束点再前一个开始点的左侧侧
+                    if(fabs(end_d2) < fabs(end_d1))
+                    {
+                        right.append(QPoint(cur_end, i));
+                        end_flag = true;
+                    }
+                }
+
+
+//                if(cur_start != cur_end)
+//                {
+//                    if(cur_start >= 0)
+//                    {
+//                        left.append(QPoint(cur_start, i));
+//                    }
+//                    if(cur_end >= 0)
+//                    {
+//                        right.append(QPoint(cur_end, i));
+//                    }
+//                } else
+//                {
+//                    if(cur_start != -1 && cur_end != -1)
+//                    {
+//                        int dl = cur_start - pre_start;
+//                        int dr = cur_end - pre_end;
+
+//                        if(dl < 0)
+//                        {
+//                            left.append(QPoint(cur_start, i));
+//                        } else if(dr > 0)
+//                        {
+//                            right.append(QPoint(cur_start, i));
+//                        } else
+//                        {
+//                            if(fabs(dl) < fabs(dr))
+//                            {
+//                                left.append(QPoint(cur_start, i));
+//                            } else if(fabs(dl) > fabs(dr))
+//                            {
+//                                right.append(QPoint(cur_start, i));
+//                            } else
+//                            {
+
+//                            }
+//                        }
+//                    }
+//                }
+            }
+
+            if(left.size() > 0)pre_start = left.last().x();
+            if(right.size() > 0) pre_end = right.last().x();
+        }
+#if 0
+        //输出左边的点列
+        QPainterPath path;
+        for(int i=0; i<left.size(); i++)
+        {
+            QPoint target = left[i];
+            painter.drawEllipse(target, 2, 2);
+            if(i ==0)
+            {
+                path.moveTo(target);
+            } else
+            {
+                path.lineTo(target);
+            }
+//            painter.drawText(target, QString::number(i+1));
+        }
+        painter.drawPath(path);
+
+        painter.setBrush(Qt::green);
+        QPainterPath rpath;
+        for(int i=0; i<right.size(); i++)
+        {
+            QPoint target = right[i];
+            painter.drawEllipse(target, 2, 2);
+            if(i ==0)
+            {
+                rpath.moveTo(target);
+            } else
+            {
+                rpath.lineTo(target);
+            }
+        }
+        painter.drawPath(rpath);
+        painter.drawText(QPoint(img_width, img_height), "Center");
+#else
+        //    qDebug()<<"left:"<<left;
+        //    qDebug()<<"right:"<<right;
+        //左右点列进行合并
+        for(int i=right.size()-1; i>=0; i--)
+        {
+            QPoint target = right[i];
+            if(left.contains(target)) continue;
+            left.append(target);
+        }
+        QPolygon leftbak(left);
+        //对点列进行检查,去除锐角钝化
+        for(int i=1; i<left.size()-1; )
+        {
+            qDebug()<<"i == "<<i;
+            QPoint pre = left[i-1];
+            QPoint cur = left[i];
+            if(i+1 > left.size() - 1) break;
+            QPoint next = left[i+1];
+            //检查当前点和前后的点是否是锐角
+            //先将所有点的坐标变成直角坐标系.正方向X右Y上
+            pre.setY(-1 * pre.y());
+            cur.setY(-1 * cur.y());
+            next.setY(-1 * next.y());
+            //求两个向量的夹角
+            //cos(@) = b•c / (|b| |c|)
+            QVector2D p1(pre.x() - cur.x(), pre.y() - cur.y());
+            QVector2D p2(next.x()- cur.x(), next.y()- cur.y());
+            double dot = QVector2D::dotProduct(p1, p2);
+            double len1 = p1.length();
+            double len2 = p2.length();
+            if(len1 * len2 > 0)
+            {
+                double angle = acos(dot / (len1 * len2));
+                if( angle < 0.5 * GLOB_PI)
+                {
+                    //锐角,删除
+                    left.removeAt(i);
+                    qDebug()<<" anlge = "<<(angle * 180 /  GLOB_PI) << i<< " remove";
+                    if(i >= 2)i--;
+                    continue;
+                }
+            }
+            //如果两个点相距太近,也删除
+            if(/*len1 <= 2 ||*/ len2 <= 1)
+            {
+                left.removeAt(i);
+                qDebug()<<" dis = "<<len1<<len2 << i<< " remove";
+                if(i >= 2)i--;
+                continue;
+            }
+            i++;
+
+        }
+
+
+        //4)将数组点列画到图片上
+        painter.drawPolygon(left);
+        {
+//            painter.setPen(Qt::white);
+//            painter.setBrush(QColor(0, 255, 0, 100));
+//            painter.setPen(Qt::darkCyan);
+//            foreach (QPoint pnt, leftbak) {
+//                painter.drawEllipse(pnt, 2, 2);
+//            }
+
+//            for(int i=0; i<img_height; i++)
+//            {
+//                QList<int> bytes = all[i];
+//                for(int j=0; j<img_width; j++)
+//                {
+//                    if(bytes[j] == 1)
+//                    {
+//                        painter.drawEllipse(QPoint(j, i), 2, 2);
+////                        QFont font = painter.font();
+////                        font.setPointSize(6);
+////                        painter.setFont(font);
+////                        painter.drawText(QPoint(j, i), QString("%1,%2").arg(j).arg(i));
+//                    }
+//                }
+//            }
+        }
+        {
+            painter.setPen(Qt::darkCyan);
+            foreach (QPoint pnt, left) {
+                painter.drawEllipse(pnt, 1, 1);
+            }
+        }
+#endif
+
+        painter.end();
+        pixmap.save(QString("test.png"), "PNG");
+    }
+#endif
 }
 
 //图元tooltip显示

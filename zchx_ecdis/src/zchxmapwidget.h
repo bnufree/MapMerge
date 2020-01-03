@@ -43,6 +43,8 @@ public:
     ~zchxMapWidget();
     int getMapType() const {return mType;}
     void  setParamsSettingVisible(bool sts);
+    void  setRectGlowSecs(int val) {mRectGlowSecs = val;}
+    int   getRectGlowSecs() const {return mRectGlowSecs;}
     //地图显示
     void setCurZoom(int zoom);
     int  zoom() const;
@@ -155,6 +157,7 @@ public:
     double getSafeDepth() const {return mFrameWork->getSafeDepthVal();}
     void setDeepDepth(double val) {mFrameWork->setDeepDepthVal(val);}
     double getDeepDepth() const {return mFrameWork->getDeepDepthVal();}
+    void setWaterReferenceDepth(int shallow, int safe, int deep){mFrameWork->setWaterReferenceDepth(shallow, safe, deep);}
     //设置距离显示单位
     void setDistanceUnit(ZCHX::DistanceUnit unit) {mFrameWork->setDistanceUnit(unit);}
     int  getDistanceUnit() const {return mFrameWork->getDistanceUnit();}
@@ -997,6 +1000,8 @@ private:
     QList<QWidget*>                 mPopWidgetList;
     //是否可以进行参数设定
     bool                            mPopParamSettingWidget;
+    //当前回波余晖图形的历史分钟数,这里转换成秒数
+    int                             mRectGlowSecs;
 };
 }
 #endif // ZCHXMAPWIDGET_H

@@ -13,7 +13,7 @@ public :
     explicit zchxDockWidget(const QString& title, QWidget* parent = NULL);
     ~zchxDockWidget();
 protected:
-//    void closeEvent(QCloseEvent* event) {hide();}
+    void closeEvent(QCloseEvent* event) {hide();}
 public slots:
     void slotDockLocationChanged(Qt::DockWidgetArea area);
 };

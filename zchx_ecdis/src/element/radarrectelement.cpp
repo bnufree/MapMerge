@@ -413,12 +413,14 @@ void RadarRectGlowElement::drawRadarTracks(QPainter *painter)
     mRect.historyBackgroundColor.setRgb(68,89,182);
     //    }
 
+#if 0
+    //这里开始旧版本的矩形框输出
     //计算在当前层级对应的最大矩形长度
     int cur_zoom = mView->framework()->getZoom();
     int max_zoom = mView->framework()->getMaxZoom();
     double max_mct_len = zchxMapDataUtils::calResolution(max_zoom);
     double cur_mct_len = zchxMapDataUtils::calResolution(cur_zoom);
-    mMaxRectLenthAtZoom = max_mct_len * mMaxRectLength / cur_mct_len;
+    mMaxRectLenthAtZoom = cur_zoom * mMaxRectLength / max_zoom;
     //计算开始和结束点之间的距离
     mHistoryPixelLength = 0.0;
     if(mRect.rects.size() > 0)
@@ -488,17 +490,362 @@ void RadarRectGlowElement::drawRadarTracks(QPainter *painter)
         }
 
     }
+#else
+    //这里开始输出目标实际的矩形
+    //1)先画目标当前的回波图形
+    painter->save();
+    painter->setPen(Qt::yellow);
+#if 1
+    QPixmap current_video = drawPixmap();
+    if(!current_video.isNull())
+    {
+        QPoint center = mView->framework()->LatLon2Pixel(mRect.current.centerlatitude, mRect.current.centerlongitude).toPoint();
+        QRect rect(0, 0, current_video.width(), current_video.height());
+        rect.moveCenter(center);
+        painter->drawPixmap(rect, current_video);
+    }
+#endif
+//    for(int i=0; i<mRect.current.blocks.size(); i++)
+//    {
+//        double lat = mRect.current.blocks[i].latitude;
+//        double lon = mRect.current.blocks[i].longitude;
+//        painter->drawEllipse(mView->framework()->LatLon2Pixel(lat, lon).toPoint(), 2, 2);
+//    }
+#if 0
+    //2)开始画目标的历史轨迹图形
+    int size = mRect.rects.size();
+    double delta = 1.0;
+    if(size > 0) delta = 255.0 / size;
+    //获取当前是需要看几分钟之类的回波图形
+    int glow_secs = mView->getRectGlowSecs();
+    int cur_length = zchxMapDataUtils::DistanceOnEarth(mRect.current.startlatitude,
+                                                       mRect.current.startlongitude,
+                                                       mRect.current.endlatitude,
+                                                       mRect.current.endlongitude);
+    for(int i=0; i<mRect.rects.size(); i++)
+    {
+        ITF_RadarHistoryRect his = mRect.rects[i];
+        int index = size - 1 - i;
+        //检查轨迹点的时间是否和实时轨迹点一样, TIMEOFDAY的时间为秒
+        if(his.timeOfDay == mRect.current.timeOfDay) continue;
+        if(his.timeOfDay < mRect.current.timeOfDay - glow_secs) break;
+        //根据目标的长度进行图形缩放透明处理
+        int his_length = zchxMapDataUtils::DistanceOnEarth(his.startlatitude,
+                                                           his.startlongitude,
+                                                           his.endlatitude,
+                                                           his.endlongitude);
+        int target_width = qRound(current_video.width() * his_length * 1.0 / cur_length);
+        int target_height = qRound(current_video.height() * his_length * 1.0 / cur_length);
+        int alpha = qRound( index * delta);
+        QPixmap target = scaledAndAlphaPixmap(current_video, target_width, target_height, alpha);
+        if(!target.isNull())
+        {
+            QPoint center = mView->framework()->LatLon2Pixel(his.centerlatitude, his.centerlongitude).toPoint();
+            QRect rect(0, 0, target.width(), target.height());
+            rect.moveCenter(center);
+            painter->drawPixmap(rect, target);
+        }
 
+    }
+#endif
+    //测试目标的最长距离线
+    painter->setPen(QPen(Qt::white, 2));
+    painter->drawLine(mView->framework()->LatLon2Pixel(mRect.current.startlatitude, mRect.current.startlongitude).toPointF(),
+                      mView->framework()->LatLon2Pixel(mRect.current.endlatitude, mRect.current.endlongitude).toPointF());
+
+    //开始画目标的中心
+
+    painter->drawEllipse(mView->framework()->LatLon2Pixel(mRect.current.centerlatitude, mRect.current.centerlongitude).toPointF(), 6 ,6);
+    painter->restore();
+
+
+
+#endif
+
+}
+
+QPixmap RadarRectGlowElement::scaledAndAlphaPixmap(const QPixmap &source, int target_width, int target_height, int alpha)
+{
+    QPixmap temp(source.size());
+    temp.fill(Qt::transparent);
+    QPainter p1(&temp);
+    p1.setCompositionMode(QPainter::CompositionMode_Source);
+    p1.drawPixmap(0, 0, source);
+    p1.setCompositionMode(QPainter::CompositionMode_DestinationIn);
+    p1.fillRect(temp.rect(), QColor(0, 0, 0, alpha));
+    p1.end();
+
+    return temp.scaled(target_width, target_height);
+}
+
+QPixmap RadarRectGlowElement::drawPixmap()
+{
+#if 1
+    QPixmap pixmap(mRect.current.pixWidth, mRect.current.pixHeight);
+    pixmap.fill(Qt::transparent);
+    QPainter painter;
+    painter.begin(&pixmap);
+    painter.setPen(Qt::black);
+    painter.setBrush(mRect.blockColor);
+    painter.drawPolygon(mRect.current.pixPoints);
+    painter.end();
+    return pixmap;
+
+#else
+//    qDebug()<<"start drawimg";
+    int    img_size = 255;
+    QPixmap pixmap(img_size, img_size);  //基数  使得图片的中心就是原点,一个图片对应的大小就是500*500米
+    int     pix_size = 500;
+    pixmap.fill(Qt::transparent);
+    QPainter painter;
+    painter.begin(&pixmap);    
+    painter.setPen(Qt::black);
+    painter.setBrush(mRect.blockColor);
+    //将经纬度点对应到图片上.图元的中心经纬度对应图片的中心
+    //1)计算中心点对应的墨卡托坐标
+    double lat = mRect.current.centerlatitude;
+    double lon = mRect.current.centerlongitude;
+    ZCHX::Data::Mercator cen_mct = zchxMapDataUtils::wgs84LatLonToMercator(lat, lon);
+    painter.save();
+    painter.translate(img_size / 2 + 1, img_size / 2 + 1);
+//    painter.drawText(QPoint(0, 0), QString("%1,%2").arg(lat, 0, 'f', 6).arg(lon, 0, 'f', 6));
+    painter.restore();
+    //2)开始构建图片的二维数组点列
+    char *img = new char[img_size * img_size];
+    memset(img, 0, img_size * img_size);
+
+    for(int i=0; i<mRect.current.blocks.size(); i++)
+    {
+        lat = mRect.current.blocks[i].latitude;
+        lon = mRect.current.blocks[i].longitude;
+        ZCHX::Data::Mercator circle_mct = zchxMapDataUtils::wgs84LatLonToMercator(lat, lon);
+        //计算当前点对应中心点之间的距离
+        double sub_mct_x = circle_mct.mX - cen_mct.mX;
+        double sub_mct_y = circle_mct.mY - cen_mct.mY;
+        //距离超处理图片的范围,不处理
+        if(fabs(sub_mct_x) > pix_size / 2 || fabs(sub_mct_y) > pix_size / 2) continue;
+
+        //开始计算对应的二维数组的下标
+        int x = qFloor(sub_mct_x * (img_size / 2) / (pix_size / 2)); //[-127~127]
+        int y = 0 - qFloor(sub_mct_y * (img_size / 2) / (pix_size / 2));//[-127~127]  直角坐标的Y向上变为绘图坐标系的向下
+//        qDebug()<<sub_mct_x<<sub_mct_y <<x<<y;
+        //转换到[0-254]范围
+        x += (img_size / 2);
+        y += (img_size / 2);
+        //给数组赋值
+        *(img+ y* img_size + x) = 1;
+    }
+#define OUTPUT
+#ifdef OUTPUT
+    QString dirPath = QString("%1/temp").arg(QApplication::applicationDirPath());
+    QDir dir(dirPath);
+    if(!dir.exists())
+    {
+        dir.mkpath(dir.absolutePath());
+    }
+    //检测文件夹里边的文件个数
+    QString fileName = QString("%1/%2").arg(dirPath).arg(QDateTime::currentMSecsSinceEpoch());
+    FILE *fp = fopen(QString("%1.txt").arg(fileName).toStdString().data(), "w");
+    for(int i=0; i<img_size; i++)
+    {
+        QString text;
+        for(int j=0; j<img_size; j++)
+        {
+            if(*(img+i*img_size+j) == 1)
+            {
+                text.append("1");
+            } else
+            {
+                text.append("0");
+            }
+        }
+        fprintf(fp, "%s\n", text.toStdString().data());
+    }
+    fclose(fp);
+#endif
+
+    //3)遍历二维数组进行填充,统计每一行的开始点和结束点
+    QPolygon left, right;
+    int pre_start = -1, pre_end = -1;
+    //首先获取最后有效的行
+    int line_end = -1, line_start = -1;
+    for(int i=img_size-1; i>=0; i--)
+    {
+        for(int j=0; j<img_size; j++)
+        {
+            if(*(img+i*img_size+j) == 1)
+            {
+                line_end = i;
+                break;
+            }
+        }
+        if(line_end >= 0) break;
+    }
+
+    for(int i=0; i<=line_end; i++)
+    {
+        int cur_start = -1, cur_end = -1;
+        for(int j=0; j<img_size; j++)
+        {
+            if(*(img+i*img_size+j) == 1)
+            {
+                if(cur_start == -1) cur_start = j;
+                cur_end = j;
+                if(line_start == -1) line_start = i;
+            }
+        }
+        if(cur_start == -1 && pre_start >= 0) cur_start = pre_start;
+        if(cur_end == -1 && pre_end >= 0) cur_end = pre_end;
+
+        //检查这两个点是否是相距太近,如果是,合并
+        if(cur_start != -1 && fabs(cur_start - cur_end) < 5)
+        {
+            cur_start = cur_end;
+        }
+
+        if(cur_start == -1 && cur_end == -1) continue;
+        if(pre_start == -1 && pre_end == -1)
+        {
+            //第一个点进来了,这里不管什么情况直接将开始和结束点分别插入左右侧
+            left.append(QPoint(cur_start, i));
+            right.append(QPoint(cur_end, i));
+        } else
+        {
+            //计算最新的点相对于前一排的两个点的位置关系
+            int start_d1 = cur_start - pre_start;
+            int start_d2 = cur_start - pre_end;
+            int end_d1 = cur_end - pre_start;
+            int end_d2 = cur_end - pre_end;
+            bool start_flag = false;
+            bool end_flag = false;
+            if(start_d1 <= 0)
+            {
+                //开始点再前一个开始点的左侧
+                left.append(QPoint(cur_start, i));
+                start_flag = true;
+            }
+            if(end_d2 >= 0)
+            {
+                //结束点再前一个结束点的右侧
+                right.append(QPoint(cur_end, i));
+                end_flag = true;
+            }
+            if((!start_flag) && start_d1 > 0)
+            {
+                //开始点再前一个开始点的右侧
+                if(fabs(start_d1) < fabs(start_d2))
+                {
+                    left.append(QPoint(cur_start, i));
+                    start_flag = true;
+                }
+            }
+
+            if((!end_flag) && end_d2 < 0)
+            {
+                //结束点再前一个结束点的左侧
+                if(fabs(end_d2) < fabs(end_d1))
+                {
+                    right.append(QPoint(cur_end, i));
+                    end_flag = true;
+                }
+            }
+        }
+
+        if(left.size() > 0)pre_start = left.last().x();
+        if(right.size() > 0) pre_end = right.last().x();
+    }
+
+    //左右点列进行合并
+    for(int i=right.size()-1; i>=0; i--)
+    {
+        QPoint target = right[i];
+        if(left.contains(target)) continue;
+        left.append(target);
+    }
+    //对点列进行检查,去除锐角钝化
+    for(int i=1; i<left.size()-1; )
+    {
+        QPoint pre = left[i-1];
+        QPoint cur = left[i];
+        if(i+1 > left.size() - 1) break;
+        QPoint next = left[i+1];
+        //检查当前点和前后的点是否是锐角
+        //先将所有点的坐标变成直角坐标系.正方向X右Y上
+        pre.setY(-1 * pre.y());
+        cur.setY(-1 * cur.y());
+        next.setY(-1 * next.y());
+        //求两个向量的夹角
+        //cos(@) = b•c / (|b| |c|)
+        QVector2D p1(pre.x() - cur.x(), pre.y() - cur.y());
+        QVector2D p2(next.x()- cur.x(), next.y()- cur.y());
+        double dot = QVector2D::dotProduct(p1, p2);
+        double len1 = p1.length();
+        double len2 = p2.length();
+        if(len1 * len2 > 0)
+        {
+            double angle = acos(dot / (len1 * len2));
+            if( angle < 0.5 * GLOB_PI)
+            {
+                //锐角,删除
+                left.removeAt(i);
+//                qDebug()<<" anlge = "<<(angle * 180 /  GLOB_PI) << i<< " remove";
+                if(i >= 2)i--;
+                continue;
+            }
+        }
+        //如果两个点相距太近,也删除
+//        if(/*len1 <= 2 ||*/ len2 <= 1)
+//        {
+//            left.removeAt(i);
+////            qDebug()<<" dis = "<<len1<<len2 << i<< " remove";
+//            if(i >= 2)i--;
+//            continue;
+//        }
+        i++;
+
+    }
+    //4)将数组点列画到图片上
+    painter.drawPolygon(left);
+    {
+        painter.setPen(Qt::white);
+        painter.setBrush(QColor(0, 255, 100));
+        for(int i=0; i<img_size; i++)
+        {
+            for(int j=0; j<img_size; j++)
+            {
+                if(*(img+i*img_size+j) == 1)
+                {
+                    painter.drawEllipse(QPoint(j, i), 2, 2);
+                }
+            }
+        }
+    }
+    painter.end();
+#ifdef OUTPUT
+    pixmap.save(QString("%1.png").arg(fileName), "PNG");
+#endif
+    if(img)
+    {
+        delete []img;
+        img = 0;
+    }
+
+
+    return pixmap;
+#endif
 }
 
 void RadarRectGlowElement::drawElement(QPainter *painter)
 {
+//    qDebug()<<"show rect now..";
     if(!painter || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADARRECT) || !mView->framework())
     {
         return;
     }
 
-    if(mView->framework()->getZoom() <= 13) return;
+//    qDebug()<<"show rect now.."<<mView->framework()->getZoom();
+
+    if(mView->framework()->getZoom() <= 10) return;
 
     QMutexLocker locker(&m_mutex);
 

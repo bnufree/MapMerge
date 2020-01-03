@@ -160,5 +160,24 @@ double zchxMapDataUtils::AngleIn2PI(double a)
     return res;
 }
 
+void zchxMapDataUtils::parseRectIMG(const QString &fileName, QList<QList<int> > &imgData)
+{
+    QFile file(fileName);
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) return;
+    while (!file.atEnd()) {
+        QByteArray line = file.readLine();
+        QList<int> bytes;
+        for(int i=0; i<line.size(); i++)
+        {
+            if(line[i] == '\n') continue;
+            bytes.append(line[i] - 48);
+        }
+//        qDebug()<<bytes;
+        imgData.append(bytes);
+    }
+
+    file.close();
+}
+
 }
 

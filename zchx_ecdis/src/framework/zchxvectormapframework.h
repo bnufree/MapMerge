@@ -79,6 +79,7 @@ public:
     //网格
     virtual void        setGridDisplayStatus(bool sts);
     virtual bool        getGridDisplayStatus() const;
+    virtual void        setWaterReferenceDepth(int shallow, int safe, int deep);
 
 private:
     void                    initGL(double lat, double lon,  int zoom, int width, int height, const QString& chartDir = QString());

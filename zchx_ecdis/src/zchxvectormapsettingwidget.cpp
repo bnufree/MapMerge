@@ -9,7 +9,7 @@ zchxDockWidget::zchxDockWidget(const QString &title, QWidget *parent):
     QDockWidget(title, parent)
 {
     setAutoFillBackground(true);
-    setAttribute(Qt::WA_DeleteOnClose);
+//    setAttribute(Qt::WA_DeleteOnClose);
     if(parent)
     {
         QColor color = parent->palette().background().color();
@@ -110,9 +110,10 @@ void zchxVectorMapSettingWidget::on_depthSettingApplyBtn_clicked()
 {
     if(mMainWindow)
     {
-        mMainWindow->itfToolBarSetShallowDepth(ui->shallowDepthTxt->text().toDouble());
-        mMainWindow->itfToolBarSetSafeDepth(ui->safeDepthTxt->text().toDouble());
-        mMainWindow->itfToolBarSetDeepDepth(ui->DeepDepthTxt->text().toDouble());
+        int shallow = ui->shallowDepthTxt->text().toInt();
+        int safe = ui->safeDepthTxt->text().toInt();
+        int deep = ui->DeepDepthTxt->text().toInt();
+        mMainWindow->itfToolBarSetWaterReferenceDepth(shallow, safe, deep);
     }
 
 }

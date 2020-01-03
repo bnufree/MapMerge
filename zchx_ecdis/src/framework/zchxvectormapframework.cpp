@@ -18,6 +18,8 @@ zchxVectorMapFrameWork::zchxVectorMapFrameWork(double center_lat, double center_
     mSourceUrl = source;
     mCenter.lat = center_lat;
     mCenter.lon = center_lon;
+    mViewHeight = height;
+    mViewWidth = width;
     initGL(center_lat, center_lon, zoom, width, height, source);
 }
 
@@ -138,6 +140,8 @@ void zchxVectorMapFrameWork::paintGL()
 
 void zchxVectorMapFrameWork::resizeGL(int w, int h)
 {
+    mViewWidth = w;
+    mViewHeight = h;
     mGLCtrl->resizeGL(w, h);
 }
 
@@ -229,6 +233,11 @@ void zchxVectorMapFrameWork::setDeepDepthVal(double val)
 double zchxVectorMapFrameWork::getDeepDepthVal() const
 {
     return mGLCtrl->getDeepDepth();
+}
+
+void zchxVectorMapFrameWork::setWaterReferenceDepth(int shallow, int safe, int deep)
+{
+    mGLCtrl->setWaterReferenceDepth(shallow, safe, deep);
 }
 
 

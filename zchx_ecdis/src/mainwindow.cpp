@@ -10,7 +10,10 @@
 #include <QHBoxLayout>
 #include <QSpacerItem>
 #include "zchxvectormapsettingwidget.h"
-#include "radar/zchxradarvideodatachange.h"
+
+#ifdef ZCHX_ECDIS_APP
+#include "radar/zchxradardatachange.h"
+#endif
 
 using namespace qt;
 //namespace qt {
@@ -25,7 +28,7 @@ MainWindow::MainWindow(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) :
     qDebug()<<"style:"<<style;
     this->setStyleSheet(style);
     ui->ecdis_frame->setStyleSheet(style);
-    ui->pos_frame->setVisible(false);
+    ui->pos_frame->setVisible(true);
     QPixmapCache::setCacheLimit(1);    
 
     mMapWidget = new zchxMapWidget(type, ui->ecdis_frame);
@@ -34,35 +37,66 @@ MainWindow::MainWindow(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) :
     initSignalConnect();
     MapLayerMgr::instance()->setDrawWidget(mMapWidget);
     MapLayerMgr::instance()->loadEcdisLayers();
-    //开始接收雷达数据
-    if(Profiles::instance()->value(RADAR_TARGET_RECT_SETTING, RADAR_TARGET_RECT_ENABLE, false).toBool())
+#ifdef ZCHX_ECDIS_APP
+    mMapWidget->setZoomLabelVisible(true);
+    ZCHX_RADAR_RECEIVER::ZCHXRadarDataChange* change = new ZCHX_RADAR_RECEIVER::ZCHXRadarDataChange(this);
+    connect(change, SIGNAL(sendRadarRect(int,QList<ZCHX::Data::ITF_RadarRect>)),
+            this, SLOT(itfSetRadarRect(int,QList<ZCHX::Data::ITF_RadarRect>)));
+    connect(change, SIGNAL(sendRadarPoint(int,QList<ZCHX::Data::ITF_RadarPoint>)),
+            this, SLOT(itfSetRadarPointData(int,QList<ZCHX::Data::ITF_RadarPoint>)));
+    connect(change, SIGNAL(sendRadarVideo(int,double,double,double,int,int,int,QByteArray,QByteArray)),
+            this, SLOT(itfSetRadarVideoWholeData(int,double,double,double,int,int,int,QByteArray,QByteArray)));
+
+    //开始接收雷达单个目标的数据
+    int num = Profiles::instance()->value(RADAR_RECV_SETTING, RADAR_NUMBER, 0).toInt();
+    if(Profiles::instance()->value(RADAR_RECV_SETTING, RADAR_RECT_ENABLE, false).toBool())
     {
-        int num = Profiles::instance()->value(RADAR_TARGET_RECT_SETTING, RADAR_TARGET_RECT_NUMBER, 0).toInt();
-        QList<ZCHX_RADAR_RECEIVER::ZMQ_RadarRect_Param> param_list;
         for(int i=1; i<=num; i++)
         {
-            QString sec = QString(RADAR_TARGET_RECT_INDEX).arg(i);
-            ZCHX_RADAR_RECEIVER::ZMQ_RadarRect_Param param;
-            param.m_sIP = Profiles::instance()->value(sec, RADAR_TARGET_RECT_IP, "192.168.80.9").toString();
-            param.m_sPort = Profiles::instance()->value(sec, RADAR_TARGET_RECT_PORT, "5699").toString();
-            param.m_sTopic = Profiles::instance()->value(sec, RADAR_TARGET_RECT_TOPIC, "RadarRect").toString();
-            param.m_sCurColor = Profiles::instance()->value(sec, RADAR_TARGET_RECT_COLOR, "#ff0000").toString();
-            param.m_sEdgeColor = Profiles::instance()->value(sec, RADAR_TARGET_RECT_EDGE_COLOR, "#c0c0c0").toString();
-            param.m_sHistoryColor = Profiles::instance()->value(sec, RADAR_TARGET_RECT_HISTORY_COLOR, "#0000ff").toString();
-            param.m_sHistoryBackgroundColor = Profiles::instance()->value(sec, RADAR_TARGET_RECT_HISTORY_BACKGROUND_COLOR, "#00ffff").toString();
-
-            if(param_list.contains(param)) continue;
-            param_list.append(param);
-        }
-        if(param_list.size() > 0)
-        {
-
-            ZCHX_RADAR_RECEIVER::ZCHXRadarVideoDataChange* change = new ZCHX_RADAR_RECEIVER::ZCHXRadarVideoDataChange(param_list, this);
-            connect(change, SIGNAL(sendRadarVideo(int, QList<ZCHX::Data::ITF_RadarRect>)),
-                    this, SLOT(itfSetRadarRect(int,QList<ZCHX::Data::ITF_RadarRect>)));
-            change->start();
+            QString sec = QString(RADAR_RECT_INDEX).arg(i);
+            ZCHX_RADAR_RECEIVER::ZCHX_RadarRect_Param param;
+            param.mSetting.m_sIP = Profiles::instance()->value(sec, RADAR_IP, "192.168.80.9").toString();
+            param.mSetting.m_sPort = Profiles::instance()->value(sec, RADAR_PORT, "5699").toString();
+            param.mSetting.m_sTopic = Profiles::instance()->value(sec, RADAR_TOPIC, "RadarRect").toString();
+            param.mSetting.m_sSiteID = i;
+            param.m_sCurColor = Profiles::instance()->value(sec, RADAR_RECT_COLOR, "#ff0000").toString();
+            param.m_sEdgeColor = Profiles::instance()->value(sec, RADAR_RECT_EDGE_COLOR, "#c0c0c0").toString();
+            param.m_sHistoryColor = Profiles::instance()->value(sec, RADAR_RECT_HISTORY_COLOR, "#0000ff").toString();
+            param.m_sHistoryBackgroundColor = Profiles::instance()->value(sec, RADAR_RECT_HISTORY_BACKGROUND_COLOR, "#00ffff").toString();
+            change->appendRadarRect(param);
         }
     }
+    if(Profiles::instance()->value(RADAR_RECV_SETTING, RADAR_POINT_ENABLE, false).toBool())
+    {
+        for(int i=1; i<=num; i++)
+        {
+            QString sec = QString(RADAR_POINT_INDEX).arg(i);
+            ZCHX_RADAR_RECEIVER::ZCHX_Radar_Setting_Param param;
+            param.m_sIP = Profiles::instance()->value(sec, RADAR_IP, "192.168.80.9").toString();
+            param.m_sPort = Profiles::instance()->value(sec, RADAR_PORT, "5151").toString();
+            param.m_sTopic = Profiles::instance()->value(sec, RADAR_TOPIC, "RadarTrack").toString();
+            param.m_sSiteID = i;
+
+            change->appendRadarPoint(param);
+        }
+    }
+
+    if(Profiles::instance()->value(RADAR_RECV_SETTING, RADAR_VIDEO_ENABLE, false).toBool())
+    {
+
+        for(int i=1; i<=num; i++)
+        {
+            QString sec = QString(RADAR_VIDEO_INDEX).arg(i);
+            ZCHX_RADAR_RECEIVER::ZCHX_Radar_Setting_Param param;
+            param.m_sIP = Profiles::instance()->value(sec, RADAR_IP, "192.168.80.9").toString();
+            param.m_sPort = Profiles::instance()->value(sec, RADAR_PORT, "5151").toString();
+            param.m_sTopic = Profiles::instance()->value(sec, RADAR_TOPIC, "RadarVideo").toString();
+            param.m_sSiteID = i;
+
+            change->appendRadarVideo(param);
+        }
+    }
+#endif
 
 }
 
@@ -290,6 +324,12 @@ void MainWindow::itfSetRadarEchoData(const QMap<QDateTime, ZCHX::Data::ITF_Radar
 void MainWindow::itfSetRadarPointData(int radarSiteId, const QList<ZCHX::Data::ITF_RadarPoint> &data)
 {
     ZCHX_DATA_FACTORY->getRadarDataMgr()->setRadarPointData(radarSiteId, data);
+}
+
+void MainWindow::itfSetRadarVideoWholeData(int siteID, double lon, double lat, double dis, int type, int loop, int curIndex, const QByteArray &objPixmap, const QByteArray &prePixMap)
+{
+    itfSetRadarVideoData(siteID, lon, lat, dis, type, loop);
+    itfSetRadarVideoPixmap(siteID, curIndex,objPixmap, prePixMap);
 }
 
 void MainWindow::itfSetHistoryRadarPointData(const QList<ZCHX::Data::ITF_RadarPoint> &data)
@@ -696,6 +736,11 @@ void MainWindow::itfSetCurrentRadarVideoPixmap(int radarSiteId, const QByteArray
 
 void MainWindow::itfSetRadarRect(int radarSiteId, QList<ZCHX::Data::ITF_RadarRect> rectList)
 {
+    qDebug()<<"recv radar ect now. size:"<<rectList.size();
+    if(rectList.size() > 0)
+    {
+        qDebug()<<rectList.first().current.centerlatitude<<rectList.first().current.centerlongitude;
+    }
     ZCHX_DATA_FACTORY->getRadarRectMgr()->setRadarRect(radarSiteId, rectList);
 }
 
@@ -975,6 +1020,11 @@ void MainWindow::itfToolBarSetColorScheme(ZCHX::ZCHX_COLOR_SCHEME scheme)
 int MainWindow::itfToolBarGetColorScheme() const
 {
     return mMapWidget->getColorScheme();
+}
+
+void MainWindow::itfToolBarSetWaterReferenceDepth(int shallow, int safe, int deep)
+{
+    if(mMapWidget) mMapWidget->setWaterReferenceDepth(shallow, safe, deep);
 }
 
 void MainWindow::itfToolBarSetShallowDepth(double depth)

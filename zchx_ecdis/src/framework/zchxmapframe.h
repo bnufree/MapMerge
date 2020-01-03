@@ -101,6 +101,8 @@ public:
     //深水区
     virtual void        setDeepDepthVal(double val) {}
     virtual double        getDeepDepthVal() const {return 0;}
+    //
+    virtual void        setWaterReferenceDepth(int shallow, int safe, int deep){}
     //显示网格
     virtual void        setGridDisplayStatus(bool isDisplay) {}
     virtual bool        getGridDisplayStatus() const  {return false;}

@@ -19,8 +19,6 @@ SUBDIRS = gdal \
         mipmap \
         src
 
-
-
 #defineReplace(qtLibraryName) {
 #   unset(LIBRARY_NAME)
 #   LIBRARY_NAME = $$1

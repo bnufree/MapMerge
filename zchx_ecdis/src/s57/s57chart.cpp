@@ -1637,11 +1637,12 @@ bool s57chart::DoRenderOnGL( const ViewPort& VPoint )
 
         int cnt = 0;
         while( top != NULL ) {
-//            qDebug()<<"render point:"<<top->obj->FeatureName;
+            //这里有问题,放大缩小的不同情况的返回值不同导致地图有差异,还需要继续调查.
             crnt = top;
-            top = top->next;
             crnt->sm_transform_parms = &vp_transform;
-            ps52plib->RenderObjectToGL(crnt, &tvp );
+            int sts = ps52plib->RenderObjectToGL(crnt, &tvp );
+//            qDebug()<<"render point:"<<top->obj->FeatureName<<sts;
+            top = top->next;
             cnt++;
         }
 

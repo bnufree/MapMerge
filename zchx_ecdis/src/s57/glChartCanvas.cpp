@@ -209,9 +209,9 @@ glChartCanvas::glChartCanvas(double lat, double lon,  double scale, int width, i
 {
     mChartDir = chartDir;
 
-    mShallowDepth = PROFILE_INS->value(MAP_INDEX, ENC_SHALLOW_DEPTH, 3).toDouble();
-    mSafeDepth = PROFILE_INS->value(MAP_INDEX, ENC_SAFE_DEPTH, 8).toDouble();
-    mDeepdepth = PROFILE_INS->value(MAP_INDEX, ENC_DEEP_DEPTH, 10).toDouble();
+    mShallowDepth = PROFILE_INS->value(ENC_DISPLAY_SETTING, ENC_SHALLOW_DEPTH, 3).toDouble();
+    mSafeDepth = PROFILE_INS->value(ENC_DISPLAY_SETTING, ENC_SAFE_DEPTH, 8).toDouble();
+    mDeepdepth = PROFILE_INS->value(ENC_DISPLAY_SETTING, ENC_DEEP_DEPTH, 10).toDouble();
 
     mFrameWork = new ChartFrameWork(mChartDir,this);
     glChart = this;
@@ -2085,8 +2085,13 @@ void glChartCanvas::RenderQuiltViewGL( ViewPort &vp, const OCPNRegion &rect_regi
     }
     qDebug()<<"";
     while( chart ) {
+
         qDebug()<<"draw chart:"<<chart->GetFullPath()<<chart->GetNativeScale()<<ChartData->FinddbIndex(chart->GetFullPath());
-            
+//        if(!chart->GetFullPath().contains("CN484212"))
+//        {
+//            chart = mFrameWork->m_pQuilt->GetNextChart();
+//            continue;
+//        }
         //  This test does not need to be done for raster charts, since
         //  we can assume that texture binding is acceptably fast regardless of the render region,
         //  and that the quilt zoom methods choose a reasonable reference chart.
@@ -4135,25 +4140,62 @@ void glChartCanvas::changeS572SENC(const QString &src)
     }
 }
 
-void glChartCanvas::setShallowDepth(double val)
+void glChartCanvas::setWaterReferenceDepth(int shallow, int safe, int deep)
 {
+    bool val_change = false;
+    if(mShallowDepth != shallow)
+    {
+        PROFILE_INS->setValue(ENC_DISPLAY_SETTING, ENC_SHALLOW_DEPTH, shallow);
+        mShallowDepth = shallow;
+        val_change = true;
+    }
+
+    if(mSafeDepth != safe)
+    {
+        PROFILE_INS->setValue(ENC_DISPLAY_SETTING, ENC_SAFE_DEPTH, safe);
+        mSafeDepth = safe;
+        val_change = true;
+    }
+    if(mDeepdepth != deep)
+    {
+        PROFILE_INS->setValue(ENC_DISPLAY_SETTING, ENC_DEEP_DEPTH, deep);
+        mDeepdepth = deep;
+        val_change = true;
+    }
+    if(val_change)
+    {
+        m_s52StateHash = 0;
+        mFrameWork->ReloadVP();
+    }
+}
+
+
+
+void glChartCanvas::setShallowDepth(int val)
+{
+    if(mShallowDepth == val) return ;
     PROFILE_INS->setValue(ENC_DISPLAY_SETTING, ENC_SHALLOW_DEPTH, val);
     m_s52StateHash = 0;
     mShallowDepth = val;
+    mFrameWork->ReloadVP();
 }
 
-void glChartCanvas::setSafeDepth(double val)
+void glChartCanvas::setSafeDepth(int val)
 {
+    if(mSafeDepth == val) return;
     PROFILE_INS->setValue(ENC_DISPLAY_SETTING, ENC_SAFE_DEPTH, val);
     m_s52StateHash = 0;
     mSafeDepth = val;
+    mFrameWork->ReloadVP();
 }
 
-void glChartCanvas::setDeepDepth(double val)
+void glChartCanvas::setDeepDepth(int val)
 {
+    if(mDeepdepth == val) return;
     PROFILE_INS->setValue(ENC_DISPLAY_SETTING, ENC_DEEP_DEPTH, val);
     m_s52StateHash = 0;
     mDeepdepth = val;
+    mFrameWork->ReloadVP();
 }
 
 void glChartCanvas::setDepthUnit(int unit)

@@ -122,6 +122,7 @@ public:
     }
     //角度校正
     static double AngleIn2PI(double a);
+    static void   parseRectIMG(const QString& fileName, QList<QList<int>>& imgData);            //imgData保存原始的点的数据值
 
 };
 
@@ -239,18 +240,24 @@ Q_DECLARE_METATYPE(qt::TileImageList)
 #define             ENC_DEEP_DEPTH                                 "DeepWaterDepth"
 
 //雷达接收配置
-#define             RADAR_TARGET_RECT_SETTING                   "RadarTargetRectSetting"
-#define             RADAR_TARGET_RECT_ENABLE                   "Available"
-#define             RADAR_TARGET_RECT_NUMBER                    "RadarSiteNum"
-#define             RADAR_TARGET_RECT_INDEX                     "Radar_rect_%1"
-#define             RADAR_TARGET_RECT_IP                        "IP"
-#define             RADAR_TARGET_RECT_PORT                        "PORT"
-#define             RADAR_TARGET_RECT_TOPIC                        "TOPIC"
-#define             RADAR_TARGET_RECT_TIME                        "TIME"
-#define             RADAR_TARGET_RECT_COLOR                         "rect_color"
-#define             RADAR_TARGET_RECT_EDGE_COLOR                    "edge_color"
-#define             RADAR_TARGET_RECT_HISTORY_COLOR                        "his_rect_color"
-#define             RADAR_TARGET_RECT_HISTORY_BACKGROUND_COLOR                        "his_background_color"
+#define             RADAR_RECV_SETTING                   "RadarRecvSetting"
+#define             RADAR_RECT_ENABLE                    "RectAvailable"
+#define             RADAR_POINT_ENABLE                    "PointAvailable"
+#define             RADAR_VIDEO_ENABLE                    "VideoAvailable"
+#define             RADAR_NUMBER                          "RadarNum"
+#define             RADAR_IP                                "IP"
+#define             RADAR_PORT                              "PORT"
+#define             RADAR_TOPIC                             "TOPIC"
+#define             RADAR_TIME                              "TIME"
+
+#define             RADAR_RECT_INDEX                     "Radar_rect_%1"
+#define             RADAR_RECT_COLOR                         "rect_color"
+#define             RADAR_RECT_EDGE_COLOR                    "edge_color"
+#define             RADAR_RECT_HISTORY_COLOR                        "his_rect_color"
+#define             RADAR_RECT_HISTORY_BACKGROUND_COLOR                        "his_background_color"
+
+#define             RADAR_POINT_INDEX                     "Radar_%1"
+#define             RADAR_VIDEO_INDEX                     "Radar_rect_%1"
 
 
 

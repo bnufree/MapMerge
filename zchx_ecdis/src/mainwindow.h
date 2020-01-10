@@ -16,6 +16,9 @@ class MainWindow;
 namespace qt {
 
 class zchxMapWidget;
+class zchxDataMgrFactory;
+class zchxEcdisDataMgr;
+class MapLayerMgr;
 
 class ZCHX_ECDIS_EXPORT MainWindow : public QMainWindow
 {
@@ -468,7 +471,7 @@ signals: //定义发送信号接口
     void itfSignalSendHistoryTrail(const QString &data, bool result);
     void itfSignalSendRealTimeTrail(const QString &data, bool result);
     void itfSignalCreateFlowLine(const ZCHX::Data::CustomFlowLine &data);
-    void itfSignalCreateBlackOrWhiteList(const QString ShipId, const int markType);
+    void itfSignalCreateBlackOrWhiteList(const QString ShipId, const int markType, QString cause);
     void itfSignalCancelBlackOrWhiteList(const QString ShipId, const int markType);
     void itfSignalCreateCPATrack(const QString &ShipId);
     void itfSignalUpdateWarringZoneOrLineState(const int type,const int state);
@@ -697,6 +700,9 @@ public slots: //定义Recive数据接口
     void itfRemoveRadarTailTrackList(const QStringList& list);
     void itfAppendAisTailTrackList(const QStringList& list);
     void itfRemoveAisTailTrackList(const QStringList& list);
+    //数据显示管理
+    void itfAppendItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr);
+    void itfRemoveItemDataMgr(std::shared_ptr<zchxEcdisDataMgr> mgr);
     //PTZ获取
     void itfPickUpPTZ();
 protected Q_SLOTS:
@@ -782,6 +788,8 @@ private slots:
 private:
     Ui::MainWindow *ui;
     zchxMapWidget *mMapWidget;
+    MapLayerMgr *m_mapLayerMgr;
+    zchxDataMgrFactory *m_dataMgrFactory;
     zchxDockWidget   *mSettingDockWidget;
 };
 }

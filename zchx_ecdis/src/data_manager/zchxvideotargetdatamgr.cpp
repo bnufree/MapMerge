@@ -10,7 +10,7 @@ zchxVideoTargetDataMgr::zchxVideoTargetDataMgr(zchxMapWidget* w,  QObject *paren
 
 void zchxVideoTargetDataMgr::show(QPainter* painter)
 {
-    if(!painter || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_WARNING_TARGET)) return ;
+    if(!painter || !mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_WARNING_TARGET)) return ;
     QMap<QString, std::shared_ptr<VideoTargetElement>>::iterator it = mTargetMap.begin();
     for(; it != mTargetMap.end(); ++it)
     {
@@ -21,7 +21,7 @@ void zchxVideoTargetDataMgr::show(QPainter* painter)
 
 bool zchxVideoTargetDataMgr::updateActiveItem(const QPoint &pt)
 {
-    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_WARNING_TARGET) || !isPickupAvailable()) return false;
+    if(!mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_WARNING_TARGET) || !isPickupAvailable()) return false;
     return false;
 }
 

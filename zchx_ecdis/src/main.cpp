@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF8"));
 
     qInstallMessageHandler(logMessageOutputQt5);
-    qt::MainWindow w(ZCHX::ZCHX_MAP_VECTOR);
+    qt::MainWindow w(ZCHX::ZCHX_MAP_TILE);
     w.itfSetParamSettingVisible(true);
     w.showMaximized();
     return a.exec();

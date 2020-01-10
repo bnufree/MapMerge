@@ -79,6 +79,43 @@ void zchxRadarRectMgr::setRadarRect(int radarSiteId, QList<ZCHX::Data::ITF_Radar
     setData(rectLists);
 }
 
+
+void zchxRadarRectMgr::show(QPainter* painter)
+{
+    QMutexLocker locker(&m_mutex);
+
+    if( !painter || !mDisplayWidget->getLayerMgr()->isLayerVisible(mLayerName) || mData.empty())
+    {
+        return;
+    }
+    int width = painter->device()->width();
+    int height = painter->device()->height();
+    QPixmap pic(width, height);
+    pic.fill(Qt::transparent);
+    makePixmap(&pic);
+    painter->drawPixmap(0, 0, pic);
+}
+
+void zchxRadarRectMgr::makePixmap(QPixmap *pic)
+{
+    if(!pic) return;
+    QPainter painter;
+    painter.begin(pic);
+    QTime t;
+    t.start();
+    for(std::shared_ptr<RadarRectGlowElement> ele : mData)
+    {
+        if(ele.get() == mDisplayWidget->getCurrentSelectedElement()){
+            ele->setIsActive(true);
+        } else {
+            ele->setIsActive(false);
+        }
+        ele->drawElement(&painter);
+    }
+    qDebug()<<"paint data time:"<<t.elapsed()<<" size:"<<mData.size();
+    painter.end();
+}
+
 //bool zchxRadarRectMgr::isRadarDisplayByTargetSize(const ZCHX::Data::ITF_RadarRect &data)
 //{
 //    if (m_targetSizeIndex == 0)

@@ -23,7 +23,7 @@ public:
     void setData(const ZCHX::Data::ITF_RadarRect& rect);
     void drawElement(QPainter *painter);
     void drawOutline(QPainter *painter, const QPointF& center, double in, double out);
-    std::string name () const {return QString::number(mRect.rectNumber).toLatin1().data();}
+    std::string name () const {return mRect.getName().toLatin1().data();}
 
 private:
     int  getRectHight(double refer_dis);
@@ -44,8 +44,8 @@ private:
                                   int traceLenIndex );
     bool isRadarDisplayByContinueTime(const ZCHX::Data::ITF_RadarRect & data,
                                       int continueTimeIndex);
-    QPixmap  scaledAndAlphaPixmap(const QPixmap& source, int target_width, int target_height, int alpha);
-    QPixmap  drawPixmap();
+    QPixmap  scaledAndAlphaPixmap(const QPixmap& source, int alpha, int target_width = 0, int target_height = 0);
+    QPixmap  drawPixmap(const QColor& edgeColor, const QColor& brushColor, const QPolygon& poly, int width, int height);
 
     ZCHX::Data::ITF_RadarRect mRect;
     static  int             mMaxRectLength;

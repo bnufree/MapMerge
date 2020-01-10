@@ -17,8 +17,9 @@
 //#define     DEFAULT_LON         113.093664
 //#define     DEFAULT_LAT         22.216150
 //#define     DEFAULT_ZOOM        13
+#define       MAX_RECT_FILTER_TIME      3600
 using namespace qt;
-zchxMapWidget::zchxMapWidget(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) : QGLWidget(parent),
+zchxMapWidget::zchxMapWidget(zchxDataMgrFactory *dataMgrFactory, ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) : QGLWidget(parent),
     m_eTool(DRAWNULL),
     mLastWheelTime(0),
     mCurrentSelectElement(0),
@@ -44,12 +45,14 @@ zchxMapWidget::zchxMapWidget(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) : QGLWid
     mIsDBUpdateNow(false),
     mDBProgressWidget(0),
     mPopParamSettingWidget(false),
-    mRectGlowSecs(60)
+    mRectGlowSecs(60),
+    m_dataMgrFactory(dataMgrFactory)
 {
     this->setMouseTracking(true);
     mZoomLbl = new QLabel(this);
-    mZoomLbl->setAutoFillBackground(true);
-    mZoomLbl->setStyleSheet("border:1px; color:white; font-size:20pt;");
+//    mZoomLbl->setAutoFillBackground(true);
+    mZoomLbl->setStyleSheet("background-color:rgb(255,0,0,100); border:1px solid transparent; color:black; font-size:20pt;");
+
 
     bool zoom_visible = false;
 #ifdef MyTest
@@ -86,10 +89,10 @@ zchxMapWidget::zchxMapWidget(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) : QGLWid
     releaseDrawStatus();
     //
     //创建数据管理容器
-    ZCHX_DATA_FACTORY->setDisplayWidget(this);
+    m_dataMgrFactory->setDisplayWidget(this);
     for(int i= ZCHX::DATA_MGR_UNKNOWN + 1; i< ZCHX::DATA_MGR_USER_DEFINE; i = i<<1)
     {
-        ZCHX_DATA_FACTORY->createManager(i);
+        m_dataMgrFactory->createManager(i);
     }
     //数据选择默认为不能选择
     setCurPickupType(ZCHX::Data::ECDIS_PICKUP_TYPE::ECDIS_PICKUP_NONE);
@@ -99,6 +102,16 @@ zchxMapWidget::zchxMapWidget(ZCHX::ZCHX_MAP_TYPE type, QWidget *parent) : QGLWid
 zchxMapWidget::~zchxMapWidget()
 {
     if(!mFrameWork) delete mFrameWork;
+}
+
+void zchxMapWidget::setLayerMgr(MapLayerMgr *mapLayerMgr)
+{
+    m_mapLayerMgr = mapLayerMgr;
+}
+
+MapLayerMgr *zchxMapWidget::getLayerMgr()
+{
+    return m_mapLayerMgr;
 }
 
 void zchxMapWidget::setUseRightKey(bool bUseRightKey)
@@ -228,10 +241,10 @@ void zchxMapWidget::paintEvent(QPaintEvent* e)
     mFrameWork->update();
     if(isDBUpdateNow()) return;
     //显示图元
-    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
+    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, m_dataMgrFactory->getManagers()) {
         mgr->show(&painter);
     }
-    MapLayerMgr::instance()->show(&painter);
+    m_mapLayerMgr->show(&painter);
     //显示用户的鼠标操作
     if(mToolPtr) mToolPtr->show(&painter);
 
@@ -244,7 +257,8 @@ void zchxMapWidget::paintEvent(QPaintEvent* e)
     {
         mZoomLbl->setText(tr("zoom:%1").arg(mFrameWork->getZoom()));
         int width_t = QFontMetrics(mZoomLbl->font()).width(mZoomLbl->text());
-        mZoomLbl->setMinimumWidth(width_t);
+        mZoomLbl->setMinimumWidth(width_t + 20);
+        mZoomLbl->setAlignment(Qt::AlignCenter);
     }
     updateCurrentPos(this->mapFromGlobal(QCursor::pos()));
 }
@@ -314,7 +328,7 @@ void zchxMapWidget::setActiveDrawElement(const ZCHX::Data::Point2D &pos, bool db
     setCurrentSelectedItem(0);
 
     //检查各个数据管理类,获取当前选择的目标
-    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
+    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, m_dataMgrFactory->getManagers()) {
         if(mgr->updateActiveItem(pos.toPoint())){
             Element* ele = getCurrentSelectedElement();
             if(ele)
@@ -334,7 +348,7 @@ void zchxMapWidget::setSelectedCameraTrackTarget(const ZCHX::Data::Point2D &pos)
     if(ZCHX::Data::ECDIS_PICKUP_NONE == mCurPickupType) return;
     //检查当前选中的东西
     Element *ele = 0;
-    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
+    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, m_dataMgrFactory->getManagers()) {
         ele = mgr->selectItem(pos.toPoint());
         if(ele) break;
     }
@@ -377,14 +391,14 @@ void zchxMapWidget::setPickUpNavigationTarget(const ZCHX::Data::Point2D &pos)
 {
     if(ZCHX::Data::ECDIS_PICKUP_AIS !=  mCurPickupType) return;
     Element *ele = 0;
-    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
+    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, m_dataMgrFactory->getManagers()) {
         if(mgr->getType() != ZCHX::DATA_MGR_AIS) continue;
         ele = mgr->selectItem(pos.toPoint());
         if(ele) break;
     }
     if(!ele) return;
     AisElement *item = static_cast<AisElement*>(ele);
-    ZCHX_DATA_FACTORY->getAisDataMgr()->setFocusID(item->data().id);
+    m_dataMgrFactory->getAisDataMgr()->setFocusID(item->data().id);
     emit signalIsSelected4TrackRadarOrbit(item->data(), true);
 }
 
@@ -392,7 +406,7 @@ void zchxMapWidget::getPointNealyCamera(const ZCHX::Data::Point2D &pos)
 {
     if(ZCHX::Data::ECDIS_PICKUP_RADARPOINT !=  mCurPickupType) return;
     Element *ele = 0;
-    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
+    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, m_dataMgrFactory->getManagers()) {
         if(mgr->getType() != ZCHX::DATA_MGR_RADAR) continue;
         ele = mgr->selectItem(pos.toPoint());
         if(ele) break;
@@ -791,7 +805,7 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
             {
                 menu.addAction(tr("平移"),this,SLOT(releaseDrawStatus()));
                 //处于显示模式时.对各个数据对象进行检查,如果当前选择了目标,且当前鼠标位置在对应的目标范围内,则弹出目标对应的菜单,否则只显示基本的右键菜单
-                foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
+                foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, m_dataMgrFactory->getManagers()) {
                     QList<QAction*> list =  mgr->getRightMenuActions(e->pos());
                     if(list.size() > 0)
                     {
@@ -810,12 +824,35 @@ void zchxMapWidget::mousePressEvent(QMouseEvent *e)
                     //                menu.addAction(tr("关注点"),this,SLOT(setLocationMark()));
                     //                menu.addAction(tr("固定参考点"),this,SLOT(setFixedReferencePoint()));
                     menu.addAction(tr("热点"),this,SLOT(invokeHotSpot()));
-                    if(mPopParamSettingWidget)
+	          menu.addAction(tr("截屏"),this,SIGNAL(signalScreenShot()));
+                    if(mPopParamSettingWidget && mType == ZCHX::ZCHX_MAP_VECTOR)
                     {
                         menu.addAction(tr("参数设定"), this, SIGNAL(signalSetParam()));
                     }
 //                    menu.addAction(tr("设定地图数据源"), this, SLOT(resetMapSource()));
-                    menu.addAction(tr("地图数据转换"), this, SLOT(changeS572Senc()));
+//                    menu.addAction(tr("地图数据转换"), this, SLOT(changeS572Senc()));
+                    //雷达目标回波控制显示
+                    if(m_mapLayerMgr->isLayerVisible(ZCHX::LAYER_RADARRECT))
+                    {
+                        QMenu* sub = menu.addMenu(tr("雷达目标历史回波显示控制"));
+                        int filter[4] = {0, 1, 3, 5};
+                        QString titles[4] = {tr("全部显示"), tr("1分钟"), tr("3分钟"), tr("5分钟")};
+                        for(int i=0; i<4; i++)
+                        {
+                            QAction* act = sub->addAction(titles[i], this, SLOT(setRadarRectTimeFilter()));
+                            act->setData(filter[i]);
+                            act->setCheckable(true);
+                            if(mRectGlowSecs == INT_MAX && i== 0)
+                            {
+                                act->setChecked(true);
+                            }
+                            if(mRectGlowSecs / 60 == filter[i])
+                            {
+                                act->setChecked(true);
+                            }
+                        }
+                    }
+
                 }
 
             } else
@@ -1078,7 +1115,7 @@ void zchxMapWidget::wheelEvent(QWheelEvent *e)
     if(QDateTime::currentMSecsSinceEpoch() - mLastWheelTime >= 1* 1000)
     {
         // 历史轨迹是否滑动
-        bool aisIndexBigZero = ZCHX_DATA_FACTORY->getAisDataMgr()->onHisTraceWheelEvent(e);
+        bool aisIndexBigZero = m_dataMgrFactory->getAisDataMgr()->onHisTraceWheelEvent(e);
         if (aisIndexBigZero)
         {
             return;
@@ -1304,7 +1341,7 @@ void zchxMapWidget::setCurPickupType(const ZCHX::Data::ECDIS_PICKUP_TYPEs &curPi
     mCurPickupType = curPickupType;
     //设定各个数据类是否可以选择
     //编辑模式下不显示图元
-    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
+    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, m_dataMgrFactory->getManagers()) {
         mgr->setPickUpAvailable(mgr->getType() & curPickupType);
     }
 }
@@ -1373,7 +1410,7 @@ void zchxMapWidget::setFleet(const QMap<QString, ZCHX::Data::ITF_Fleet> &fleetMa
             list.push_back(circle);
         }
     }
-    ZCHX_DATA_FACTORY->getDangerousMgr()->setData(list);
+    m_dataMgrFactory->getDangerousMgr()->setData(list);
 }
 
 void zchxMapWidget::Pan(int x, int y)
@@ -1412,7 +1449,7 @@ void zchxMapWidget::releaseDrawStatus()
     releaseDrawTool();
 
     // 清除历史轨迹选中状态
-    ZCHX_DATA_FACTORY->getAisDataMgr()->clearHistoryTrackSel();
+    m_dataMgrFactory->getAisDataMgr()->clearHistoryTrackSel();
 }
 
 void zchxMapWidget::selectAnRegion()
@@ -2057,6 +2094,98 @@ void zchxMapWidget::invokeHotSpot()
     emit signalInvokeHotSpot(data);
 }
 
+
+//图元tooltip显示
+bool zchxMapWidget::event(QEvent *e)
+{
+    if(e->type() == QEvent::ToolTip)
+    {
+        QHelpEvent *helpEve = static_cast<QHelpEvent *>(e);
+        if(helpEve)
+        {
+            setHoverDrawElement(helpEve->pos());
+            //setHoverDrawElement(m2::PointD(L2D(helpEve->x()), L2D(helpEve->y())));
+        }
+        else
+        {
+            QToolTip::hideText();
+            e->ignore();
+        }
+        return true;
+    }
+    return QWidget::event(e);
+}
+
+void zchxMapWidget::setHoverDrawElement(const ZCHX::Data::Point2D &pos)
+{
+    //检查各个数据管理类,获取当前选择的目标
+    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, m_dataMgrFactory->getManagers()) {
+        Element *ele = mgr->selectItem(pos.toPoint());
+        if(ele) ele->showToolTip(mapToGlobal(pos.toPoint()));
+    }
+}
+
+void zchxMapWidget::slotDBUpdateFinished()
+{
+    if(mDBProgressWidget)
+    {
+        mDBProgressWidget->signalAbouttoClose();
+        mDBProgressWidget = 0;
+    }
+    mIsDBUpdateNow = false;
+}
+
+void zchxMapWidget::slotBadChartDirFoundNow()
+{
+    qDebug()<<"!!!!!!!!!!!!!!";
+    zchxVectorMapSourceWidget* widget = new zchxVectorMapSourceWidget(QStringLiteral("当前地图数据目录异常,请确认"), this);
+    connect(widget, SIGNAL(signalSelDir()), this, SLOT(slotResetSourceFromDlg()));
+    connect(widget, SIGNAL(signalAbouttoClose()), this, SLOT(slotPopupWidgetAbouttoClose()));
+    QRect rect = widget->rect();
+    rect.moveCenter(this->rect().center());
+    widget->move(rect.topLeft());
+    widget->show();
+    mPopWidgetList.append(widget);
+}
+
+void zchxMapWidget::slotSendProcessBarText(const QString& text)
+{
+    if(mDBProgressWidget) mDBProgressWidget->setTitle(text);
+}
+
+void zchxMapWidget::slotSendProcessRange(int min, int max)
+{
+    if(mDBProgressWidget) mDBProgressWidget->setRange(min, max);
+}
+
+void zchxMapWidget::slotSendProcessVal(int val)
+{
+    if(mDBProgressWidget) mDBProgressWidget->setValue(val);
+}
+
+
+void zchxMapWidget::slotResetSourceFromDlg()
+{
+    QString dir = QFileDialog::getExistingDirectory();
+    if(dir.isEmpty()) return;
+    setSource(dir, 0);
+}
+
+void zchxMapWidget::slotPopupWidgetAbouttoClose()
+{
+    QWidget* w = qobject_cast<QWidget*> (sender());
+    if(w)
+    {
+        slotRemovePopupWidget(w);
+    }
+}
+
+void zchxMapWidget::slotRemovePopupWidget(QWidget *w)
+{
+    mPopWidgetList.removeOne(w);
+    if(w) w->close();
+}
+
 void zchxMapWidget::resetMapSource()
 {
     if(mType == ZCHX::ZCHX_MAP_TILE)
@@ -2350,96 +2479,21 @@ void zchxMapWidget::changeS572Senc()
 #endif
 }
 
-//图元tooltip显示
-bool zchxMapWidget::event(QEvent *e)
+void zchxMapWidget::setRadarRectTimeFilter()
 {
-    if(e->type() == QEvent::ToolTip)
+    QAction* act = qobject_cast<QAction*>(sender());
+    if(!act) return;
+    int time = act->data().toInt();
+    if(time == 0)
     {
-        QHelpEvent *helpEve = static_cast<QHelpEvent *>(e);
-        if(helpEve)
-        {
-            setHoverDrawElement(helpEve->pos());
-            //setHoverDrawElement(m2::PointD(L2D(helpEve->x()), L2D(helpEve->y())));
-        }
-        else
-        {
-            QToolTip::hideText();
-            e->ignore();
-        }
-        return true;
-    }
-    return QWidget::event(e);
-}
-
-void zchxMapWidget::setHoverDrawElement(const ZCHX::Data::Point2D &pos)
-{
-    //检查各个数据管理类,获取当前选择的目标
-    foreach (std::shared_ptr<zchxEcdisDataMgr> mgr, ZCHX_DATA_FACTORY->getManagers()) {
-        Element *ele = mgr->selectItem(pos.toPoint());
-        if(ele) ele->showToolTip(mapToGlobal(pos.toPoint()));
-    }
-}
-
-void zchxMapWidget::slotDBUpdateFinished()
-{
-    if(mDBProgressWidget)
+        time = INT_MAX;
+    } else
     {
-        mDBProgressWidget->signalAbouttoClose();
-        mDBProgressWidget = 0;
+        time *= 60;
     }
-    mIsDBUpdateNow = false;
+    setRectGlowSecs(time);
 }
 
-void zchxMapWidget::slotBadChartDirFoundNow()
-{
-    qDebug()<<"!!!!!!!!!!!!!!";
-    zchxVectorMapSourceWidget* widget = new zchxVectorMapSourceWidget(QStringLiteral("当前地图数据目录异常,请确认"), this);
-    connect(widget, SIGNAL(signalSelDir()), this, SLOT(slotResetSourceFromDlg()));
-    connect(widget, SIGNAL(signalAbouttoClose()), this, SLOT(slotPopupWidgetAbouttoClose()));
-    QRect rect = widget->rect();
-    rect.moveCenter(this->rect().center());
-    widget->move(rect.topLeft());
-    widget->show();
-    mPopWidgetList.append(widget);
-}
-
-void zchxMapWidget::slotSendProcessBarText(const QString& text)
-{
-    if(mDBProgressWidget) mDBProgressWidget->setTitle(text);
-}
-
-void zchxMapWidget::slotSendProcessRange(int min, int max)
-{
-    if(mDBProgressWidget) mDBProgressWidget->setRange(min, max);
-}
-
-void zchxMapWidget::slotSendProcessVal(int val)
-{
-    if(mDBProgressWidget) mDBProgressWidget->setValue(val);
-}
-
-
-void zchxMapWidget::slotResetSourceFromDlg()
-{
-    QString dir = QFileDialog::getExistingDirectory();
-    if(dir.isEmpty()) return;
-    setSource(dir, 0);
-}
-
-void zchxMapWidget::slotPopupWidgetAbouttoClose()
-{
-    QWidget* w = qobject_cast<QWidget*> (sender());
-    if(w)
-    {
-        slotRemovePopupWidget(w);
-    }
-}
-
-void zchxMapWidget::slotRemovePopupWidget(QWidget *w)
-{
-    mPopWidgetList.removeOne(w);
-    if(w) w->close();
-}
 
 
 

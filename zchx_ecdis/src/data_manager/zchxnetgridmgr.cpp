@@ -13,7 +13,7 @@ void zchxNetGridDataMgr::show(QPainter *painter)
     if( !painter || mData.empty()) return;
     for(std::shared_ptr<GridElement> ele : mData)
     {
-        if(!MapLayerMgr::instance()->isLayerVisible(ele->layerName())) continue;
+        if(!mDisplayWidget->getLayerMgr()->isLayerVisible(ele->layerName())) continue;
         if(ele.get() == mDisplayWidget->getCurrentSelectedElement()){
             ele->setIsActive(true);
         } else {
@@ -26,7 +26,7 @@ void zchxNetGridDataMgr::show(QPainter *painter)
 bool zchxNetGridDataMgr::updateActiveItem(const QPoint &pt)
 {
     //网格不作为item被选择
-//    if( !MapLayerMgr::instance()->isLayerVisible(layerName()) || mData.empty() || !isPickupAvailable()) return false;
+//    if( !mDisplayWidget->getLayerMgr()->isLayerVisible(layerName()) || mData.empty() || !isPickupAvailable()) return false;
 //    for(std::shared_ptr<CameraGridElement> ele : mData)
 //    {
 //        if(ele->contains(pt)){

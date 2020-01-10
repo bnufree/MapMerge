@@ -12,8 +12,10 @@ class MapLayerMgr : public QObject
 {
     Q_OBJECT
 public:
+    explicit MapLayerMgr(QObject *parent = 0);
     ~MapLayerMgr();
-    static MapLayerMgr *instance();
+
+//    static MapLayerMgr *instance();
     void setDrawWidget(zchxMapWidget* w) {m_drawWidget = w;}
     zchxMapWidget * drawWidget() const {return m_drawWidget;}
 
@@ -44,7 +46,6 @@ public:
     void show(QPainter* painter);
 private:
     void _readMapLayerNode(QDomElement node, std::shared_ptr<MapLayer> parent = 0);
-    explicit MapLayerMgr(QObject *parent = 0);
     static MapLayerMgr     *minstance;
 
     class MGarbage // 它的唯一工作就是在析构函数中删除CSingleton的实例

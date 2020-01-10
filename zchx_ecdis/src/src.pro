@@ -25,6 +25,7 @@ INCLUDEPATH += ../include
 INCLUDEPATH += $${PWD}/s57
 INCLUDEPATH += $${PWD}/framework
 
+
 DEFINES += ocpnUSE_GL TIXML_USE_STL __WXQT__ ocpnUSE_SVG
 
 
@@ -51,12 +52,6 @@ MyDLL{
 }else{
 #    BINARIES_PATH = $$TargetRoot/bin
     TEMPLATE = app
-}
-#DESTDIR = $$BINARIES_PATH
-!contains(CONFIG, MyDLL){
-    DEFINES += ZCHX_ECDIS_APP
-} else {
-    DEFINES -= ZCHX_ECDIS_APP
 }
 warning("dest:" + $$DESTDIR)
 
@@ -356,6 +351,7 @@ FORMS    += mainwindow.ui \
 
 
 !MyDLL{
+    DEFINES += ZCHX_ECDIS_APP
     include($$ZCHX_ECDIS_3RDPARTY/protobuf/protobuf.pri)
     include($$ZCHX_ECDIS_3RDPARTY/ZeroMQ/zmq.pri)
 

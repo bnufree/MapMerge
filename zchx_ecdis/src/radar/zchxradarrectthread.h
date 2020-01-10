@@ -34,7 +34,6 @@ class ZCHXRadarRectThread : public ZCHXReceiverThread
 public:
     ZCHXRadarRectThread(const ZCHX_RadarRect_Param& param, QObject *parent = 0);
     void run();
-    static QPolygon getRectVideoPolygon(const ZCHX::Data::ITF_SingleVideoBlockList& src, double center_lat, double center_lon);
 
 private:
     void convertZMQ2ZCHX(QList<ZCHX::Data::ITF_RadarRect>& res, const PROTOBUF_RadarRectList& src);    
@@ -42,6 +41,8 @@ signals:
     void sendVideoMsg(int id, const QList<ZCHX::Data::ITF_RadarRect>&);
 private:
     ZCHX_RadarRect_Param     mRectParam;
+    QMap<int, ZCHX::Data::ITF_RadarRect>    mPreRectDataList;
+
 };
 }
 

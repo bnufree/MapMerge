@@ -5,14 +5,15 @@
 
 namespace qt {
 
-#define         ZCHX_DATA_FACTORY           zchxDataMgrFactory::instance()
+//#define         ZCHX_DATA_FACTORY           zchxDataMgrFactory::instance()
 class   zchxMapWidget;
 
 class zchxDataMgrFactory
 {
 public:
+    explicit zchxDataMgrFactory();
     ~zchxDataMgrFactory();
-    static zchxDataMgrFactory *instance();
+//    static zchxDataMgrFactory *instance();
     void setDisplayWidget(zchxMapWidget* w);
 
     void  createManager(int type);
@@ -53,7 +54,6 @@ public:
     zchxNaviMarkDataMgr* getNaviMarkDataMgr();
 
 private:
-    explicit zchxDataMgrFactory();
     static zchxDataMgrFactory     *minstance;
 
     class MGarbage // 它的唯一工作就是在析构函数中删除CSingleton的实例

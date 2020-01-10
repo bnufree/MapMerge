@@ -25,7 +25,7 @@ void zchxRadarSiteDataMgr::setRadarSiteDevData(const QList<ZCHX::Data::ITF_Radar
 
 void zchxRadarSiteDataMgr::show(QPainter* painter)
 {
-    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR_SITE)) return;
+    if(!mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR_SITE)) return;
     QMap<QString, std::shared_ptr<RadarSiteElement>>::iterator it = m_RadarSiteDev.begin();
     for(; it != m_RadarSiteDev.end(); ++it)
     {
@@ -36,7 +36,7 @@ void zchxRadarSiteDataMgr::show(QPainter* painter)
 
 bool zchxRadarSiteDataMgr::updateActiveItem(const QPoint &pt)
 {
-    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR_SITE) || !isPickupAvailable()) return false;
+    if(!mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR_SITE) || !isPickupAvailable()) return false;
     return false;
 }
 

@@ -12,6 +12,8 @@ public:
     void    setIsDisplay(bool sts);
     void    SetRadarDisplayInfo(bool showRadarLabel, int targetSizeIndex, int traceLenIndex, int continueTimeIndex); //设置雷达显示方式
     void    setRadarRect(int radarSiteId, QList<ZCHX::Data::ITF_RadarRect> rectList);
+    void    show(QPainter *painter);
+    void    makePixmap(QPixmap* pic);
 
 signals:
 

@@ -19,8 +19,9 @@ signals:
 
 public slots:
 private:
-    QSizeF                                           mSize;
-    QString                                          mCameraID;
+    QSizeF          mSize;
+    QString         mCameraID;
+    zchxMapWidget * mDisplayWidget;
 };
 }
 

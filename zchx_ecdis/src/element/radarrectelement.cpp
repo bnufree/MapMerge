@@ -35,98 +35,100 @@ void RadarRectGlowElement::setData(const ZCHX::Data::ITF_RadarRect &rect)
 
     mRect = rect;
     int size = mRect.rects.size();
-    if(size == 0) return;
-    mInsertPointList.clear();
-    mOrigonPointList.clear();
-    //检查轨迹点列,从反向的点开始截断
-    bool early_first = false;
-    //1)检查历史轨迹的点列,判定他的存储方式   第一个轨迹点在数组的最后点还是第一个点
-    int last_time = int(mRect.rects.last().timeOfDay);
-    int first_time = int(mRect.rects.first().timeOfDay);
-    if(last_time > first_time) early_first = true;
-    //2)第一个轨迹点在第一个元素,则将数组进行反向,使得第一个轨迹点在最后
-    if(early_first)
+    if(size > 0 )
     {
-        for(int i=0; i<size / 2; i++)
+        mInsertPointList.clear();
+        mOrigonPointList.clear();
+        //检查轨迹点列,从反向的点开始截断
+        bool early_first = false;
+        //1)检查历史轨迹的点列,判定他的存储方式   第一个轨迹点在数组的最后点还是第一个点
+        int last_time = int(mRect.rects.last().timeOfDay);
+        int first_time = int(mRect.rects.first().timeOfDay);
+        if(last_time > first_time) early_first = true;
+        //2)第一个轨迹点在第一个元素,则将数组进行反向,使得第一个轨迹点在最后
+        if(early_first)
         {
-            ZCHX::Data::ITF_RadarHistoryRect temp = mRect.rects[size-1-i];
-            mRect.rects[size-1-i] = mRect.rects[i];
-            mRect.rects[i] = temp;
-        }
-    }
-    //3) 检查历史轨迹的第一个点是否和当前的点重合,如果重合,就将他删除
-    int  cur_time = int(mRect.current.timeOfDay);
-    first_time = int(mRect.rects.first().timeOfDay);
-    if(cur_time == first_time) mRect.rects.removeFirst();
-    //4)从当前点开始计算轨迹的运动方向,反向点开始截断
-    if(CUT_FISRT_DIRECTLY)
-    {
-        if(mRect.rects.size() > 0)
-        {
-            ITF_RadarHistoryRect last = mRect.rects.last();
-            mRect.rects.clear();
-            last.angle = mRect.current.angle;
-            mRect.rects.append(last);
-        }
-
-    } else
-    {
-        //重新计算各个点的运动方向
-        ITF_RadarHistoryRect pre_rect = mRect.current;
-        for(int i=0; i<mRect.rects.size();)
-        {
-            ITF_RadarHistoryRect &cur_rect = mRect.rects[i];
-            //计算当前点和前一个点之间的距离
-            int dis = qRound(ZCHX::Utils::getDistanceDeg(pre_rect.centerlatitude, pre_rect.centerlongitude, cur_rect.centerlatitude, cur_rect.centerlongitude));
-            if(dis < mMaxGapOf2Rect)
+            for(int i=0; i<size / 2; i++)
             {
-                mRect.rects.removeAt(i);
-                continue;
+                ZCHX::Data::ITF_RadarHistoryRect temp = mRect.rects[size-1-i];
+                mRect.rects[size-1-i] = mRect.rects[i];
+                mRect.rects[i] = temp;
+            }
+        }
+        //3) 检查历史轨迹的第一个点是否和当前的点重合,如果重合,就将他删除
+        int  cur_time = int(mRect.current.timeOfDay);
+        first_time = int(mRect.rects.first().timeOfDay);
+        if(cur_time == first_time) mRect.rects.removeFirst();
+        //4)从当前点开始计算轨迹的运动方向,反向点开始截断
+        if(CUT_FISRT_DIRECTLY)
+        {
+            if(mRect.rects.size() > 0)
+            {
+                ITF_RadarHistoryRect last = mRect.rects.last();
+                mRect.rects.clear();
+                last.angle = mRect.current.angle;
+                mRect.rects.append(last);
             }
 
-            if(PROFILE_INS->value(MAP_INDEX, MAP_USE_RECT_COG, true).toBool())
+        } else
+        {
+            //重新计算各个点的运动方向
+            ITF_RadarHistoryRect pre_rect = mRect.current;
+            for(int i=0; i<mRect.rects.size();)
             {
-                double angle = ZCHX::Utils::calcAzimuth(cur_rect.centerlongitude,
-                                                        cur_rect.centerlatitude,
-                                                        pre_rect.centerlongitude,
-                                                        pre_rect.centerlatitude);
-                cur_rect.angle = angle;
+                ITF_RadarHistoryRect &cur_rect = mRect.rects[i];
+                //计算当前点和前一个点之间的距离
+                int dis = qRound(ZCHX::Utils::getDistanceDeg(pre_rect.centerlatitude, pre_rect.centerlongitude, cur_rect.centerlatitude, cur_rect.centerlongitude));
+                if(dis < mMaxGapOf2Rect)
+                {
+                    mRect.rects.removeAt(i);
+                    continue;
+                }
+
+                if(PROFILE_INS->value(MAP_INDEX, MAP_USE_RECT_COG, true).toBool())
+                {
+                    double angle = ZCHX::Utils::calcAzimuth(cur_rect.centerlongitude,
+                                                            cur_rect.centerlatitude,
+                                                            pre_rect.centerlongitude,
+                                                            pre_rect.centerlatitude);
+                    cur_rect.angle = angle;
+                }
+                pre_rect = cur_rect;
+                i++;
             }
-            pre_rect = cur_rect;
+
+            double pre_angle = mRect.current.angle;
+            for(int i=0; i<mRect.rects.size(); i++)
+            {
+                double cur_angle = mRect.rects[i].angle;
+                if(fabs(cur_angle - pre_angle) >= 90)
+                {
+                    //开始截断
+                    mRect.rects = mRect.rects.mid(0, i);
+                    break;
+                }
+
+                pre_angle = cur_angle;
+            }
+        }
+
+        //开始进行插值处理
+        mRect.rects.prepend(mRect.current);
+        for(int i= 1; i < mRect.rects.size();)
+        {
+            ITF_RadarHistoryRect pre = mRect.rects[i-1];
+            ITF_RadarHistoryRect cur = mRect.rects[i];
+            ITF_RadarHistoryRectList midList;
+            calculateSkipRect(midList, pre, cur);
+            for(int k = 0; k < midList.size(); k++)
+            {
+                mRect.rects.insert(i, midList[k]);
+                i++;
+            }
             i++;
         }
-
-        double pre_angle = mRect.current.angle;
-        for(int i=0; i<mRect.rects.size(); i++)
-        {
-            double cur_angle = mRect.rects[i].angle;
-            if(fabs(cur_angle - pre_angle) >= 90)
-            {
-                //开始截断
-                mRect.rects = mRect.rects.mid(0, i);
-                break;
-            }
-
-            pre_angle = cur_angle;
-        }
+        mRect.rects.removeFirst();
     }
-
-    //开始进行插值处理
-    mRect.rects.prepend(mRect.current);
-    for(int i= 1; i < mRect.rects.size();)
-    {
-        ITF_RadarHistoryRect pre = mRect.rects[i-1];
-        ITF_RadarHistoryRect cur = mRect.rects[i];
-        ITF_RadarHistoryRectList midList;
-        calculateSkipRect(midList, pre, cur);
-        for(int k = 0; k < midList.size(); k++)
-        {
-            mRect.rects.insert(i, midList[k]);
-            i++;
-        }
-        i++;
-    }
-    mRect.rects.removeFirst();
     setIsUpdate(true);
 }
 
@@ -491,27 +493,11 @@ void RadarRectGlowElement::drawRadarTracks(QPainter *painter)
 
     }
 #else
-    //这里开始输出目标实际的矩形
+    //这里开始输出目标的历史轨迹,再输出目标实际的矩形
     //1)先画目标当前的回波图形
     painter->save();
     painter->setPen(Qt::yellow);
-#if 1
-    QPixmap current_video = drawPixmap();
-    if(!current_video.isNull())
-    {
-        QPoint center = mView->framework()->LatLon2Pixel(mRect.current.centerlatitude, mRect.current.centerlongitude).toPoint();
-        QRect rect(0, 0, current_video.width(), current_video.height());
-        rect.moveCenter(center);
-        painter->drawPixmap(rect, current_video);
-    }
-#endif
-//    for(int i=0; i<mRect.current.blocks.size(); i++)
-//    {
-//        double lat = mRect.current.blocks[i].latitude;
-//        double lon = mRect.current.blocks[i].longitude;
-//        painter->drawEllipse(mView->framework()->LatLon2Pixel(lat, lon).toPoint(), 2, 2);
-//    }
-#if 0
+    QPixmap current_video = drawPixmap(Qt::transparent, mRect.blockColor, mRect.current.pixPoints, mRect.current.pixWidth, mRect.current.pixHeight);
     //2)开始画目标的历史轨迹图形
     int size = mRect.rects.size();
     double delta = 1.0;
@@ -528,16 +514,26 @@ void RadarRectGlowElement::drawRadarTracks(QPainter *painter)
         int index = size - 1 - i;
         //检查轨迹点的时间是否和实时轨迹点一样, TIMEOFDAY的时间为秒
         if(his.timeOfDay == mRect.current.timeOfDay) continue;
-        if(his.timeOfDay < mRect.current.timeOfDay - glow_secs) break;
+        int sub = mRect.current.timeOfDay - his.timeOfDay;
+        if(sub < 0) sub += (3600 * 24);
+        if(sub > glow_secs) break;
         //根据目标的长度进行图形缩放透明处理
-        int his_length = zchxMapDataUtils::DistanceOnEarth(his.startlatitude,
-                                                           his.startlongitude,
-                                                           his.endlatitude,
-                                                           his.endlongitude);
-        int target_width = qRound(current_video.width() * his_length * 1.0 / cur_length);
-        int target_height = qRound(current_video.height() * his_length * 1.0 / cur_length);
+        QPixmap target;
         int alpha = qRound( index * delta);
-        QPixmap target = scaledAndAlphaPixmap(current_video, target_width, target_height, alpha);
+        if(his.pixPoints.size() == 0)
+        {
+            int his_length = zchxMapDataUtils::DistanceOnEarth(his.startlatitude,
+                                                               his.startlongitude,
+                                                               his.endlatitude,
+                                                               his.endlongitude);
+            int target_width = qRound(current_video.width() * his_length * 1.0 / cur_length);
+            int target_height = qRound(current_video.height() * his_length * 1.0 / cur_length);
+            target = scaledAndAlphaPixmap(current_video, alpha, target_width, target_height );
+        } else
+        {
+            target = drawPixmap(Qt::transparent, mRect.HisBlockColor, his.pixPoints, his.pixWidth, his.pixHeight);
+            target = scaledAndAlphaPixmap(target, alpha, 0, 0 );
+        }
         if(!target.isNull())
         {
             QPoint center = mView->framework()->LatLon2Pixel(his.centerlatitude, his.centerlongitude).toPoint();
@@ -547,7 +543,14 @@ void RadarRectGlowElement::drawRadarTracks(QPainter *painter)
         }
 
     }
-#endif
+    //画出实际的图形
+    if(!current_video.isNull())
+    {
+        QPoint center = mView->framework()->LatLon2Pixel(mRect.current.centerlatitude, mRect.current.centerlongitude).toPoint();
+        QRect rect(0, 0, current_video.width(), current_video.height());
+        rect.moveCenter(center);
+        painter->drawPixmap(rect, current_video);
+    }
     //测试目标的最长距离线
     painter->setPen(QPen(Qt::white, 2));
     painter->drawLine(mView->framework()->LatLon2Pixel(mRect.current.startlatitude, mRect.current.startlongitude).toPointF(),
@@ -564,7 +567,7 @@ void RadarRectGlowElement::drawRadarTracks(QPainter *painter)
 
 }
 
-QPixmap RadarRectGlowElement::scaledAndAlphaPixmap(const QPixmap &source, int target_width, int target_height, int alpha)
+QPixmap RadarRectGlowElement::scaledAndAlphaPixmap(const QPixmap &source, int alpha, int target_width, int target_height)
 {
     QPixmap temp(source.size());
     temp.fill(Qt::transparent);
@@ -575,19 +578,29 @@ QPixmap RadarRectGlowElement::scaledAndAlphaPixmap(const QPixmap &source, int ta
     p1.fillRect(temp.rect(), QColor(0, 0, 0, alpha));
     p1.end();
 
+    if(target_height == 0 || target_width == 0)
+    {
+        return temp;
+    }
     return temp.scaled(target_width, target_height);
 }
 
-QPixmap RadarRectGlowElement::drawPixmap()
+QPixmap RadarRectGlowElement::drawPixmap(const QColor& edgeColor, const QColor& brushColor, const QPolygon& poly, int width, int height)
 {
 #if 1
-    QPixmap pixmap(mRect.current.pixWidth, mRect.current.pixHeight);
+    QPixmap pixmap(width, height);
     pixmap.fill(Qt::transparent);
     QPainter painter;
     painter.begin(&pixmap);
-    painter.setPen(Qt::black);
-    painter.setBrush(mRect.blockColor);
-    painter.drawPolygon(mRect.current.pixPoints);
+    painter.setPen(edgeColor);
+    if(!brushColor.isValid())
+    {
+        painter.setBrush(mRect.blockColor);
+    } else
+    {
+        painter.setBrush(brushColor);
+    }
+    painter.drawPolygon(poly);
     painter.end();
     return pixmap;
 
@@ -837,15 +850,14 @@ QPixmap RadarRectGlowElement::drawPixmap()
 
 void RadarRectGlowElement::drawElement(QPainter *painter)
 {
-//    qDebug()<<"show rect now..";
-    if(!painter || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADARRECT) || !mView->framework())
+    if(!painter || !mView->getLayerMgr()->isLayerVisible(ZCHX::LAYER_RADARRECT) || !mView->framework())
     {
         return;
     }
 
 //    qDebug()<<"show rect now.."<<mView->framework()->getZoom();
 
-    if(mView->framework()->getZoom() <= 10) return;
+    if(mView->framework()->getZoom() <= 14) return;
 
     QMutexLocker locker(&m_mutex);
 

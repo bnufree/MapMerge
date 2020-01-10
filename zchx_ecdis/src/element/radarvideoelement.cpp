@@ -36,7 +36,7 @@ void RadarVideoGlowElement::drawOutline(QPainter *painter, const QPointF& center
 
 void RadarVideoGlowElement::drawElement(QPainter *painter)
 {
-    if(!painter || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADARVIDEO) || !mView->framework() || !m_data.showvideo) return;
+    if(!painter || !mView->getLayerMgr()->isLayerVisible(ZCHX::LAYER_RADARVIDEO) || !mView->framework() || !m_data.showvideo) return;
 
     QMutexLocker locker(&m_mutex);
 

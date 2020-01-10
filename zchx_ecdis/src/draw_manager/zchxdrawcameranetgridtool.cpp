@@ -5,7 +5,9 @@
 using namespace qt;
 using namespace ZCHX::Data;
 
-zchxDrawCameraNetGridTool::zchxDrawCameraNetGridTool(zchxMapWidget* w, QObject *parent) : zchxDrawTool(w, qt::eTool::DRAWCAMERANETGRID, parent)
+zchxDrawCameraNetGridTool::zchxDrawCameraNetGridTool(zchxMapWidget* w, QObject *parent)
+    : zchxDrawTool(w, qt::eTool::DRAWCAMERANETGRID, parent)
+    , mDisplayWidget(w)
 {
 
 }
@@ -22,7 +24,7 @@ void zchxDrawCameraNetGridTool::appendPoint(const QPointF &pnt)
 
 void zchxDrawCameraNetGridTool::show(QPainter *painter)
 {
-    if( !painter || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_CAMERANETGRID)) return;
+    if( !painter || !mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_CAMERANETGRID)) return;
     if(!isReady()) return;
     PainterPair chk(painter);
     painter->setRenderHint(QPainter::Antialiasing);

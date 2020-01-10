@@ -64,7 +64,7 @@ ZCHX::Data::ITF_Structure StructureElement::data() const
 
 void StructureElement::drawElement(QPainter *painter)
 {
-    if(!painter ||!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_STRUCTURE)) return;
+    if(!painter ||!mView->getLayerMgr()->isLayerVisible(ZCHX::LAYER_STRUCTURE)) return;
     ZCHX::Data::Point2D  curPos = mView->framework()->LatLon2Pixel(point().first, point().second);
 
     QPixmap devicePix;

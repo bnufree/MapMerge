@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>229</width>
-    <height>466</height>
+    <width>247</width>
+    <height>450</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -131,8 +131,8 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
       <widget class="QLabel" name="label_4">
        <property name="minimumSize">
         <size>
@@ -145,7 +145,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="0" column="1">
       <widget class="QLineEdit" name="speedLineEdit">
        <property name="minimumSize">
         <size>
@@ -161,18 +161,14 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="0" column="2">
       <widget class="QLabel" name="label_5">
        <property name="text">
         <string>节</string>
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_7">
-     <item>
+     <item row="1" column="0">
       <widget class="QLabel" name="label_8">
        <property name="minimumSize">
         <size>
@@ -185,7 +181,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="1" column="1">
       <widget class="QLineEdit" name="collisionMaxDisLineEdit">
        <property name="minimumSize">
         <size>
@@ -201,18 +197,14 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="1" column="2">
       <widget class="QLabel" name="label_9">
        <property name="text">
         <string>米</string>
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_6">
-     <item>
+     <item row="2" column="0">
       <widget class="QLabel" name="label_6">
        <property name="minimumSize">
         <size>
@@ -225,7 +217,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="2" column="1">
       <widget class="QLineEdit" name="yawMinDisLineEdit">
        <property name="minimumSize">
         <size>
@@ -241,18 +233,14 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="2" column="2">
       <widget class="QLabel" name="label_7">
        <property name="text">
         <string>米</string>
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_8">
-     <item>
+     <item row="3" column="0">
       <widget class="QLabel" name="label_10">
        <property name="minimumSize">
         <size>
@@ -265,7 +253,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="3" column="1">
       <widget class="QLineEdit" name="overtakLineEdit">
        <property name="minimumSize">
         <size>
@@ -281,18 +269,14 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="3" column="2">
       <widget class="QLabel" name="label_11">
        <property name="text">
         <string>米</string>
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_9">
-     <item>
+     <item row="4" column="0">
       <widget class="QLabel" name="label_12">
        <property name="minimumSize">
         <size>
@@ -305,7 +289,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="4" column="1">
       <widget class="QLineEdit" name="dropAnchorLineEdit">
        <property name="minimumSize">
         <size>
@@ -321,18 +305,14 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="4" column="2">
       <widget class="QLabel" name="label_14">
        <property name="text">
-        <string>米</string>
+        <string>m/s^2</string>
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_13">
-     <item>
+     <item row="5" column="0">
       <widget class="QLabel" name="label_17">
        <property name="minimumSize">
         <size>
@@ -345,7 +325,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="5" column="1">
       <widget class="QLineEdit" name="overtakShortDisLineEdit">
        <property name="minimumSize">
         <size>
@@ -361,18 +341,14 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="5" column="2">
       <widget class="QLabel" name="label_18">
        <property name="text">
         <string>米</string>
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_14">
-     <item>
+     <item row="6" column="0">
       <widget class="QLabel" name="label_19">
        <property name="minimumSize">
         <size>
@@ -385,7 +361,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="6" column="1">
       <widget class="QLineEdit" name="overtakVerticalDisLineEdit">
        <property name="minimumSize">
         <size>
@@ -401,18 +377,14 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="6" column="2">
       <widget class="QLabel" name="label_20">
        <property name="text">
         <string>米</string>
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_15">
-     <item>
+     <item row="7" column="0">
       <widget class="QLabel" name="label_21">
        <property name="minimumSize">
         <size>
@@ -425,7 +397,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="7" column="1">
       <widget class="QLineEdit" name="acceleraThresholdLineEdit">
        <property name="minimumSize">
         <size>
@@ -441,18 +413,14 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="7" column="2">
       <widget class="QLabel" name="label_22">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_16">
-     <item>
+     <item row="8" column="0">
       <widget class="QLabel" name="label_23">
        <property name="minimumSize">
         <size>
@@ -465,7 +433,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="8" column="1">
       <widget class="QLineEdit" name="acceleraDfferenceLineEdit">
        <property name="maximumSize">
         <size>
@@ -475,7 +443,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="8" column="2">
       <widget class="QLabel" name="label_24">
        <property name="text">
         <string/>

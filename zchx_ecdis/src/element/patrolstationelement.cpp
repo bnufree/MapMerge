@@ -38,7 +38,7 @@ void PastrolStationElement::drawElement(QPainter *painter)
         layer_name = ZCHX::LAYER_PATROL_SITE;
         img_name = ":/element/LdVo.png";
     }
-    if(!painter || !MapLayerMgr::instance()->isLayerVisible(layer_name)) return;
+    if(!painter || !mView->getLayerMgr()->isLayerVisible(layer_name)) return;
 
     int curScale = mView->framework()->getDrawScale();
     QPixmap img = ZCHX::Utils::getImage(img_name, Qt::green, curScale);

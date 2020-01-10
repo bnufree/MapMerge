@@ -19,7 +19,7 @@ zchxRadarDataMgr::zchxRadarDataMgr(zchxMapWidget* w, QObject *parent)
 
 void zchxRadarDataMgr::show(QPainter* painter)
 {
-    if(MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR))
+    if(mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR))
     {
         QMutexLocker locker(&mDataMutex);
 
@@ -33,7 +33,7 @@ void zchxRadarDataMgr::show(QPainter* painter)
             for(; it != radarPoint.end(); ++it)
             {
                 std::shared_ptr<RadarPointElement> item = it.value();
-                if(MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR_CURRENT))
+                if(mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR_CURRENT))
                 {
                     item->setIsOpenMeet(mDisplayWidget->getIsOpenMeet());
                     //检查当前点是否在矩形区域内
@@ -81,7 +81,7 @@ void zchxRadarDataMgr::show(QPainter* painter)
                     }
                     item->drawElement(painter);
                 }
-                if(MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR_TRACK) && item->getIsRealtimeTailTrack())
+                if(mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR_TRACK) && item->getIsRealtimeTailTrack())
                 {
                     item->drawTrack(painter);
                 }
@@ -89,7 +89,7 @@ void zchxRadarDataMgr::show(QPainter* painter)
         }
     }
 
-    if(MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_HISTORY_RADAR))
+    if(mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_HISTORY_RADAR))
     {
         for(int i = 0; i < m_HistoryRadarPoint.size(); i++)
         {
@@ -214,8 +214,8 @@ void zchxRadarDataMgr::setRadarPointData(int radarSiteId, const QList<ZCHX::Data
 bool zchxRadarDataMgr::updateActiveItem(const QPoint &pt)
 {
     if(!mDisplayWidget ||
-       !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR) ||
-       !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR_CURRENT) ||
+       !mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR) ||
+       !mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR_CURRENT) ||
        !isPickupAvailable()) return false;
 
     Element* ele = selectItem(pt);
@@ -230,7 +230,7 @@ bool zchxRadarDataMgr::updateActiveItem(const QPoint &pt)
 
 Element* zchxRadarDataMgr::selectItem(const QPoint &pt)
 {
-    if( !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR) || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_RADAR_CURRENT)) return 0;
+    if( !mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR) || !mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_RADAR_CURRENT)) return 0;
 
     QMap<int, QMap<QString, std::shared_ptr<RadarPointElement> > >::iterator topIt = m_RadarPointMap.begin();
     for(; topIt != m_RadarPointMap.end(); ++topIt)
@@ -398,7 +398,7 @@ QList<QAction*> zchxRadarDataMgr::getRightMenuActions(const QPoint &pt)
             //目标确定为AIS,弹出对应的右键菜单
             RadarPointElement* ele = static_cast<RadarPointElement*>(item);
             if(ele){
-                //list.append(addAction(tr("画中画"),this, SLOT(setPictureInPicture()), (void*) ele));
+                list.append(addAction(tr("画中画"),this, SLOT(setPictureInPicture()), (void*) ele));
                 list.append(addAction(tr("实时轨迹"),this, SLOT(setRealTimeTraces()), (void*) ele));
                 list.append(addAction(tr("关注"),this, SLOT(setConcern()), (void*) ele));
                 list.append(addAction(tr("联动"),this, SLOT(invokeLinkageSpot()), (void*) ele));

@@ -14,14 +14,14 @@ zchxDataMgrFactory::~zchxDataMgrFactory()
 
 }
 
-zchxDataMgrFactory* zchxDataMgrFactory::instance()
-{
-    if(minstance == 0)
-    {
-        minstance = new zchxDataMgrFactory;
-    }
-    return minstance;
-}
+//zchxDataMgrFactory* zchxDataMgrFactory::instance()
+//{
+//    if(minstance == 0)
+//    {
+//        minstance = new zchxDataMgrFactory;
+//    }
+//    return minstance;
+//}
 
 void zchxDataMgrFactory::setDisplayWidget(zchxMapWidget *w)
 {

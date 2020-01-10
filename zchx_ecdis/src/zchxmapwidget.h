@@ -34,18 +34,22 @@ class zchxRouteDataMgr;
 class zchxShipPlanDataMgr;
 class zchxEcdisDataMgr;
 class zchxDrawTool;
+class zchxDataMgrFactory;
 
 class zchxMapWidget : public QGLWidget
 {
     Q_OBJECT
 public:
-    explicit zchxMapWidget(ZCHX::ZCHX_MAP_TYPE type = ZCHX::ZCHX_MAP_TILE, QWidget *parent = 0);
+    explicit zchxMapWidget(zchxDataMgrFactory *dataMgrFactory, ZCHX::ZCHX_MAP_TYPE type = ZCHX::ZCHX_MAP_TILE, QWidget *parent = 0);
     ~zchxMapWidget();
     int getMapType() const {return mType;}
     void  setParamsSettingVisible(bool sts);
     void  setRectGlowSecs(int val) {mRectGlowSecs = val;}
     int   getRectGlowSecs() const {return mRectGlowSecs;}
     //地图显示
+    void setLayerMgr(MapLayerMgr * mapLayerMgr);
+    MapLayerMgr* getLayerMgr();
+
     void setCurZoom(int zoom);
     int  zoom() const;
     void setCenterLL(const ZCHX::Data::LatLon& pnt );
@@ -181,7 +185,6 @@ private:
     void autoChangeCurrentStyle();
     bool IsLeftButton(Qt::MouseButtons buttons);
     bool IsLeftButton(QMouseEvent * e);
-
     bool IsRightButton(Qt::MouseButtons buttons);
     bool IsRightButton(QMouseEvent * e);
     bool IsRotation(QMouseEvent * e);
@@ -473,6 +476,7 @@ public Q_SLOTS:
     void invokeHotSpot();                                   //热点
     void resetMapSource();
     void changeS572Senc();
+    void setRadarRectTimeFilter();
 //    void invokeLinkageSpot();                               //联动
 //    void invokeLinkageSpotForRadar();                       //联动
 //    void setCustomFlowLine();                               //流量统计线
@@ -617,8 +621,6 @@ public Q_SLOTS:
     //相机网格
     void setETool2DrawCameraNetGrid(const QSizeF& size, const QString& camera);
     //void slotSetRadarTailTrack();
-
-
 
 
 private slots:
@@ -909,7 +911,7 @@ signals: //发送外部信号
     void signalSendRealTimeTrail(const QString &Id, bool states);
 
     void signalIsSelectedSpecialRoutePoint(const ZCHX::Data::SpecialRoutePoint &data); //发送选中的特殊点
-    void signalCreateBlackOrWhiteList(const QString shipId,const int Type);
+    void signalCreateBlackOrWhiteList(const QString shipId,const int Type, QString cause);
     void signalCancelBlackOrWhiteList(const QString shipId,const int Type);
     void signalCreateCPATrack(const QString &shipId);
     void signalMapIsRoaming();
@@ -1002,6 +1004,9 @@ private:
     bool                            mPopParamSettingWidget;
     //当前回波余晖图形的历史分钟数,这里转换成秒数
     int                             mRectGlowSecs;
+    
+    MapLayerMgr * m_mapLayerMgr;
+    zchxDataMgrFactory * m_dataMgrFactory;
 };
 }
 #endif // ZCHXMAPWIDGET_H

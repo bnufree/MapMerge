@@ -8,7 +8,7 @@ zchxCameraViewDataMgr::zchxCameraViewDataMgr(zchxMapWidget* w, QObject *parent) 
 
 void zchxCameraViewDataMgr::show(QPainter* painter)
 {
-    if(!painter || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_CAMERA_VIEW)) return ;
+    if(!painter || !mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_CAMERA_VIEW)) return ;
     QMap<QString, std::shared_ptr<CameraViewElement>>::iterator it = mData.begin();
     for(; it != mData.end(); ++it)
     {

@@ -47,7 +47,7 @@ signals:
     //船队
     void signalFleet(const ZCHX::Data::ITF_AIS& data);    
     //黑白名单
-    void signalCreateBlackOrWhiteList(const QString& id, int type);
+    void signalCreateBlackOrWhiteList(const QString& id, int type, QString cause);
     //CPA
     void signalCreateCPATrack(const QString& id);
 
@@ -65,12 +65,11 @@ public slots:
     void setCPATrack();
     void setConcern();
 
-
-
 private:
     QMutex              mDataMutex;
-    QHash<QString, std::shared_ptr<AisElement>>    m_aisData;              //船舶模拟数据
-    QHash<QString, std::shared_ptr<AisElement>>    m_aisMap;               //实时AIS对象
+    QHash<QString, std::shared_ptr<AisElement>>    m_aisMap;
+    QHash<QString, std::shared_ptr<AisElement>>    m_aisTraceMap;
+    //实时AIS对象
     //船舶的轨迹合并到了船舶图元,这里暂且注释掉
     QString             mSelHistoryTrackID;
     int                 mSelHistoryPointIndex;

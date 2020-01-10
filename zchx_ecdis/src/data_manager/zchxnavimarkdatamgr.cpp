@@ -25,7 +25,7 @@ void zchxNaviMarkDataMgr::setNaviMarkDevData(const QList<ZCHX::Data::ITF_NaviMar
 
 void zchxNaviMarkDataMgr::show(QPainter* painter)
 {
-    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_NAVIMARK)) return;
+    if(!mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_NAVIMARK)) return;
     QMap<QString, std::shared_ptr<NaviMarkElement>>::iterator it = m_NaviMarkDev.begin();
     for(; it != m_NaviMarkDev.end(); ++it)
     {
@@ -36,7 +36,7 @@ void zchxNaviMarkDataMgr::show(QPainter* painter)
 
 bool zchxNaviMarkDataMgr::updateActiveItem(const QPoint &pt)
 {
-    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_NAVIMARK) || !isPickupAvailable()) return false;
+    if(!mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_NAVIMARK) || !isPickupAvailable()) return false;
     return false;
 }
 
@@ -51,7 +51,7 @@ void zchxNaviMarkDataMgr::updateNaviMarkStatus(const QString &id, int sts)
 
 Element *zchxNaviMarkDataMgr::selectItem(const QPoint &pt)
 {
-    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_NAVIMARK))
+    if(!mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_NAVIMARK))
     {
         return NULL;
     }

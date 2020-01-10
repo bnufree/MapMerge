@@ -137,7 +137,7 @@ void IslandLineElement::setColor(QString color)
 
 void IslandLineElement::drawElement(QPainter *painter)
 {
-    if(!painter || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_ISLAND)) return;
+    if(!painter || !mView->getLayerMgr()->isLayerVisible(ZCHX::LAYER_ISLAND)) return;
 
     std::vector<std::pair<double,double>> tmp_path = path();
     QPainterPath polygon;

@@ -14,11 +14,13 @@ public:
     {
         QMutexLocker locker(&m_mutex);
 
-        if( !painter || !MapLayerMgr::instance()->isLayerVisible(mLayerName) || mData.empty())
+        if( !painter || !mDisplayWidget->getLayerMgr()->isLayerVisible(mLayerName) || mData.empty())
         {
             return;
         }
 
+        QTime t;
+        t.start();
         for(std::shared_ptr<K> ele : mData)
         {
             if(ele.get() == mDisplayWidget->getCurrentSelectedElement()){
@@ -28,13 +30,14 @@ public:
             }
             ele->drawElement(painter);
         }
+        qDebug()<<"paint data time:"<<t.elapsed()<<" size:"<<mData.size();
     }
 
     Element* selectItem(const QPoint &pt)
     {
         QMutexLocker locker(&m_mutex);
 
-        if(!MapLayerMgr::instance()->isLayerVisible(mLayerName)) return 0;
+        if(!mDisplayWidget->getLayerMgr()->isLayerVisible(mLayerName)) return 0;
         for(std::shared_ptr<K> ele : mData)
         {
             //检查AIS图元本身是否选中
@@ -49,7 +52,7 @@ public:
     //
     virtual bool updateActiveItem(const QPoint &pt)
     {
-        if(!MapLayerMgr::instance()->isLayerVisible(mLayerName) ||
+        if(!mDisplayWidget->getLayerMgr()->isLayerVisible(mLayerName) ||
            !isPickupAvailable()) return false;
         Element* ele = selectItem(pt);
         if(ele)

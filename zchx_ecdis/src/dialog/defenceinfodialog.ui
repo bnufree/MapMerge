@@ -187,8 +187,14 @@
      </item>
      <item>
       <widget class="QLabel" name="label_23">
+       <property name="minimumSize">
+        <size>
+         <width>40</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="text">
-        <string>米</string>
+        <string>m/s^2</string>
        </property>
       </widget>
      </item>
@@ -227,6 +233,12 @@
      </item>
      <item>
       <widget class="QLabel" name="label_21">
+       <property name="minimumSize">
+        <size>
+         <width>40</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="text">
         <string>节</string>
        </property>

@@ -15,14 +15,14 @@ MapLayerMgr::~MapLayerMgr()
 
 }
 
-MapLayerMgr* MapLayerMgr::instance()
-{
-    if(minstance == 0)
-    {
-        minstance = new MapLayerMgr;
-    }
-    return minstance;
-}
+//MapLayerMgr* MapLayerMgr::instance()
+//{
+//    if(minstance == 0)
+//    {
+//        minstance = new MapLayerMgr;
+//    }
+//    return minstance;
+//}
 
 void MapLayerMgr::loadEcdisLayers()
 {

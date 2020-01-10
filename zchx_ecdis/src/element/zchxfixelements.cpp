@@ -149,7 +149,7 @@ void CDMAElement::drawElement(QPainter *painter)
     drawFlashRegion(painter, pos, m_data.warn_status, m_data.warnStatusColor);
 
     //先画轨迹
-    if(MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_CDMA_TRACK)){
+    if(mView->getLayerMgr()->isLayerVisible(ZCHX::LAYER_CDMA_TRACK)){
         PainterPair chk(painter);
         painter->setBrush(Qt::NoBrush);
         painter->setPen(QPen(Qt::black));
@@ -194,7 +194,7 @@ void BigDipperElement::drawElement(QPainter *painter)
 
     drawFlashRegion(painter, pos, m_data.warn_status, m_data.warnStatusColor);
     //先画轨迹
-    if(MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_BIGDIPPER)){
+    if(mView->getLayerMgr()->isLayerVisible(ZCHX::LAYER_BIGDIPPER)){
         PainterPair chk(painter);
         painter->setPen(QPen(Qt::black));
         painter->drawPolygon(QPolygonF(QVector<QPointF>::fromStdVector(framework()->convert2QtPonitList(m_data.getPath()))));

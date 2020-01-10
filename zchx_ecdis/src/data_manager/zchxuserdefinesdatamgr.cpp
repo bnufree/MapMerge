@@ -278,7 +278,7 @@ bool zchxStatistcLineDataMgr::updateActiveItem(const QPoint &pt)
 
 void zchxShipAlarmAscendDataMgr::show(QPainter* painter)
 {
-    if( !painter || !MapLayerMgr::instance()->isLayerVisible(mLayerName) || mData.empty()) return;
+    if( !painter || !mDisplayWidget->getLayerMgr()->isLayerVisible(mLayerName) || mData.empty()) return;
     //追溯线
     QPolygonF points;
     for(std::shared_ptr<ShipAlarmAscendElement> ele : mData)

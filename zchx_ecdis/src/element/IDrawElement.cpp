@@ -89,7 +89,7 @@ Element::~Element()
 void Element::setLayer(const QString& layer)
 {
     //多次调用要导致崩溃
-    //m_layer.reset(MapLayerMgr::instance()->getLayer(layer).get());
+    //m_layer.reset(mView->getLayerMgr()->getLayer(layer).get());
     m_layerName = layer;
 }
 
@@ -513,7 +513,7 @@ zchxMapFrameWork* Element::framework() const
 
 bool Element::isDrawAvailable(QPainter* painter)
 {
-    if(!painter ||!MapLayerMgr::instance()->isLayerVisible(m_layerName) || !isViewAvailable()) return false;
+    if(!painter ||!mView->getLayerMgr()->isLayerVisible(m_layerName) || !isViewAvailable()) return false;
     return true;
 }
 

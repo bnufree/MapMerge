@@ -38,10 +38,18 @@ void zchxAisDataMgr::setPrepushTrackStyle(const QString &color, const int lineWi
 
 void zchxAisDataMgr::show(QPainter* painter)
 {
-    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS)
-            /*&& !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_HISTORY_AIS)*/)
+    if(!mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS)
+            /*&& !mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_HISTORY_AIS)*/)
     {
         return;
+    }
+
+    // 不在当前AIS列表中的历史轨迹
+    QHash<QString, std::shared_ptr<AisElement>>::iterator traceIt = m_aisTraceMap.begin();
+    for(; traceIt != m_aisTraceMap.end(); ++traceIt)
+    {
+        //画历史轨迹
+        traceIt.value()->drawHistoryTrack(painter);
     }
 
     if(m_aisMap.size() == 0) return;
@@ -166,7 +174,7 @@ void zchxAisDataMgr::show(QPainter* painter)
             item->drawFocus(painter);
         }
         //绘制船舶轨迹点  横琴项目
-        if(MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS_TRACK))
+        if(mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS_TRACK))
         {
             std::vector<QPointF> pts = item->getTrack();
             PainterPair chk2(painter);
@@ -174,7 +182,7 @@ void zchxAisDataMgr::show(QPainter* painter)
             painter->drawPolyline(&pts[0],pts.size());
         }
         //显示海缆的触地点
-        if(MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS_CABLE_TOUCHDOWN))
+        if(mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS_CABLE_TOUCHDOWN))
         {
             std::vector<QPointF> pts = item->getTouchdown();
             if(pts.size() > 0)
@@ -185,7 +193,6 @@ void zchxAisDataMgr::show(QPainter* painter)
             }
         }
     }
-
 }
 
 void zchxAisDataMgr::clearHistoryTrackSel()
@@ -202,7 +209,7 @@ void zchxAisDataMgr::clearHistoryTrackSel()
 
 bool zchxAisDataMgr::updateActiveItem(const QPoint &pt)
 {
-    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS) || !isPickupAvailable()) return false;
+    if(!mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS) || !isPickupAvailable()) return false;
     int type = mDisplayWidget->getCurPickupType();
     if(!(type & ZCHX::Data::ECDIS_PICKUP_AIS)) return false;
 
@@ -244,7 +251,7 @@ bool zchxAisDataMgr::updateActiveItem(const QPoint &pt)
 
 Element* zchxAisDataMgr::selectItem(const QPoint &pt)
 {
-    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS)) return 0;
+    if(!mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS)) return 0;
     foreach(std::shared_ptr<AisElement> item, m_aisMap)
     {
         //检查AIS图元本身是否选中
@@ -271,9 +278,20 @@ bool zchxAisDataMgr::setRealtimeTailTrack(const QString &id, const QList<ZCHX::D
 
 bool zchxAisDataMgr::setSingleAisData(QString id, const QList<ZCHX::Data::ITF_AIS> &data, bool force)
 {
+    if (data.size() <= 0)
+    {
+        return false;
+    }
+
+    if (!mHistoryTrackList.contains(id))
+    {
+        int index = data.size() - 1;
+        if(mDisplayWidget) mDisplayWidget->setCenterAndZoom(ZCHX::Data::LatLon(data.at(index).lat, data.at(index).lon), 15);
+    }
+
     if (force)
     {
-        appendHistoryTrackList(QStringList()<<id, true);
+        appendHistoryTrackList(QStringList()<<id, false);
     }
 
     if(!isHistoryTrack(id)) return false;
@@ -288,6 +306,24 @@ bool zchxAisDataMgr::setSingleAisData(QString id, const QList<ZCHX::Data::ITF_AI
 //            item->setNeedScreenshot();
 //        }
         return true;
+    }
+    else
+    {
+        int index = data.size() - 1;
+        if (m_aisTraceMap.contains(id))
+        {
+            std::shared_ptr<AisElement> item = m_aisTraceMap.value(id, NULL);
+            if (item)
+            {
+                item->setHistoryTrackList(data);
+            }
+        }
+        else
+        {
+            std::shared_ptr<AisElement> ele(new AisElement(data.at(index), mDisplayWidget));
+            m_aisTraceMap.insert(id, ele);
+            item->setHistoryTrackList(data);
+        }
     }
     return false;
 }
@@ -467,7 +503,7 @@ QList<QAction*> zchxAisDataMgr::getRightMenuActions(const QPoint &pt)
                 {
                     list.append(addAction(tr("相机列表"),this, SLOT(slotOpenCameraList()), (void*) ele));
                 }
-                //list.append(addAction(tr("画中画"),this, SLOT(setPictureInPicture()), (void*) ele));
+                list.append(addAction(tr("画中画"),this, SLOT(setPictureInPicture()), (void*) ele));
                 //list.append(addAction(tr("船队"),this, SLOT(setFleet()), (void*) ele));
                 list.append(addAction(tr("模拟外推"),this, SLOT(setSimulationExtrapolation()), (void*) ele));
                 list.append(addAction(tr("历史轨迹"),this, SLOT(setHistoryTraces()), (void*) ele));
@@ -564,10 +600,17 @@ void zchxAisDataMgr::setBlackList()
 {
     AisElement* ele = static_cast<AisElement*>(getElementOfSender());
     if(!ele) return;
+
     QString id = ele->data().id;
     if (ele->data().markType != 1)
     {
-        if(mDisplayWidget) mDisplayWidget->signalCreateBlackOrWhiteList(id, ZCHX::Data::SHIP_BW_BLACK);
+        bool isOK;
+        QString cause = QInputDialog::getText(NULL, "黑名单原因", "请输入加入黑名单原因:",
+                                             QLineEdit::Normal, "", &isOK);
+        if(isOK)
+        {
+            if(mDisplayWidget) mDisplayWidget->signalCreateBlackOrWhiteList(id, ZCHX::Data::SHIP_BW_BLACK, cause);
+        }
     }
     else
     {
@@ -582,7 +625,7 @@ void zchxAisDataMgr::setWhiteList()
     QString id = ele->data().id;
     if (ele->data().markType != 2)
     {
-        if(mDisplayWidget) mDisplayWidget->signalCreateBlackOrWhiteList(id, ZCHX::Data::SHIP_BW_WHITE);
+        if(mDisplayWidget) mDisplayWidget->signalCreateBlackOrWhiteList(id, ZCHX::Data::SHIP_BW_WHITE, "");
     }
     else
     {

@@ -41,7 +41,7 @@ void zchxAidtoNavigationDataMgr::setAidtoNavigationDevData(const QList<ZCHX::Dat
 
 void zchxAidtoNavigationDataMgr::show(QPainter* painter)
 {
-    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS_SITE)) return;
+    if(!mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS_SITE)) return;
 
     QMap<QString, std::shared_ptr<AidtoNavigationTraceElement>>::iterator traceIt = m_AidtoNavigationTraceDev.begin();
     for(; traceIt != m_AidtoNavigationTraceDev.end(); ++traceIt)
@@ -61,7 +61,7 @@ void zchxAidtoNavigationDataMgr::show(QPainter* painter)
 
 bool zchxAidtoNavigationDataMgr::updateActiveItem(const QPoint &pt)
 {
-    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS_SITE) || !isPickupAvailable()) return false;
+    if(!mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS_SITE) || !isPickupAvailable()) return false;
     return false;
 }
 
@@ -76,7 +76,7 @@ void zchxAidtoNavigationDataMgr::updateAidtoNavigationStatus(const QString &id, 
 
 Element *zchxAidtoNavigationDataMgr::selectItem(const QPoint &pt)
 {
-    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS_SITE))
+    if(!mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS_SITE))
     {
         return NULL;
     }

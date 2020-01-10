@@ -2023,7 +2023,7 @@ public:
     int   referWidth;                             //屏幕对应的方快的大小.这个就和目标的实际大小没有关系.保证目标的历史轨迹的方块越来越小
     int   referHeight;
     bool  isRealSize;                           //1:实际的最大长度来确定大小 0:参考实时目标来推断矩形框的大小
-    QPolygon        pixPoints;                   //
+    QPolygon        pixPoints;                   //矩形块回波块对应的图片点列和图片大小.这个只在某些层级显示,且大小固定不变
     int             pixWidth;
     int             pixHeight;
 

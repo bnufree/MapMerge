@@ -7,14 +7,20 @@
 using namespace ZCHX_RADAR_RECEIVER;
 using namespace qt;
 
+#define     RECT_SAVE_SECS              (5 * 60)
+#define     SECS_PER_DAY                (3600 * 24)
+
 ZCHXRadarRectThread::ZCHXRadarRectThread(const ZCHX_RadarRect_Param& param, QObject *parent)
     : ZCHXReceiverThread(param.mSetting, parent)
     , mRectParam(param)
+    , mFilterSecs(60) //默认输出1分钟以内的回波矩形块
 {
     qRegisterMetaType<PROTOBUF_RadarRectList>("PROTOBUF_RadarRectList");
     qRegisterMetaType<PROTOBUF_RadarHistoryRectList>("PROTOBUF_RadarHistoryRectList");
     qRegisterMetaType<QList<ZCHX::Data::ITF_RadarRect>>("const QList<ZCHX::Data::ITF_RadarRect>&");
 }
+
+
 
 void ZCHXRadarRectThread::run()
 {
@@ -72,6 +78,7 @@ void ZCHXRadarRectThread::run()
             qDebug()<<" Radar_video --------nFlag:"<<nFlag;
             if(nFlag < 0)
             {
+                qDebug()<<"error msg:"<<zmq_strerror(zmq_errno());
                 zmq_close(pSock);
                 zmq_ctx_destroy(pCtx);
                 qDebug()<<" Radar_video zmq_connect() fail!";
@@ -121,31 +128,134 @@ void ZCHXRadarRectThread::run()
             no_recv_num = 0;
         }
 //        qDebug()<<"receive video data ok:"<<recvlist.at(2).size()<<QDateTime::fromMSecsSinceEpoch(recvlist[1].toLongLong()).toString("yyyy-MM-dd hh:mm:ss");
+        qint64 secs = QDateTime::currentDateTime().toTime_t() - QDateTime(QDate::currentDate(), QTime(0, 0, 0)).toTime_t();
         PROTOBUF_RadarRectList objRadarRect;
         if(objRadarRect.ParseFromArray(recvlist.at(2).data(), recvlist.at(2).size()))
         {
             QTime t;
             t.start();
-            QList<ZCHX::Data::ITF_RadarRect> list;
-            convertZMQ2ZCHX(list, objRadarRect);
+            QList<ZCHX::Data::ITF_RadarRect*> list;
+            convertZMQ2ZCHX(/*list,*/ objRadarRect);
+#if 0
+            //检查数据,移除已经超时的历史数据
+            QMap<int, ZCHX::Data::ITF_RadarRect>::iterator it = mDataMap.begin();
+            for(; it != mDataMap.end();)
+            {
+                ZCHX::Data::ITF_RadarRect* rect = (ZCHX::Data::ITF_RadarRect*)(&(*it));
+                if(rect)
+                {
+                    int sub = secs - rect->current.timeOfDay;
+                    if(sub < 0) sub += SECS_PER_DAY;
+                    if(sub > RECT_SAVE_SECS)
+                    {
+                        //目标已经根究没有更新,删除
+                        mDataMap.erase(it++);
+                        continue;
+                    } else
+                    {
+                        //实时位置未过期,检查历史轨迹
+                        for(int i=0; i<rect->rects.size(); i++)
+                        {
+                            ZCHX::Data::ITF_RadarHistoryRect& his = rect->rects[i];
+                            sub = secs - his.timeOfDay;
+                            if(sub < 0) sub += SECS_PER_DAY;
+                            if(sub > RECT_SAVE_SECS)
+                            {
+                                rect->rects = rect->rects.mid(0, i);
+                                break;
+                            }
+                        }
+                    }
+                    list.append(rect);
+                }
+                ++it;
+
+            }
+#endif
+
             //开始生成对应的回波矩形图形
             QThreadPool pool;
             pool.setMaxThreadCount(10);
             pool.setExpiryTimeout(-1);
             for(int i=0; i<list.size();i++)
             {
-                zchxRectVideoFunc* func = new zchxRectVideoFunc((ZCHX::Data::ITF_RadarRect*)(&list[i]));
+                zchxRectVideoFunc* func = new zchxRectVideoFunc(list[i]);
                 pool.start(func);
             }
             pool.waitForDone();
             qDebug()<<"Parse video data ok:"<<objRadarRect.radarrects_size()<<QDateTime::fromMSecsSinceEpoch(recvlist[1].toLongLong()).toString("yyyy-MM-dd hh:mm:ss")<<" elapsed:"<<t.elapsed();
+            {
+                //开始构造输出的图形,输出在指定时间间隔内的图形
+                QList<ZCHX::Data::ITF_RadarRect> list;
+                QMap<int, ZCHX::Data::ITF_RadarRect>::iterator it = mDataMap.begin();
+                for(; it != mDataMap.end(); it++)
+                {
+                    ZCHX::Data::ITF_RadarRect rect = *it;
+        #if 0
+                    int sub = secs - rect.current.timeOfDay;
+                    if(sub < 0) sub += SECS_PER_DAY;
+                    if(sub > mFilterSecs)
+                    {
+                        continue;
+                    }
 
-            emit sendVideoMsg(mRadarCommonSettings.m_sSiteID, list);
-            mPreRectDataList.clear();
-            foreach (ZCHX::Data::ITF_RadarRect rect, list) {
-                mPreRectDataList[rect.rectNumber] = rect;
+                    //实时位置未过期,检查历史轨迹
+                    for(int i=0; i<rect.rects.size(); i++)
+                    {
+                        ZCHX::Data::ITF_RadarHistoryRect his = rect.rects[i];
+                        sub = secs - his.timeOfDay;
+                        if(sub < 0) sub += SECS_PER_DAY;
+                        if(sub > mFilterSecs)
+                        {
+                            rect.rects = rect.rects.mid(0, i);
+                            break;
+                        }
+                    }
+        #endif
+                    list.append(rect);
+
+                }
+                qDebug()<<"send rect size:"<<list.size();
+                emit sendVideoMsg(mRadarCommonSettings.m_sSiteID, list);
             }
+        } else
+        {
+            msleep(300);
         }
+#if 0
+        //开始构造输出的图形,输出在指定时间间隔内的图形
+        QList<ZCHX::Data::ITF_RadarRect> list;
+        QMap<int, ZCHX::Data::ITF_RadarRect>::iterator it = mDataMap.begin();
+        for(; it != mDataMap.end(); it++)
+        {
+            ZCHX::Data::ITF_RadarRect rect = *it;
+#if 0
+            int sub = secs - rect.current.timeOfDay;
+            if(sub < 0) sub += SECS_PER_DAY;
+            if(sub > mFilterSecs)
+            {
+                continue;
+            }
+
+            //实时位置未过期,检查历史轨迹
+            for(int i=0; i<rect.rects.size(); i++)
+            {
+                ZCHX::Data::ITF_RadarHistoryRect his = rect.rects[i];
+                sub = secs - his.timeOfDay;
+                if(sub < 0) sub += SECS_PER_DAY;
+                if(sub > mFilterSecs)
+                {
+                    rect.rects = rect.rects.mid(0, i);
+                    break;
+                }
+            }
+#endif
+            list.append(rect);
+
+        }
+        qDebug()<<"send rect size:"<<list.size();
+        emit sendVideoMsg(mRadarCommonSettings.m_sSiteID, list);
+#endif
     }
     if(pSock)   zmq_close(pSock);
     if(pCtx)    zmq_ctx_destroy(pCtx);
@@ -340,9 +450,9 @@ void zchxRectVideoFunc::run()
     mRect->current.pixHeight = img_size;
 }
 
-void ZCHXRadarRectThread::convertZMQ2ZCHX(QList<ZCHX::Data::ITF_RadarRect> &res, const PROTOBUF_RadarRectList &src)
+void ZCHXRadarRectThread::convertZMQ2ZCHX(/*QList<ZCHX::Data::ITF_RadarRect> &res,*/ const PROTOBUF_RadarRectList &src)
 {
-    res.clear();
+//    res.clear();
     for (int i = 0; i < src.radarrects_size(); i++)
     {
         PROTOBUF_RadarRect obj = src.radarrects(i);
@@ -379,8 +489,8 @@ void ZCHXRadarRectThread::convertZMQ2ZCHX(QList<ZCHX::Data::ITF_RadarRect> &res,
 
             rect.current.blocks.append(item);
         }
+        //接收端自己做缓存数据
 #if 0
-
         for (int j = 0; j < obj.rects().rects_size(); j++)
         {
             PROTOBUF_RadarHistoryRect historyObj = obj.rects().rects(j);
@@ -412,22 +522,20 @@ void ZCHXRadarRectThread::convertZMQ2ZCHX(QList<ZCHX::Data::ITF_RadarRect> &res,
             rect.rects.append(hisRect);
         }
 #else
-        //检查是否存在历史轨迹图形
-        if(mPreRectDataList.contains(rect.rectNumber))
+        //开始缓存最大时间内的数据
+        if(mDataMap.contains(rect.rectNumber))
         {
-            //当前目标已经存在,添加目标对应的, 将目标的轨迹添加到这个实时目标上
-            ZCHX::Data::ITF_RadarRect his = mPreRectDataList[rect.rectNumber];
-            if(his.current.timeOfDay != rect.current.timeOfDay)
-            {
-                rect.rects.append(his.current);
-            }
-            rect.rects.append(his.rects);
+            ZCHX::Data::ITF_RadarRect& old_data = mDataMap[rect.rectNumber];
+            old_data.rects.prepend(old_data.current); //将原来的实时数据更新到历史,更新到第一个位置
+            old_data.current = rect.current; //将最新的实时数据更新到当时
         } else
         {
-            //当前目标是新目标,不存在历史轨迹,不做处理
+            //没有数据,则只有一个数据
+            mDataMap[rect.rectNumber] = rect;
         }
+
 #endif
 
-        res.append(rect);
+//        res.append(rect);
     }
 }

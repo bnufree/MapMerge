@@ -56,6 +56,8 @@ public:
 
     void setShowRadarLabel(bool showRadarLabel);
 private:
+    int getSideLen();
+
     std::vector<std::pair<double, double>> m_path;
     RADARTYPE    m_radar_type;
     ZCHX::Data::ITF_RadarPoint m_data;

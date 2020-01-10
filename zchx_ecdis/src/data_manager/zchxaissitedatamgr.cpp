@@ -25,7 +25,7 @@ void zchxAisSiteDataMgr::setAisSiteDevData(const QList<ZCHX::Data::ITF_AisSite> 
 
 void zchxAisSiteDataMgr::show(QPainter* painter)
 {
-    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS_SITE)) return;
+    if(!mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS_SITE)) return;
     QMap<QString, std::shared_ptr<AisSiteElement>>::iterator it = m_AisSiteDev.begin();
     for(; it != m_AisSiteDev.end(); ++it)
     {
@@ -36,7 +36,7 @@ void zchxAisSiteDataMgr::show(QPainter* painter)
 
 bool zchxAisSiteDataMgr::updateActiveItem(const QPoint &pt)
 {
-    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS_SITE) || !isPickupAvailable()) return false;
+    if(!mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS_SITE) || !isPickupAvailable()) return false;
     return false;
 }
 
@@ -51,7 +51,7 @@ void zchxAisSiteDataMgr::updateAisSiteStatus(const QString &id, int sts)
 
 Element *zchxAisSiteDataMgr::selectItem(const QPoint &pt)
 {
-    if(!MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_AIS_SITE))
+    if(!mDisplayWidget->getLayerMgr()->isLayerVisible(ZCHX::LAYER_AIS_SITE))
     {
         return NULL;
     }

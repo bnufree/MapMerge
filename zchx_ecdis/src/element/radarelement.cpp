@@ -4,6 +4,9 @@
 #include "profiles.h"
 #include "zchxmapwidget.h"
 
+#define MIN_SIDE_LEN 10
+#define MAX_SIDE_LEN 30
+//#define MAX_DIAMETER 500
 
 namespace qt
 {
@@ -329,7 +332,7 @@ void RadarPointElement::drawElement(QPainter *painter)
     //取得当前图元对应的屏幕坐标位置
     QPointF pos = getCurrentPos();
     int curScale = mView->framework()->getZoom() < 7 ? 5 : 10;
-    int sideLen = 10;
+    int sideLen = getSideLen();;
     double angleFromNorth = mView->framework()->getRotateAngle(); //计算当前正北方向的方向角
     QColor fillColor = getIsConcern() ? getConcernColor() : getFillingColor();
     //地图缩放比例小于10级的情况只画点
@@ -519,5 +522,30 @@ void RadarPointElement::showToolTip(const QPoint &pos)
 void RadarPointElement::setShowRadarLabel(bool showRadarLabel)
 {
     m_showRadarLabel = showRadarLabel;
+}
+
+int RadarPointElement::getSideLen()
+{
+    bool fixRadarSize = Profiles::instance()->value(RADAR_DISPLAY_SETTING, "FixRadarSize").toBool();
+    if (fixRadarSize)
+    {
+        return MIN_SIDE_LEN;
+    }
+
+    QPointF center = framework()->LatLon2Pixel(m_data.getLat(), m_data.getLon()).toPointF();
+    ZCHX::Data::LatLon templl = ZCHX::Utils::distbear_to_latlon(m_data.getLat(), m_data.getLon(), m_data.diameter, 0);
+    QPointF tempPos = framework()->LatLon2Pixel(templl.lat, templl.lon).toPointF();
+    double radius = abs(tempPos.y() - center.y());
+
+    if (radius < MIN_SIDE_LEN)
+    {
+        radius = MIN_SIDE_LEN;
+    }
+    else if (radius > MAX_SIDE_LEN)
+    {
+        radius = MAX_SIDE_LEN;
+    }
+
+    return radius;
 }
 }

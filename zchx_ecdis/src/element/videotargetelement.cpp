@@ -52,7 +52,7 @@ QString VideoTargetElement::getAlarmColor() const
 
 void VideoTargetElement::drawElement(QPainter *painter)
 {
-    if(!painter || !MapLayerMgr::instance()->isLayerVisible(ZCHX::LAYER_WARNING_TARGET)) return ;
+    if(!painter || !mView->getLayerMgr()->isLayerVisible(ZCHX::LAYER_WARNING_TARGET)) return ;
     if(!mView->framework()) return;
 
     QPixmap image   = ZCHX::Utils::getImage(mTargetIImgList.value(getTargetType()), Qt::green, mView->framework()->getDrawScale());
